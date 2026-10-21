@@ -2016,6 +2016,14 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get qrtrReaderSubtitle =>
       'Qualcomm\'s low-level modem protocol (requires Shizuku)';
+
+  @override
+  String defaultPasswordWillChangeMessage(String password) {
+    return 'This device is connected with its default password. Renaming it will set the password to $password. Save this password before reconnecting.';
+  }
+
+  @override
+  String get defaultPasswordWillChangeTitle => 'Default password will change';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

@@ -5,22 +5,51 @@ import 'package:ble/ble.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logging/logging.dart';
 import '../../utils/platform_adapter.dart';
+import 'ble_adapter.dart';
 
 class BleReaderInfo {
   final String id;
   final String name;
-  final String type; // 'red_ble', 'red_ble2', 'simlink'
+  final BleAdapterType type;
 
   BleReaderInfo({required this.id, required this.name, required this.type});
 
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'type': type};
+  factory BleReaderInfo.fromScanResult(ScanResult result) {
+    final advertisedName = result.advertisementData.advName;
+    final platformName = result.device.platformName;
+    final displayName = platformName.isEmpty
+        ? (advertisedName.isEmpty ? 'Unknown' : advertisedName)
+        : platformName;
+    final type =
+        BleAdapterType.fromDeviceNames(
+          displayName: displayName,
+          advertisedName: advertisedName,
+        ) ??
+        BleAdapterType.redBle;
+    return BleReaderInfo(
+      id: result.device.remoteId.toString(),
+      name: _readerName(type, displayName, advertisedName),
+      type: type,
+    );
+  }
+
+  /// The name a reader is listed, addressed and authenticated by.
+  static String _readerName(
+    BleAdapterType type,
+    String displayName,
+    String advertisedName,
+  ) {
+    return displayName;
+  }
+
+  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'type': type.id};
   factory BleReaderInfo.fromJson(Map<String, dynamic> json) => BleReaderInfo(
     id: json['id'],
     name: json['name'],
-    type: json['type'] ?? 'red_ble',
+    type: BleAdapterType.fromId(json['type']),
   );
 
-  String get readerName => "$type: $name|$id";
+  String get readerName => "${type.id}: $name|$id";
 }
 
 class BleManager extends ChangeNotifier {
@@ -125,21 +154,47 @@ class BleManager extends ChangeNotifier {
         final advName = r.advertisementData.advName;
         final platformName = r.device.platformName;
         final displayName = platformName.isEmpty ? advName : platformName;
-        final lowerName = displayName.toLowerCase();
+        final matchedType = BleAdapterType.fromDeviceNames(
+          displayName: displayName,
+          advertisedName: advName,
+        );
 
         _log.info("Found device: $displayName");
+        // A writer that advertises non-connectably, or without its GATT
+        // service, can never be connected to -- every attempt just times out.
+        // Record what it actually broadcast so that is distinguishable from a
+        // host-side failure.
+        _log.fine(
+          () =>
+              "  adv[$displayName] connectable=${r.advertisementData.connectable} "
+              "rssi=${r.rssi} "
+              "services=${r.advertisementData.serviceUuids} "
+              "serviceData=${r.advertisementData.serviceData.keys.toList()} "
+              "msd=${r.advertisementData.manufacturerData.keys.toList()} "
+              "txPower=${r.advertisementData.txPowerLevel}",
+        );
 
         // Keywords filter
         final matchKeyword =
-            lowerName.contains('estkme') ||
-            lowerName.contains('esim_writer') ||
-            lowerName.contains('beesim');
+            matchedType != null &&
+            (matchedType != BleAdapterType.glocalMe || !kIsWeb);
 
         if (matchKeyword) return true;
 
         // Service UUID filter
         final services = r.advertisementData.serviceUuids;
-        final matchService = services.contains(Guid('4553'));
+        final matchService =
+            services.contains(Guid('4553')) ||
+            services.any(
+              (s) => s.toString().toLowerCase().contains(
+                '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+              ),
+            ) ||
+            services.any(
+              (s) => s.toString().toLowerCase().contains(
+                '0000ae30-0000-1000-8000-00805f9b34fb',
+              ),
+            );
 
         return matchService;
       }).toList();
@@ -155,10 +210,18 @@ class BleManager extends ChangeNotifier {
     try {
       final services = [
         Guid('4553'),
+        Guid('6E400001-B5A3-F393-E0A9-E50E24DCCA9E'),
+        Guid('0000ae30-0000-1000-8000-00805f9b34fb'),
         // Guid('544b') and Guid('6d65') are characteristics, not services
       ];
 
-      final keywords = ['ESTKme', 'eSIM_Writer', 'BeeSIM'];
+      final keywords = [
+        'ESTKme',
+        'eSIM_Writer',
+        'BeeSIM',
+        if (!kIsWeb) 'GlocalMe',
+        '9eSIM',
+      ];
 
       _log.info("Calling Ble.startScan with keywords: $keywords");
       await Ble.startScan(
@@ -216,35 +279,15 @@ class BleManager extends ChangeNotifier {
       await Ble.stopScan();
     } catch (_) {}
     await _scanSubscription?.cancel();
+    await _isScanningSub?.cancel();
+    _scanSubscription = null;
+    _isScanningSub = null;
     _isScanning = false;
     notifyListeners();
   }
 
   String addReader(ScanResult result) {
-    final advName = result.advertisementData.advName;
-    final platformName = result.device.platformName;
-    final displayName = platformName.isEmpty
-        ? (advName.isEmpty ? "Unknown" : advName)
-        : platformName;
-
-    final lowerName = displayName.toLowerCase();
-    final lowerAdv = advName.toLowerCase();
-    String type = 'red_ble';
-
-    if (lowerAdv.contains("estkme red") || lowerName.contains("estkme red")) {
-      type = 'red_ble2';
-    } else if (lowerAdv.contains("esim_writer") ||
-        lowerName.contains("esim_writer")) {
-      type = 'simlink';
-    } else if (lowerAdv.contains("beesim") || lowerName.contains("beesim")) {
-      type = 'bee_sim';
-    }
-
-    final info = BleReaderInfo(
-      id: result.device.remoteId.toString(),
-      name: displayName,
-      type: type,
-    );
+    final info = BleReaderInfo.fromScanResult(result);
 
     // Check if we already have this reader in the current session
     final existingIndex = _sessionReaders.indexWhere((r) => r.id == info.id);

@@ -30,6 +30,23 @@ class CardBusyException implements Exception {
   String toString() => "CardBusyException: $message";
 }
 
+/// Raised when a profile state change is refused because the card already has
+/// a Card Application Toolkit session the terminal cannot finish.
+///
+/// Starting a refresh-flagged enable or disable in that state is what leaves an
+/// eUICC waiting for a REFRESH acknowledgement forever, so the operation is
+/// declined while the card is still healthy rather than attempted and lost.
+class CatBusyException implements Exception {
+  CatBusyException(this.operation);
+
+  final String operation;
+
+  @override
+  String toString() =>
+      "CatBusyException: refusing to $operation while the card is busy with a "
+      "proactive command";
+}
+
 class ApduValidator {
   static void validate(int sw1, int sw2) {
     if (sw1 == 0x90 && sw2 == 0x00) {

@@ -3934,6 +3934,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Qualcomm\'s low-level modem protocol (requires Shizuku)'**
   String get qrtrReaderSubtitle;
+
+  /// No description provided for @defaultPasswordWillChangeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is connected with its default password. Renaming it will set the password to {password}. Save this password before reconnecting.'**
+  String defaultPasswordWillChangeMessage(String password);
+
+  /// No description provided for @defaultPasswordWillChangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Default password will change'**
+  String get defaultPasswordWillChangeTitle;
 }
 
 class _AppLocalizationsDelegate

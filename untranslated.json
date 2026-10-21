@@ -6,7 +6,9 @@
     "beeSimFirmwareWarning",
     "beeSimFirmwareConfirm",
     "qrtrReaderTitle",
-    "qrtrReaderSubtitle"
+    "qrtrReaderSubtitle",
+    "defaultPasswordWillChangeMessage",
+    "defaultPasswordWillChangeTitle"
   ],
 
   "es": [
@@ -16,7 +18,9 @@
     "beeSimFirmwareWarning",
     "beeSimFirmwareConfirm",
     "qrtrReaderTitle",
-    "qrtrReaderSubtitle"
+    "qrtrReaderSubtitle",
+    "defaultPasswordWillChangeMessage",
+    "defaultPasswordWillChangeTitle"
   ],
 
   "fr": [
@@ -26,7 +30,9 @@
     "beeSimFirmwareWarning",
     "beeSimFirmwareConfirm",
     "qrtrReaderTitle",
-    "qrtrReaderSubtitle"
+    "qrtrReaderSubtitle",
+    "defaultPasswordWillChangeMessage",
+    "defaultPasswordWillChangeTitle"
   ],
 
   "it": [
@@ -36,7 +42,9 @@
     "beeSimFirmwareWarning",
     "beeSimFirmwareConfirm",
     "qrtrReaderTitle",
-    "qrtrReaderSubtitle"
+    "qrtrReaderSubtitle",
+    "defaultPasswordWillChangeMessage",
+    "defaultPasswordWillChangeTitle"
   ],
 
   "ja": [
@@ -46,7 +54,9 @@
     "beeSimFirmwareWarning",
     "beeSimFirmwareConfirm",
     "qrtrReaderTitle",
-    "qrtrReaderSubtitle"
+    "qrtrReaderSubtitle",
+    "defaultPasswordWillChangeMessage",
+    "defaultPasswordWillChangeTitle"
   ],
 
   "ko": [
@@ -56,7 +66,9 @@
     "beeSimFirmwareWarning",
     "beeSimFirmwareConfirm",
     "qrtrReaderTitle",
-    "qrtrReaderSubtitle"
+    "qrtrReaderSubtitle",
+    "defaultPasswordWillChangeMessage",
+    "defaultPasswordWillChangeTitle"
   ],
 
   "ru": [
@@ -66,7 +78,9 @@
     "beeSimFirmwareWarning",
     "beeSimFirmwareConfirm",
     "qrtrReaderTitle",
-    "qrtrReaderSubtitle"
+    "qrtrReaderSubtitle",
+    "defaultPasswordWillChangeMessage",
+    "defaultPasswordWillChangeTitle"
   ],
 
   "zh": [
@@ -76,7 +90,9 @@
     "beeSimFirmwareWarning",
     "beeSimFirmwareConfirm",
     "qrtrReaderTitle",
-    "qrtrReaderSubtitle"
+    "qrtrReaderSubtitle",
+    "defaultPasswordWillChangeMessage",
+    "defaultPasswordWillChangeTitle"
   ],
 
   "zh_TW": [
@@ -86,6 +102,8 @@
     "beeSimFirmwareWarning",
     "beeSimFirmwareConfirm",
     "qrtrReaderTitle",
-    "qrtrReaderSubtitle"
+    "qrtrReaderSubtitle",
+    "defaultPasswordWillChangeMessage",
+    "defaultPasswordWillChangeTitle"
   ]
 }

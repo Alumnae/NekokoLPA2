@@ -17,6 +17,9 @@ env:
   # 3.47.2 turned Flutter's Gradle/AGP/Kotlin minimums from warnings into
   # errors. Bump deliberately, together with the versions in android/.
   FLUTTER_VERSION: 3.47.2
+  # Where GmPlugin fetches a GM card's PSK. Builds without it still compile
+  # and run; they just use only PSKs already cached on the device.
+  GM_PSK_URL: https://key.9esim.com/psk
 
 jobs:
   meta:
@@ -53,7 +56,7 @@ jobs:
       - run: dart analyze
       - run: flutter test
       - name: Build APK
-        run: flutter build apk --release --flavor ${{ env.FLAVOR }} --target lib/main.dart
+        run: flutter build apk --release --flavor ${{ env.FLAVOR }} --target lib/main.dart --dart-define=GM_PSK_URL=${{ env.GM_PSK_URL }}
       - name: Rename APK to Kasutera scheme
         env:
           VERSION_CLEAN: ${{ needs.meta.outputs.version_clean }}
@@ -78,7 +81,7 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
       - run: flutter pub get
-      - run: flutter build web --release
+      - run: flutter build web --release --dart-define=GM_PSK_URL=${{ env.GM_PSK_URL }}
       - name: Package web build
         env:
           VERSION_CLEAN: ${{ needs.meta.outputs.version_clean }}
@@ -109,7 +112,7 @@ jobs:
           sudo wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O /usr/local/bin/appimagetool
           sudo chmod +x /usr/local/bin/appimagetool
       - run: flutter pub get
-      - run: flutter build linux --release
+      - run: flutter build linux --release --dart-define=GM_PSK_URL=${{ env.GM_PSK_URL }}
       - name: Package tar.gz + AppImage
         env:
           VERSION_CLEAN: ${{ needs.meta.outputs.version_clean }}
@@ -166,7 +169,7 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
       - run: flutter pub get
-      - run: flutter build windows --release
+      - run: flutter build windows --release --dart-define=GM_PSK_URL=${{ env.GM_PSK_URL }}
       - name: Stage release tree
         shell: pwsh
         run: |

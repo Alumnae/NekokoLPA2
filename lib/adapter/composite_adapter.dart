@@ -4,11 +4,13 @@ import '../utils/platform_adapter.dart';
 import 'euicc_adapter.dart';
 import 'ccid/ccid_adapter.dart';
 import 'webcard/web_card_adapter.dart';
-import 'ble/bee_sim_adapter.dart';
 import 'ble/red_ble_adapter.dart';
 import 'ble/red_ble2_adapter.dart';
 
+import 'ble/ble_adapter.dart';
 import 'ble/sim_link_adapter.dart';
+import 'ble/nble_sim_adapter.dart';
+import 'ble/bee_sim_adapter.dart';
 import 'ble/ble_manager.dart';
 import 'nbridge/nbridge_adapter.dart';
 import 'omapi/omapi_adapter.dart';
@@ -22,6 +24,7 @@ import '../config.dart';
 import '../logic/profile_manager.dart';
 import 'package:logging/logging.dart';
 import '../utils/error_codes.dart';
+import '../utils/foreground_card_session.dart';
 
 class CompositeAdapter extends BaseAdapter {
   static final CompositeAdapter _instance = CompositeAdapter._internal();
@@ -58,6 +61,14 @@ class CompositeAdapter extends BaseAdapter {
 
   Adapter? _connectedAdapter;
   Reader? _currentReader;
+
+  BaseAdapter _createBleAdapter(BleAdapterType type) => switch (type) {
+    BleAdapterType.redBle => RedBleAdapter(),
+    BleAdapterType.redBle2 => RedBle2Adapter(),
+    BleAdapterType.glocalMe || BleAdapterType.nineEsim => NBLESimAdapter(),
+    BleAdapterType.beeSim => BeeSimAdapter(),
+    BleAdapterType.simLink => SimLinkAdapter(),
+  };
 
   final StreamController<EuiccPortState> _stateController =
       StreamController<EuiccPortState>.broadcast();
@@ -124,9 +135,7 @@ class CompositeAdapter extends BaseAdapter {
     for (final r in _readerCache.values) {
       if (r.source is RemoCardAdapter) {
         uniqueReaders[r.id] = r;
-      } else if (r.source is RedBleAdapter ||
-          r.source is RedBle2Adapter ||
-          r.source is SimLinkAdapter) {
+      } else if (r.source is BleAdapter) {
         if (AppSettings().enableBleConnector) {
           uniqueReaders[r.id] = r;
         }
@@ -138,21 +147,7 @@ class CompositeAdapter extends BaseAdapter {
       for (final info in BleManager().sessionReaders) {
         final id = info.readerName;
         if (!uniqueReaders.containsKey(id)) {
-          BaseAdapter source;
-          switch (info.type) {
-            case 'red_ble2':
-              source = RedBle2Adapter();
-              break;
-            case 'simlink':
-              source = SimLinkAdapter();
-              break;
-            case 'bee_sim':
-              source = BeeSimAdapter();
-              break;
-            default:
-              source = RedBleAdapter();
-              break;
-          }
+          final source = _createBleAdapter(info.type);
           uniqueReaders[id] = Reader(id: id, name: info.name, source: source);
         }
       }
@@ -357,6 +352,14 @@ class CompositeAdapter extends BaseAdapter {
   }
 
   Future<String?> _probeReaderEid(Reader reader) async {
+    // Opening a session here alongside a download would give two sessions on
+    // one adapter, and the first to finish closes the shared logical channel
+    // under the other (6881). The probe only labels a reader for
+    // disambiguation, so it is safe to give up instead.
+    if (ForegroundCardSession.isOpen) {
+      _log.info('EID probe skipped for ${reader.id}: the card is in use');
+      return null;
+    }
     final adapter = reader.source as BaseAdapter;
     try {
       await adapter.connect(reader);
@@ -423,9 +426,7 @@ class CompositeAdapter extends BaseAdapter {
         if (url != null) {
           AppSettings().removeRemoCardUrl(url);
         }
-      } else if (reader.source is RedBleAdapter ||
-          reader.source is RedBle2Adapter ||
-          reader.source is SimLinkAdapter) {
+      } else if (reader.source is BleAdapter) {
         // Extract ID from name "type: name|ID"
         final parts = readerId.split('|');
         if (parts.length > 1) {
@@ -449,9 +450,7 @@ class CompositeAdapter extends BaseAdapter {
   @override
   Future<void> connect(Reader reader) async {
     // Check if connector is enabled
-    if (reader.source is RedBleAdapter ||
-        reader.source is RedBle2Adapter ||
-        reader.source is SimLinkAdapter) {
+    if (reader.source is BleAdapter) {
       if (!AppSettings().enableBleConnector) {
         throw AppException(
           AppErrorCode.ERROR_BLUETOOTH_PERMISSION_DENIED,
@@ -500,15 +499,27 @@ class CompositeAdapter extends BaseAdapter {
       await disconnect();
 
       _currentReader = reader;
-      _connectedAdapter = (reader.source as BaseAdapter);
+      final delegate = reader.source as BaseAdapter;
+      _connectedAdapter = delegate;
 
+      // Relay the delegate's steps while this connect runs: the UI listens
+      // here, not to the reader's own adapter.
+      void relayProgress() =>
+          connectProgress.value = delegate.connectProgress.value;
+      delegate.connectProgress.addListener(relayProgress);
       try {
-        await _connectedAdapter!.connect(reader);
+        await delegate.connect(reader);
         _stateController.add(EuiccPortState.open);
       } catch (e) {
-        _connectedAdapter = null;
+        // A failed or interrupted delegate connect can still own a partially
+        // established transport. Keep it as the cleanup owner while clearing
+        // the reader fast path; a later disconnect/connect will tear it down.
         _currentReader = null;
+        _stateController.add(EuiccPortState.closed);
         rethrow;
+      } finally {
+        delegate.connectProgress.removeListener(relayProgress);
+        connectProgress.value = null;
       }
     });
   }
@@ -526,10 +537,35 @@ class CompositeAdapter extends BaseAdapter {
   }
 
   @override
+  void interruptPendingOperation() {
+    // Deliberately bypass this adapter's exclusive lock: an interrupt must be
+    // able to wake the operation that currently owns that lock.
+    final interruptedAdapter = _connectedAdapter;
+    interruptedAdapter?.interruptPendingOperation();
+    // Do not let a later ordinary connect mistake the interrupted transport
+    // for a healthy connection merely because the reader ID still matches.
+    // Retain the delegate as the cleanup owner: its interrupt is deliberately
+    // synchronous and cannot tear down GATT listeners while its operation owns
+    // the delegate lock. The next disconnect/connect can then cleanly dispose
+    // that interrupted transport.
+    _currentReader = null;
+    _stateController.add(EuiccPortState.closed);
+  }
+
+  @override
   Future<void> reconnect() async {
     return await runExclusive(() async {
-      if (_connectedAdapter != null) {
-        await _connectedAdapter!.reconnect();
+      final adapter = _connectedAdapter;
+      if (adapter == null) return;
+      try {
+        await adapter.reconnect();
+      } catch (_) {
+        // The delegate may already have disconnected before its reconnect
+        // failed. Invalidate the reader fast path while retaining the delegate
+        // as the cleanup owner for the next disconnect/connect attempt.
+        _currentReader = null;
+        _stateController.add(EuiccPortState.closed);
+        rethrow;
       }
     });
   }
@@ -563,6 +599,24 @@ class CompositeAdapter extends BaseAdapter {
         "Delegating proactiveRefresh to ${_connectedAdapter.runtimeType}...",
       );
       await _connectedAdapter!.proactiveRefresh();
+    }
+  }
+
+  @override
+  Future<bool?> isCatBusy() async => _connectedAdapter?.isCatBusy();
+
+  @override
+  Future<bool?> isServingProfile() async =>
+      _connectedAdapter?.isServingProfile();
+
+  @override
+  Future<void> resetAfterProfileSwitch() async {
+    if (_connectedAdapter != null) {
+      log.info(
+        "Delegating resetAfterProfileSwitch to "
+        "${_connectedAdapter.runtimeType}...",
+      );
+      await _connectedAdapter!.resetAfterProfileSwitch();
     }
   }
 

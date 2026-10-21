@@ -10,7 +10,9 @@ import '../models/euicc_profile.dart';
 import '../models/asn1/rsp_definitions.g.dart';
 import '../models/asn1/simple_reader.dart';
 import '../utils/hex_utils.dart';
+import '../utils/iccid_formatter.dart';
 import '../utils/imei_codec.dart';
+import '../utils/notification_address.dart';
 import '../utils/apdu_exception.dart';
 import '../utils/error_codes.dart';
 
@@ -57,6 +59,15 @@ class ProfileManager {
   static final Logger _log = Logger('ProfileManager');
   final Adapter adapter;
   final List<SessionPlugin> _sessionPlugins = [];
+
+  /// EID per open channel.
+  ///
+  /// The EID cannot change under a channel, but it was re-read from the card on
+  /// every request — nine times over a single profile download, each one a
+  /// STORE DATA plus a GET RESPONSE. Keyed on the channel rather than held in a
+  /// field so a different card, which necessarily gets a different channel,
+  /// cannot see another card's EID; the entry goes away with the channel.
+  final Expando<String> _eidByChannel = Expando<String>('eid');
 
   final Map<String, NxpMemoryInfo> nxpInfos = {};
 
@@ -300,7 +311,7 @@ class ProfileManager {
 
   Future<bool> enableProfile(String iccid, {Channel? useChannel}) async {
     const int maxAttempts = 10;
-    int attempt = 0;
+    int attempt = 1;
     bool commandSubmitted = false;
     final managesSwitchMarker = useChannel == null;
 
@@ -318,13 +329,16 @@ class ProfileManager {
               HexUtils.swapNibbles(iccidHex),
             );
 
+            final wantsRefresh = AppSettings().disableRefreshFlags
+                ? false
+                : adapter.requiresRefresh;
+            await _waitForIdleWindow(wantsRefresh, 'enable this profile');
+
             final request = EnableProfileRequest(
               profileIdentifier: EnableProfileRequest_profileIdentifier(
                 iccid: iccidBytes,
               ),
-              refreshFlag: AppSettings().disableRefreshFlags
-                  ? false
-                  : adapter.requiresRefresh,
+              refreshFlag: wantsRefresh,
             );
             _logAsn1Request(request);
             var requestData = request.encode();
@@ -337,8 +351,10 @@ class ProfileManager {
               );
               final resp = EnableProfileResponse.decode(responseData);
               _logAsn1Response(resp);
-              if (resp.enableResult != null &&
-                  resp.enableResult != EnableProfileResponse_enableResult.ok &&
+              if (resp.enableResult == null) {
+                throw Exception('ENABLE_FAILED:missingResult');
+              }
+              if (resp.enableResult != EnableProfileResponse_enableResult.ok &&
                   resp.enableResult !=
                       EnableProfileResponse_enableResult
                           .profileNotInDisabledState) {
@@ -346,13 +362,21 @@ class ProfileManager {
               }
               if (request.refreshFlag == true) {
                 await _handleRefresh(channel);
-                isRefresh = true;
               } else {
-                await _handleSoftRefresh(channel);
+                await _resetAfterProfileSwitch(channel, 'Enable');
               }
+              isRefresh = true;
+              await _warnIfNotServingProfile('Enable');
               return isRefresh;
             } catch (e) {
               if (e is ProactiveRefreshException) {
+                if (request.refreshFlag != true) {
+                  _log.warning(
+                    'Unexpected proactive status after a no-refresh enable; '
+                    'the caller must recover on a fresh session.',
+                  );
+                  rethrow;
+                }
                 _markRefreshing();
                 _log.info(
                   "Got 91xx status; deferring recovery to the next fresh session.",
@@ -364,6 +388,7 @@ class ProfileManager {
           });
         } catch (e) {
           if (e is CardBusyException &&
+              useChannel == null &&
               attempt < maxAttempts &&
               canAutomaticallyRetryProfileSwitch(
                 e,
@@ -388,7 +413,7 @@ class ProfileManager {
 
   Future<bool> disableProfile(String iccid, {Channel? useChannel}) async {
     const int maxAttempts = 10;
-    int attempt = 0;
+    int attempt = 1;
     bool commandSubmitted = false;
     final managesSwitchMarker = useChannel == null;
 
@@ -406,13 +431,16 @@ class ProfileManager {
               HexUtils.swapNibbles(iccidHex),
             );
 
+            final wantsRefresh = AppSettings().disableRefreshFlags
+                ? false
+                : adapter.requiresRefresh;
+            await _waitForIdleWindow(wantsRefresh, 'disable this profile');
+
             final request = DisableProfileRequest(
               profileIdentifier: DisableProfileRequest_profileIdentifier(
                 iccid: iccidBytes,
               ),
-              refreshFlag: AppSettings().disableRefreshFlags
-                  ? false
-                  : adapter.requiresRefresh,
+              refreshFlag: wantsRefresh,
             );
             _logAsn1Request(request);
             final requestData = request.encode();
@@ -425,8 +453,10 @@ class ProfileManager {
               );
               final resp = DisableProfileResponse.decode(responseData);
               _logAsn1Response(resp);
-              if (resp.disableResult != null &&
-                  resp.disableResult !=
+              if (resp.disableResult == null) {
+                throw Exception('DISABLE_FAILED:missingResult');
+              }
+              if (resp.disableResult !=
                       DisableProfileResponse_disableResult.ok &&
                   resp.disableResult !=
                       DisableProfileResponse_disableResult
@@ -435,13 +465,21 @@ class ProfileManager {
               }
               if (request.refreshFlag == true) {
                 await _handleRefresh(channel);
-                isRefresh = true;
               } else {
-                await _handleSoftRefresh(channel);
+                await _resetAfterProfileSwitch(channel, 'Disable');
               }
+              isRefresh = true;
+              await _warnIfNotServingProfile('Disable');
               return isRefresh;
             } catch (e) {
               if (e is ProactiveRefreshException) {
+                if (request.refreshFlag != true) {
+                  _log.warning(
+                    'Unexpected proactive status after a no-refresh disable; '
+                    'the caller must recover on a fresh session.',
+                  );
+                  rethrow;
+                }
                 _markRefreshing();
                 _log.info(
                   "Got 91xx status; deferring recovery to the next fresh session.",
@@ -453,6 +491,7 @@ class ProfileManager {
           });
         } catch (e) {
           if (e is CardBusyException &&
+              useChannel == null &&
               attempt < maxAttempts &&
               canAutomaticallyRetryProfileSwitch(
                 e,
@@ -533,10 +572,107 @@ class ProfileManager {
     });
   }
 
+  /// The `resetOptions` BIT STRING in the form [EuiccMemoryResetRequest] wants.
+  ///
+  /// The generated model types `resetOptions` as an int and encodes it with
+  /// `_asn1EncodeInt`, so the value has to be the BIT STRING *contents* --
+  /// leading unused-bit octet included -- rather than a named-bit mask. The
+  /// constants on [EuiccMemoryResetRequest_resetOptions] count from the least
+  /// significant bit, and passing those would encode `82 01 07`: an unused-bit
+  /// count of 7 and no data octet at all.
+  ///
+  /// DER puts bit 0 in the most significant bit of the first data octet and
+  /// drops trailing zero bits, so bits 0..2 are `E0` with five unused.
+  static int _resetOptionsValue({
+    required bool deleteOperationalProfiles,
+    required bool deleteFieldLoadedTestProfiles,
+    required bool resetDefaultSmdpAddress,
+    bool deletePreLoadedTestProfiles = false,
+    bool deleteProvisioningProfiles = false,
+  }) {
+    var bits = 0;
+    if (deleteOperationalProfiles) bits |= 0x80;
+    if (deleteFieldLoadedTestProfiles) bits |= 0x40;
+    if (resetDefaultSmdpAddress) bits |= 0x20;
+    if (deletePreLoadedTestProfiles) bits |= 0x10;
+    if (deleteProvisioningProfiles) bits |= 0x08;
+    if (bits == 0) return 0;
+    var unusedBits = 0;
+    while (unusedBits < 8 && (bits & (1 << unusedBits)) == 0) {
+      unusedBits++;
+    }
+    return (unusedBits << 8) | bits;
+  }
+
+  /// ES10c EuiccMemoryReset -- erases the card's profiles.
+  ///
+  /// The defaults reproduce lpac's `chip purge` byte for byte --
+  /// `BF34 04 82 02 05 E0`, see `euicc/es10c.c` -- deleting operational and
+  /// field-loaded test profiles and resetting the default SM-DP+ address.
+  ///
+  /// Returns the card's result so the caller can tell an empty card
+  /// ([EuiccMemoryResetResponse_resetResult.nothingToDelete]) from a refusal.
+  Future<EuiccMemoryResetResponse_resetResult> resetEuiccMemory({
+    bool deleteOperationalProfiles = true,
+    bool deleteFieldLoadedTestProfiles = true,
+    bool resetDefaultSmdpAddress = true,
+    bool deletePreLoadedTestProfiles = false,
+    bool deleteProvisioningProfiles = false,
+    Channel? useChannel,
+  }) async {
+    return _runOnChannel(useChannel, (channel) async {
+      final resetOptions = _resetOptionsValue(
+        deleteOperationalProfiles: deleteOperationalProfiles,
+        deleteFieldLoadedTestProfiles: deleteFieldLoadedTestProfiles,
+        resetDefaultSmdpAddress: resetDefaultSmdpAddress,
+        deletePreLoadedTestProfiles: deletePreLoadedTestProfiles,
+        deleteProvisioningProfiles: deleteProvisioningProfiles,
+      );
+      if (resetOptions == 0) {
+        throw Exception('MEMORY_RESET_FAILED:noResetOptionsSelected');
+      }
+
+      final request = EuiccMemoryResetRequest(resetOptions: resetOptions);
+      _logAsn1Request(request);
+      final requestData = request.encode();
+      _log.warning(
+        'ES10c EuiccMemoryReset: erasing profiles '
+        '(operational=$deleteOperationalProfiles, '
+        'fieldLoadedTest=$deleteFieldLoadedTestProfiles, '
+        'resetDefaultSmdpAddress=$resetDefaultSmdpAddress, '
+        'preLoadedTest=$deletePreLoadedTestProfiles, '
+        'provisioning=$deleteProvisioningProfiles) '
+        'apdu=${HexUtils.bytesToHex(requestData)}',
+      );
+
+      final responseData = await transmitLogicalApdu(channel, requestData);
+      final resp = EuiccMemoryResetResponse.decode(responseData);
+      _logAsn1Response(resp);
+      final result = resp.resetResult;
+      if (result == null) {
+        throw Exception('MEMORY_RESET_FAILED:noResult');
+      }
+      if (result != EuiccMemoryResetResponse_resetResult.ok &&
+          result != EuiccMemoryResetResponse_resetResult.nothingToDelete) {
+        throw Exception('MEMORY_RESET_FAILED:${result.name}');
+      }
+      return result;
+    });
+  }
+
   Future<String> getEid({Channel? useChannel}) async {
     return _retrySafeCommand(
       () async {
         return await _runOnChannel(useChannel, (channel) async {
+          final cached = _eidByChannel[channel];
+          if (cached != null) {
+            // Plugins still see the call, so only the card round trip is saved.
+            for (final p in _sessionPlugins) {
+              await p.afterCommand('getEid', {}, cached, channel);
+            }
+            return cached;
+          }
+
           final request = GetEuiccDataRequest(
             tagList: Uint8List.fromList([0x5A]),
           );
@@ -555,6 +691,7 @@ class ProfileManager {
               throw Exception("EID not returned by eUICC");
             }
             final eid = HexUtils.bytesToHex(responseObj.eidValue!);
+            _eidByChannel[channel] = eid;
             for (final p in _sessionPlugins) {
               await p.afterCommand('getEid', {}, eid, channel);
             }
@@ -568,6 +705,33 @@ class ProfileManager {
         });
       },
       desc: "getEid",
+      retryAidErrors: useChannel == null,
+    );
+  }
+
+  /// ES10a GetEuiccConfiguredAddresses: the default SM-DP+ and root SM-DS the
+  /// card is configured with.
+  ///
+  /// Read-only, and tolerated as optional by callers: a card that does not
+  /// answer it is not a failure, it just has nothing to show.
+  Future<EuiccConfiguredDataResponse> getEuiccConfiguredData({
+    Channel? useChannel,
+  }) async {
+    return _retrySafeCommand(
+      () async {
+        return await _runOnChannel(useChannel, (channel) async {
+          final request = EuiccConfiguredDataRequest();
+          _logAsn1Request(request);
+          final responseData = await transmitLogicalApdu(
+            channel,
+            request.encode(),
+          );
+          final resp = EuiccConfiguredDataResponse.decode(responseData);
+          _logAsn1Response(resp);
+          return resp;
+        });
+      },
+      desc: "getEuiccConfiguredData",
       retryAidErrors: useChannel == null,
     );
   }
@@ -804,7 +968,49 @@ class ProfileManager {
           if (adapter.notificationStrategy == NotificationStrategy.twoStep) {
             _log.info("Using two-step notification listing (skeletons)...");
             final metadatas = await listNotifications(useChannel: channel);
-            return metadatas.map((m) => createSkeleton(m)).toList();
+            final notifications = <PendingNotification>[];
+            for (final metadata in metadatas) {
+              final skeleton = createSkeleton(metadata);
+              if (isValidNotificationAddress(metadata.notificationAddress) ||
+                  metadata.seqNumber == null) {
+                notifications.add(skeleton);
+                continue;
+              }
+
+              final seqNumber = metadata.seqNumber!;
+              _log.warning(
+                "Notification $seqNumber has a malformed address in the "
+                "list response; retrieving the full signed notification.",
+              );
+              try {
+                final resolved = await retrieveNotification(
+                  seqNumber,
+                  useChannel: channel,
+                );
+                final resolvedAddress = extractMetadata(
+                  resolved,
+                )?.notificationAddress;
+                if (isValidNotificationAddress(resolvedAddress)) {
+                  _log.info(
+                    "Recovered notification $seqNumber address from the "
+                    "signed notification.",
+                  );
+                } else {
+                  _log.warning(
+                    "Notification $seqNumber also has a malformed address in "
+                    "the signed notification.",
+                  );
+                }
+                notifications.add(resolved);
+              } catch (error) {
+                _log.warning(
+                  "Could not resolve notification $seqNumber after malformed "
+                  "list metadata: $error",
+                );
+                notifications.add(skeleton);
+              }
+            }
+            return notifications;
           }
 
           // Combined strategy (default)
@@ -1317,6 +1523,47 @@ class ProfileManager {
     });
   }
 
+  /// ES10b.CancelSession — tells the eUICC to drop the RSP session opened by
+  /// AuthenticateServer and returns the signed response the SM-DP+ needs.
+  ///
+  /// [transactionId] must be the raw octets the SM-DP+ issued, not their hex
+  /// text. Without this the eUICC keeps session state until the next
+  /// AuthenticateServer.
+  Future<CancelSessionResponse> cancelSession({
+    required Uint8List transactionId,
+    CancelSessionReason reason = CancelSessionReason.endUserRejection,
+    Channel? useChannel,
+  }) async {
+    return _runOnChannel(useChannel, (channel) async {
+      final request = CancelSessionRequest(
+        transactionId: transactionId,
+        reason: reason,
+      );
+      _logAsn1Request(request);
+      final requestData = request.encode();
+      _log.info(
+        "Sending CancelSessionRequest (reason=${reason.name}, "
+        "${requestData.length} bytes)",
+      );
+
+      final responseData = await transmitLogicalApdu(channel, requestData);
+      final resp = CancelSessionResponse.decode(responseData);
+      _logAsn1Response(resp);
+
+      if (resp.cancelSessionResponseError != null) {
+        throw Exception(
+          "CancelSession failed: ${resp.cancelSessionResponseError}",
+        );
+      }
+      if (resp.cancelSessionResponseOk == null) {
+        throw Exception("CancelSession returned no OK response");
+      }
+
+      _log.info("CancelSession succeeded");
+      return resp;
+    });
+  }
+
   Future<void> loadBoundProfilePackage(
     Uint8List bpp, {
     Channel? useChannel,
@@ -1397,27 +1644,38 @@ class ProfileManager {
     });
   }
 
+  /// The newest install notification, fetched one notification at a time.
+  ///
+  /// Searching by `profileManagementOperation` returns *every* install
+  /// notification the card still holds, each carrying its own certificate
+  /// chain. On a card whose notifications have not been sent that response
+  /// grows without bound -- measured at 9,455 bytes on a BeeSIM, which is 37
+  /// GET RESPONSE round trips over BLE and corrupted partway through, so the
+  /// failure this exists to explain went unexplained. ES10b.ListNotification
+  /// returns metadata only, so the sequence number can be picked from a small
+  /// response and exactly one notification retrieved.
   Future<PendingNotification?> getLatestInstallNotification({
     Channel? useChannel,
   }) async {
     return _runOnChannel(useChannel, (channel) async {
-      final request = RetrieveNotificationsListRequest(
-        searchCriteria: RetrieveNotificationsListRequest_searchCriteria(
-          profileManagementOperation: const NotificationEvent(
-            NotificationEvent.notificationInstall,
-          ),
-        ),
-      );
-      _logAsn1Request(request);
-      final requestData = request.encode();
-      final responseData = await transmitLogicalApdu(channel, requestData);
-      final resp = RetrieveNotificationsListResponse.decode(responseData);
-      _logAsn1Response(resp);
+      final metadata = await listNotifications(useChannel: channel);
 
-      if (resp.notificationList != null && resp.notificationList!.isNotEmpty) {
-        return resp.notificationList!.last;
+      int? latestSeq;
+      for (final entry in metadata) {
+        final seq = entry.seqNumber;
+        final operation = entry.profileManagementOperation?.value ?? 0;
+        if (seq == null) continue;
+        if (operation & NotificationEvent.notificationInstall == 0) continue;
+        if (latestSeq == null || seq > latestSeq) latestSeq = seq;
       }
-      return null;
+
+      if (latestSeq == null) {
+        _log.info("No install notification is present on the card");
+        return null;
+      }
+
+      _log.info("Retrieving install notification $latestSeq");
+      return await retrieveNotification(latestSeq, useChannel: channel);
     });
   }
 
@@ -1577,13 +1835,126 @@ class ProfileManager {
     }
   }
 
+  /// Declines a refresh-flagged state change while the card is mid proactive
+  /// command.
+  ///
+  /// Asking an eUICC to defer a profile switch until a REFRESH only works if
+  /// the terminal can finish the toolkit exchange. A card that already has a
+  /// proactive session outstanding cannot be relied on for that, and starting
+  /// the switch anyway is what leaves it rejecting every later command. The
+  /// operation is refused while the card is still healthy instead.
+  ///
+  /// A reader that cannot tell (null) is not treated as busy: that would block
+  /// every switch on transports with no toolkit visibility.
+  /// Waits for a gap in which the card owes its terminal nothing.
+  ///
+  /// A card in a handset raises toolkit commands constantly and its modem
+  /// answers them within seconds, so this polls for one of those gaps and does
+  /// nothing else. It must never answer a command (that takes it from the
+  /// modem) and must never drop the link (the switch has not been sent yet).
+  /// How long to look for an idle window before giving up.
+  @visibleForTesting
+  static Duration idleWindowTimeout = const Duration(seconds: 45);
+
+  Future<void> _waitForIdleWindow(bool wantsRefresh, String operation) async {
+    final deadline = DateTime.now().add(idleWindowTimeout);
+    var waited = false;
+    while (DateTime.now().isBefore(deadline)) {
+      final bool? busy;
+      try {
+        busy = await adapter.isCatBusy();
+      } catch (e) {
+        _log.warning('Could not check whether the card is busy: $e');
+        return;
+      }
+      // Idle, or a reader that cannot tell: either way, proceed.
+      if (busy != true) {
+        if (waited) _log.info('Card reached an idle window.');
+        return;
+      }
+      if (!waited) {
+        _log.info('Card is mid proactive command; waiting for an idle window.');
+        waited = true;
+      }
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+
+    // Only a refresh-flagged switch depends on the card being able to finish a
+    // toolkit exchange, so only that one is refused when no gap ever appears.
+    if (!wantsRefresh) return;
+    _log.warning(
+      'Refusing to $operation: the card never stopped working through '
+      'proactive commands.',
+    );
+    throw CatBusyException(operation);
+  }
+
+  /// Settles the card after a profile state change that was committed without
+  /// asking the eUICC to defer it to a proactive REFRESH.
+  ///
+  /// Committing first and resetting afterwards is what keeps a reader that
+  /// cannot answer proactive commands from wedging: the eUICC never waits on a
+  /// terminal it will not hear from, so a reset that fails costs a stale
+  /// session rather than a card that rejects every later command.
+  Future<void> _resetAfterProfileSwitch(
+    Channel channel,
+    String operation,
+  ) async {
+    _log.info(
+      '$operation committed without a proactive refresh; resetting the card '
+      'so it starts serving the new state.',
+    );
+    _markRefreshing();
+
+    // The reset invalidates this channel, so closing it first only avoids
+    // leaving a logical channel open on a card that survives the restart.
+    try {
+      await channel.close();
+    } catch (e) {
+      _log.fine('Channel close before the reset failed: $e');
+    }
+
+    try {
+      await adapter.resetAfterProfileSwitch();
+    } catch (e) {
+      // The state change is already committed. A reset that does not complete
+      // must not be reported as a failed switch; the caller verifies the real
+      // state on a fresh session.
+      _log.warning('$operation reset did not complete cleanly: $e');
+    }
+  }
+
+  /// Reports a reader that ended a switch without serving any profile.
+  ///
+  /// Some readers fall back to a different card when nothing usable is
+  /// enabled. That looks fine over the management interface -- the profile
+  /// list is correct and every command succeeds -- but the host sees no
+  /// subscription at all, so it has to be surfaced here rather than left to
+  /// show up later as a SIM failure.
+  Future<void> _warnIfNotServingProfile(String operation) async {
+    final bool? serving;
+    try {
+      serving = await adapter.isServingProfile();
+    } catch (e) {
+      _log.fine('Could not check whether a profile is being served: $e');
+      return;
+    }
+    if (serving != false) return;
+
+    _log.severe(
+      '$operation finished but the reader is not serving any profile: it fell '
+      'back to its substitute card. The host will show no subscription even '
+      'though the profile list looks correct.',
+    );
+  }
+
   Future<void> _handleRefresh(Channel channel) async {
     _log.info("Performing recovery sequence...");
     _markRefreshing();
 
-    // 1. Wait 2 seconds before closing
-    await Future.delayed(const Duration(seconds: 2));
-
+    // Close the channel straight away and stop touching the card. The eUICC
+    // raised a REFRESH and the host's modem is the terminal that performs it;
+    // anything sent meanwhile only keeps the card bound to this session.
     try {
       await channel.close();
     } catch (e) {
@@ -1593,9 +1964,12 @@ class ProfileManager {
 
     await adapter.proactiveRefresh();
 
-    int backoff = 2; // Initial backoff for retry
+    // The host's reset takes tens of seconds and the card is unreachable for
+    // most of it, so give the reopen enough runway to outlast it. Reopening a
+    // session is the only reliable proof the card is usable again.
+    int backoff = 2;
 
-    for (int attempt = 0; attempt < 6; attempt++) {
+    for (int attempt = 0; attempt < 9; attempt++) {
       try {
         _log.info("Attempting to reopen session (attempt ${attempt + 1})...");
         final ch = await openSession();
@@ -1603,10 +1977,17 @@ class ProfileManager {
         _log.info("Reopen success.");
         return; // Success!
       } catch (e) {
-        if (e is ProactiveRefreshException) {
-          _log.info("Reopen got 91xx, waiting ${backoff}s and retrying...");
+        // A card mid state change refuses the ISD-R with 6985/6999 and raises
+        // 91xx while the modem works through its commands. All of that is
+        // expected here and clears once the reset completes.
+        if (e is ProactiveRefreshException ||
+            e is ConditionOfUseNotSatisfiedException ||
+            e is CardBusyException) {
+          _log.info(
+            "Reopen not ready yet ($e); waiting ${backoff}s and retrying...",
+          );
           await Future.delayed(Duration(seconds: backoff));
-          backoff *= 2;
+          backoff = (backoff * 2).clamp(2, 20);
           continue; // Retry
         }
 
@@ -1672,6 +2053,9 @@ class ProfileManager {
   }) async {
     const int maxAttempts = 10;
     int attempt = 0;
+    // A card that refuses commands is settled at most once per command; a
+    // second refusal means the reset did not help and must be reported.
+    var settleAttempted = false;
     while (true) {
       try {
         return await action();
@@ -1703,15 +2087,25 @@ class ProfileManager {
         }
 
         if (isConditionsNotSatisfied) {
-          _log.info(
-            "$desc: Got 6985, triggering proactive refresh and rethrowing.",
-          );
+          if (settleAttempted) {
+            _log.info("$desc: card still refuses the command after a reset.");
+            rethrow;
+          }
+          settleAttempted = true;
+          _log.info("$desc: card refused the command ($e); settling it.");
           try {
             await adapter.proactiveRefresh();
           } catch (e2) {
-            _log.warning("Proactive refresh failed: $e2");
+            _log.warning("Settling the card failed: $e2");
+            rethrow;
           }
-          rethrow;
+          if (!retryAidErrors) {
+            // The caller owns the channel and the reset just invalidated it,
+            // so only the caller can safely reopen and replay.
+            rethrow;
+          }
+          _log.info("$desc: retrying on the settled card.");
+          continue;
         }
 
         if (isRefresh || isAidNotSelected) {
@@ -1768,9 +2162,12 @@ class ProfileManager {
 List<EuiccProfile> _mapProfiles(List<ProfileInfo> profilesRaw) {
   return profilesRaw.map((p) {
     String? iccid;
+    String? rawIccid;
     if (p.iccid != null) {
-      iccid = HexUtils.swapNibbles(HexUtils.bytesToHex(p.iccid!));
-      if (iccid.endsWith('F')) iccid = iccid.substring(0, iccid.length - 1);
+      // Keep the card's own value alongside the printed one: the filler has to
+      // survive for ES10c to address the profile.
+      rawIccid = HexUtils.swapNibbles(HexUtils.bytesToHex(p.iccid!));
+      iccid = IccidFormatter.forDisplay(rawIccid);
     }
 
     String? mcc;
@@ -1813,6 +2210,7 @@ List<EuiccProfile> _mapProfiles(List<ProfileInfo> profilesRaw) {
 
     return EuiccProfile(
       iccid: iccid ?? "Unknown",
+      rawIccid: rawIccid,
       name: decodedName,
       nickname: decodedNickname,
       serviceProviderName: decodedServiceProviderName,

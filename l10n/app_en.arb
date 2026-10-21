@@ -788,5 +788,14 @@
   "imeiDigits": "TAC or IMEI digits",
   "importAction": "Import",
   "qrtrReaderTitle": "Qualcomm modem (QRTR)",
-  "qrtrReaderSubtitle": "Qualcomm's low-level modem protocol (requires Shizuku)"
+  "qrtrReaderSubtitle": "Qualcomm's low-level modem protocol (requires Shizuku)",
+  "defaultPasswordWillChangeMessage": "This device is connected with its default password. Renaming it will set the password to {password}. Save this password before reconnecting.",
+  "@defaultPasswordWillChangeMessage": {
+    "placeholders": {
+      "password": {
+        "type": "String"
+      }
+    }
+  },
+  "defaultPasswordWillChangeTitle": "Default password will change"
 }

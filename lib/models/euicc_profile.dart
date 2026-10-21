@@ -3,7 +3,20 @@ import '../utils/mcc_mapper.dart';
 import '../utils/profile_tag_utils.dart';
 
 class EuiccProfile {
+  /// The ICCID as printed: the card's value with its BCD filler removed.
+  ///
+  /// This is what the user sees and what profile metadata is keyed by. It is
+  /// not addressable on the card -- a 19-digit ICCID is one nibble short of
+  /// the 10 bytes ES10c expects, so card commands take [rawIccid] instead.
   final String iccid;
+
+  /// The ICCID exactly as the card stores it, filler included.
+  ///
+  /// Always a whole number of bytes, so it survives the nibble swap that
+  /// builds an ES10c profile identifier. Enable, disable and delete address
+  /// the profile with this.
+  final String rawIccid;
+
   final String? name;
   final String? nickname;
   final String? serviceProviderName;
@@ -20,6 +33,7 @@ class EuiccProfile {
 
   EuiccProfile({
     required this.iccid,
+    String? rawIccid,
     this.name,
     this.nickname,
     this.serviceProviderName,
@@ -34,7 +48,7 @@ class EuiccProfile {
     this.smdpAddress,
     this.tags = const [],
     this.customIcon,
-  });
+  }) : rawIccid = rawIccid ?? iccid;
 
   // Mutable metadata
   String? customIcon;

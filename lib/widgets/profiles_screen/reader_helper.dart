@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import '../../adapter/ble/ble_adapter.dart';
 import '../../theme/app_theme.dart';
 
 class ReaderHelper {
+  static IconData getBleAdapterIconData(BleAdapterType type) => switch (type) {
+    BleAdapterType.redBle => Icons.sim_card_outlined,
+    BleAdapterType.redBle2 => Icons.developer_board_outlined,
+    BleAdapterType.glocalMe => Icons.public_rounded,
+    BleAdapterType.nineEsim => Icons.filter_9_rounded,
+    BleAdapterType.beeSim => Icons.hive_outlined,
+    BleAdapterType.simLink => Icons.link_rounded,
+  };
+
   static IconData getIconData(String? reader) {
     if (reader == null) return Icons.devices_other_rounded;
 
-    if (reader.startsWith('red_ble:') ||
-        reader.startsWith('red_ble2:') ||
-        reader.startsWith('simlink:')) {
-      return Icons.bluetooth_rounded;
-    }
+    final bleType = BleAdapterType.fromReaderId(reader);
+    if (bleType != null) return getBleAdapterIconData(bleType);
 
     if (reader.startsWith('omapi:')) {
       return Icons.sim_card_rounded;
@@ -54,11 +61,12 @@ class ReaderHelper {
 
     if (reader == null) return defaultSubtle;
 
-    if (reader.startsWith('red_ble:') || reader.startsWith('red_ble2:')) {
+    final bleType = BleAdapterType.fromReaderId(reader);
+    if (bleType != null && bleType != BleAdapterType.simLink) {
       return isDark ? Colors.blue[300] : Colors.blue[600];
     }
 
-    if (reader.startsWith('simlink:')) {
+    if (bleType == BleAdapterType.simLink) {
       return isDark ? Colors.orange[300] : Colors.orange;
     }
 
@@ -80,8 +88,6 @@ class ReaderHelper {
   static bool isPersistent(String? readerId) {
     if (readerId == null) return false;
     return readerId.startsWith('remocard:') ||
-        readerId.startsWith('red_ble:') ||
-        readerId.startsWith('red_ble2:') ||
-        readerId.startsWith('simlink:');
+        BleAdapterType.fromReaderId(readerId) != null;
   }
 }

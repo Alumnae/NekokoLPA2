@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import '../utils/apdu_exception.dart';
@@ -41,6 +42,31 @@ class AdapterAction {
 enum ReaderStrategy { slow, fast }
 
 enum NotificationStrategy { twoStep, combined }
+
+/// A step a reader passes through while its connection comes up.
+///
+/// Bluetooth readers take long enough to connect that one static message
+/// reads as a hang, so they report each step as they reach it.
+enum ReaderConnectStep {
+  waitingForBluetooth,
+  connectingBluetooth,
+  discoveringServices,
+  enablingNotifications,
+  authenticating,
+  initializing,
+  switchingMode,
+  waitingForRestart,
+}
+
+/// The step a connect has reached, and which try it is on when that step is
+/// retried.
+class ReaderConnectProgress {
+  final ReaderConnectStep step;
+  final int attempt;
+  final int attempts;
+
+  const ReaderConnectProgress(this.step, {this.attempt = 1, this.attempts = 1});
+}
 
 typedef RawApduTransmitter = Future<Uint8List> Function(Uint8List apdu);
 
@@ -118,12 +144,22 @@ abstract class Adapter {
   Future<Uint8List> sendApdu(Uint8List apdu);
 
   Future<T> runExclusive<T>(Future<T> Function() action);
+  void interruptPendingOperation();
   Future<void> reconnect();
   Future<void> cleanupChannels();
   Future<void> setProfileSwitchInProgress(bool value);
   Future<void> proactiveRefresh();
+  Future<void> resetAfterProfileSwitch();
+  Future<bool?> isCatBusy();
+  Future<bool?> isServingProfile();
 
   Stream<EuiccPortState> get stateStream;
+
+  /// The step the running [connect] has reached, for display while it runs.
+  /// Only meaningful during [connect]; readers that report no steps leave it
+  /// null.
+  ValueListenable<ReaderConnectProgress?> get connectProgress;
+
   bool get requiresRefresh;
   String? get lastAtr;
   Reader? get connectedReader;
@@ -142,7 +178,7 @@ abstract class Adapter {
   Future<void> switchMode(Reader reader, AdapterMode mode);
 
   /// Whether the adapter supports sending raw APDUs (e.g. to the basic channel).
-  /// This is required for features that need direct SIM APDU access.
+  /// This is required for some features like VoWiFi.
   bool get supportsRawApdu;
 }
 
@@ -251,12 +287,64 @@ abstract class BaseAdapter implements Adapter {
   Reader? get connectedReader => _currentReader;
 
   @override
+  final ValueNotifier<ReaderConnectProgress?> connectProgress = ValueNotifier(
+    null,
+  );
+
+  /// Publishes the step [connect] has reached.
+  @protected
+  void reportConnectStep(
+    ReaderConnectStep step, {
+    int attempt = 1,
+    int attempts = 1,
+  }) {
+    connectProgress.value = ReaderConnectProgress(
+      step,
+      attempt: attempt,
+      attempts: attempts,
+    );
+  }
+
+  @override
   void updateConnectedReader(Reader? reader) {
     _currentReader = reader;
   }
 
   @override
   Future<void> proactiveRefresh() async {}
+
+  /// Settles the card once a profile enable or disable has been committed.
+  ///
+  /// The default is a no-op. Readers whose card would otherwise keep serving
+  /// the previous profile, or would stay in the transitional state the eUICC
+  /// entered for the switch, override this to reset the card. The state change
+  /// is already committed when this runs, so a failure here must never be
+  /// treated as a failed switch.
+  @override
+  Future<void> resetAfterProfileSwitch() async {}
+
+  /// Whether the card is currently busy with a proactive (CAT) session.
+  ///
+  /// Returns null when this reader cannot tell, which callers must treat as
+  /// "no information" rather than as "not busy".
+  @override
+  Future<bool?> isCatBusy() async => null;
+
+  /// Whether the reader is currently serving an enabled profile to its host.
+  ///
+  /// Readers that fall back to a different card when no profile is usable
+  /// override this, so a switch that silently left nothing enabled can be
+  /// reported instead of showing up later as a SIM failure. Null means the
+  /// reader cannot tell.
+  @override
+  Future<bool?> isServingProfile() async => null;
+
+  /// Invalidates a currently pending transport operation when supported.
+  ///
+  /// The default is intentionally a no-op. Transports that can safely wake a
+  /// pending read should override this without waiting for [runExclusive].
+  @override
+  void interruptPendingOperation() {}
 
   @override
   Future<void> setProfileSwitchInProgress(bool value) async {}
@@ -427,10 +515,41 @@ abstract class BaseAdapter implements Adapter {
         if ((sw1 == 0x90 && sw2 == 0x00) || sw1 == 0x61 || sw1 == 0x9F) {
           return aid;
         }
+        if (sw1 == 0x69 && sw2 == 0x85) {
+          throw ConditionOfUseNotSatisfiedException(
+            sw1,
+            sw2,
+            'Conditions of use not satisfied while selecting eUICC AID',
+          );
+        }
+        if (sw1 == 0x69 && sw2 == 0x99) {
+          // An eUICC left mid profile state change refuses to hand out the
+          // ISD-R with this proprietary "command not allowed" status. The
+          // applet is present, so reporting an absent AID would mislabel a
+          // recoverable card as unsupported instead of settling it.
+          throw ConditionOfUseNotSatisfiedException(
+            sw1,
+            sw2,
+            'eUICC AID temporarily unavailable (6999); the card is still in a '
+            'profile state transition',
+          );
+        }
+        if (sw1 == 0x68 && sw2 == 0x81) {
+          throw CardBusyException('Card busy while selecting eUICC AID (6881)');
+        }
+        if (sw1 == 0x91) {
+          throw ProactiveRefreshException(sw1, sw2);
+        }
       } catch (e) {
         log.fine("SELECT $aid failed: $e");
-        if (e is AppException &&
-            e.code == AppErrorCode.ERROR_BLUETOOTH_NOT_CONNECTED) {
+        if (e is ConditionOfUseNotSatisfiedException ||
+            e is CardBusyException ||
+            e is ProactiveRefreshException ||
+            e is AppException &&
+                (e.code == AppErrorCode.ERROR_BLUETOOTH_TIMEOUT ||
+                    e.code == AppErrorCode.ERROR_BLUETOOTH_NOT_CONNECTED ||
+                    e.code == AppErrorCode.ERROR_BLUETOOTH_CONNECT_FAILED ||
+                    e.code == AppErrorCode.ERROR_BLUETOOTH_DISABLED)) {
           rethrow;
         }
       }
