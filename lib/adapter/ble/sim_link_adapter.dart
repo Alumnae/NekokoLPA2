@@ -6,9 +6,10 @@ import 'package:logging/logging.dart';
 import '../euicc_adapter.dart';
 import '../../utils/hex_utils.dart';
 import '../../utils/error_codes.dart';
+import 'ble_adapter.dart';
 import 'ble_transport_utils.dart';
 
-class SimLinkAdapter extends BaseAdapter {
+class SimLinkAdapter extends BaseAdapter implements BleAdapter {
   static final Logger _log = Logger('SimLinkAdapter');
 
   SimLinkAdapter() : super(_log);
@@ -54,9 +55,9 @@ class SimLinkAdapter extends BaseAdapter {
       final deviceId = readerName.split('|').last;
       _device = BluetoothDevice.fromId(deviceId);
 
-      log.info("Connecting to SimLink device: $deviceId");
+      log.info("Connecting to SimLink (NBLESim) device: $deviceId");
       try {
-        await connectBleDevice(_device!, log);
+        await connectBleDevice(_device!, log, progress: connectProgress);
         log.info("Connected to device: $deviceId");
 
         await _connSub?.cancel();
@@ -69,6 +70,7 @@ class SimLinkAdapter extends BaseAdapter {
           }
         });
 
+        reportConnectStep(ReaderConnectStep.discoveringServices);
         List<BluetoothService> services = await _device!.discoverServices();
         BluetoothService service = services.firstWhere(
           (s) => s.uuid == serviceUuid,
@@ -93,9 +95,11 @@ class SimLinkAdapter extends BaseAdapter {
           ),
         );
 
+        reportConnectStep(ReaderConnectStep.enablingNotifications);
         await _rxChar!.setNotifyValue(true);
 
         log.info("SimLink protocol init...");
+        reportConnectStep(ReaderConnectStep.initializing);
         // Reset APDU mode
         await _transmitRaw({"cmd": "APDU", "action": 2});
         // Start APDU mode

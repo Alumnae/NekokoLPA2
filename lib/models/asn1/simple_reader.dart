@@ -1,66 +1,6 @@
 import 'dart:typed_data';
 import 'dart:convert';
 
-class Asn1Tlv {
-  final int tag;
-  final Uint8List value;
-  final Uint8List? encodedLength;
-
-  Asn1Tlv(this.tag, this.value, {this.encodedLength});
-
-  static List<Asn1Tlv> parse(Uint8List data) {
-    if (data.isEmpty) return [];
-
-    var offset = 0;
-
-    while (offset < data.length) {
-      if (data[offset] == 0x00 &&
-          offset + 1 < data.length &&
-          data[offset + 1] == 0x00) {
-        // Padding or end of indefinite length (not handled fully here but skipping zeros)
-        offset += 2;
-        continue;
-      }
-
-      // Read Tag
-      int tag = data[offset];
-
-      if ((tag & 0x1F) == 0x1F) {
-        // Extended tag
-        offset++;
-        int t = 0;
-        while (offset < data.length) {
-          t = (t << 7) | (data[offset] & 0x7F);
-          if ((data[offset] & 0x80) == 0) {
-            offset++;
-            break;
-          }
-          offset++;
-        }
-        // Tag value is complicated if we want to preserve class/constructed bits.
-        // Let's just store the FIRST byte as identifier for simple matching
-        // if it works for our case (BF, A0, E3).
-        // BUT wait, BF is 191.
-        // In my manual check I want to match standard encoding.
-        // Let's store the Full Tag as abstract Identifier?
-        // Or just return the leading byte?
-        // For BF, 2D... the "Tag" is the whole sequence "BF 2D".
-        // The `Asn1Tlv` should ideally store the raw Tag bytes?
-      } else {
-        offset++;
-      }
-
-      // Actually, simple solution for standard tags:
-      // We don't need full extended tag generic decoding for SGP.22 specific known tags.
-      // We just need to skip the tag bytes.
-      // But we need to know WHICH tag it is to decide what to do.
-
-      // Re-wind to handle Tag properly.
-    }
-    return [];
-  }
-}
-
 class SimpleAsn1Reader {
   final Uint8List _data;
   int _offset = 0;
@@ -80,10 +20,8 @@ class SimpleAsn1Reader {
 
     // Extended tag?
     if ((firstByte & 0x1F) == 0x1F) {
-      // Multibyte tag
-      tagValue = firstByte;
-      // We'll treat the tag as the integer value of provided bytes (big endian-ish) just for uniqueness matching
-      // E.g. BF 2D -> 0xBF2D.
+      // Multi-byte tag. The whole identifier is folded into one int so tags
+      // compare as a single value: 'BF 2D' becomes 0xBF2D.
       while (_offset < _data.length) {
         int b = _data[_offset++];
         tagValue = (tagValue << 8) | b;
@@ -101,9 +39,7 @@ class SimpleAsn1Reader {
     } else {
       int numLengthBytes = lengthByte & 0x7F;
       if (numLengthBytes == 0) {
-        // Indefinite length (Not supported heavily, but implies null-terminated)
-        // SGP.22 usually uses definite.
-        length = -1;
+        length = -1; // Indefinite; handled below.
       } else {
         for (int i = 0; i < numLengthBytes; i++) {
           if (_offset >= _data.length) return null; // Error
@@ -114,10 +50,8 @@ class SimpleAsn1Reader {
 
     Uint8List value;
     if (length == -1) {
-      // Read until 00 00
-      // Simplified: assume rest of data or search?
-      // This is risky. SGP.22 usually provides specific length.
-      // Let's consume until end? No.
+      // Indefinite length. SGP.22 always uses the definite form, so rather
+      // than scan for the end-of-contents marker this yields an empty value.
       value = Uint8List(0);
     } else {
       if (_offset + length > _data.length) {
@@ -189,7 +123,17 @@ class Asn1Node {
     return Uint8List.fromList(bytes);
   }
 
+  List<Asn1Node>? _children;
+
+  /// Child TLVs of this node, parsed once and kept.
+  ///
+  /// The generated decoders look this up repeatedly — once per member of a
+  /// SEQUENCE, and again to fetch the member they matched — so re-parsing on
+  /// every access made decoding quadratic in the number of members.
   List<Asn1Node> get children {
+    final cached = _children;
+    if (cached != null) return cached;
+
     // Try to parse value as sequence
     final reader = SimpleAsn1Reader(value);
     final list = <Asn1Node>[];
@@ -197,7 +141,7 @@ class Asn1Node {
       final n = reader.readNext();
       if (n != null) list.add(n);
     }
-    return list;
+    return _children = list;
   }
 
   // Helpers for checking tags

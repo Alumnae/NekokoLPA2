@@ -31,10 +31,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get themeStyleSubtitle => 'Choisir entre le style personnalisé et MD3';
 
   @override
-  String get customDesign => 'Nekoko Style';
+  String get customDesign => 'Style Nekoko';
 
   @override
-  String get stockMD3 => 'Stock MD3';
+  String get stockMD3 => 'MD3 standard';
 
   @override
   String get waterfallLayout => 'Disposition en cascade';
@@ -79,11 +79,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Récupérer les icônes depuis l\'eUICC (plus lent)';
 
   @override
-  String get useNekokoIcons => 'Utiliser les icônes opérateur';
+  String get useNekokoIcons => 'Utiliser les icônes Nekoko Cloud';
 
   @override
   String get useNekokoIconsSubtitle =>
-      'Récupérer les logos opérateurs depuis operator-icons';
+      'Récupérer les logos opérateurs depuis Nekoko';
 
   @override
   String get forceDeviceDropdown => 'Forcer la liste déroulante';
@@ -275,11 +275,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Taille maximale de données par bloc APDU';
 
   @override
-  String get ensureSingleChannel => 'Ensure Single Channel';
+  String get ensureSingleChannel => 'Garantir un canal unique';
 
   @override
   String get ensureSingleChannelSubtitle =>
-      'Close other logical channels before opening a new one';
+      'Fermer les autres canaux logiques avant d\'en ouvrir un nouveau';
 
   @override
   String get analytics => 'Analytique et services cloud';
@@ -343,14 +343,14 @@ class AppLocalizationsFr extends AppLocalizations {
       'Vérifier automatiquement les nouvelles versions au démarrage';
 
   @override
-  String get licenses => 'Open Source Licenses';
+  String get licenses => 'Licences open source';
 
   @override
   String get licensesSubtitle =>
-      'License information for open source libraries used';
+      'Informations de licence des bibliothèques open source utilisées';
 
   @override
-  String get noUpdatesFound => 'No updates found';
+  String get noUpdatesFound => 'Aucune mise à jour trouvée';
 
   @override
   String get profilesTitle => 'Profils';
@@ -398,15 +398,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get errorBluetoothTimeout =>
-      'Bluetooth operation timed out. Please try again.';
+      'Délai d\'attente Bluetooth dépassé. Veuillez réessayer.';
 
   @override
   String get errorOmapiSecurity =>
-      'Security error: Access to the card was denied by the OS or ARA-M rules.';
+      'Erreur de sécurité : l\'accès à la carte a été refusé par le système ou les règles ARA-M.';
 
   @override
   String get errorApplicationNotFound =>
-      'eUICC management application (ISD-R) not found. This card may not be a valid eUICC.';
+      'Application de gestion eUICC (ISD-R) introuvable. Cette carte n\'est peut-être pas une eUICC valide.';
 
   @override
   String get changeSettings => 'Changer les paramètres';
@@ -548,6 +548,36 @@ class AppLocalizationsFr extends AppLocalizations {
   String get connectingToReader => 'Connexion au lecteur...';
 
   @override
+  String get waitingForBluetooth => 'Waiting for Bluetooth to turn on...';
+
+  @override
+  String get connectingOverBluetooth => 'Connecting over Bluetooth...';
+
+  @override
+  String connectingOverBluetoothAttempt(int attempt, int total) {
+    return 'Connecting over Bluetooth (attempt $attempt of $total)...';
+  }
+
+  @override
+  String get discoveringReaderServices => 'Discovering reader services...';
+
+  @override
+  String get settingUpBluetoothLink => 'Setting up the Bluetooth link...';
+
+  @override
+  String get authenticatingWithReader => 'Authenticating with the reader...';
+
+  @override
+  String get initializingReader => 'Initializing the reader...';
+
+  @override
+  String get switchingReaderToEuiccMode =>
+      'Switching the reader to eUICC mode...';
+
+  @override
+  String get waitingForReaderRestart => 'Waiting for the reader to restart...';
+
+  @override
   String get moreOptions => 'Plus d\'options';
 
   @override
@@ -575,7 +605,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deletingProfile => 'Suppression du profil...';
 
   @override
-  String get deleting => 'Deleting...';
+  String get deleting => 'Suppression...';
 
   @override
   String get dataUsage => 'Consommation de données';
@@ -600,7 +630,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible d\'effectuer des opérations pendant le traitement des notifications';
 
   @override
-  String get operationInProgressError => 'Operation in progress, please wait';
+  String get operationInProgressError =>
+      'Opération en cours, veuillez patienter';
 
   @override
   String iccidCopied(Object iccid) {
@@ -647,7 +678,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get selectFromGallery => 'Sélectionner dans la galerie';
 
   @override
-  String get nekokoOperatorIcon => 'Icône opérateur';
+  String get nekokoOperatorIcon => 'Icône opérateur Nekoko';
 
   @override
   String get iconFromEsim => 'Icône de la carte eSIM';
@@ -847,25 +878,32 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noProfilesInstalledSubtitle => 'Cette carte eUICC est vide.';
 
   @override
-  String get cardRefreshingTitle => 'Card is Refreshing';
+  String get cardRefreshingTitle => 'Actualisation de la carte';
 
   @override
   String get cardRefreshingMessage =>
-      'The card is currently updating its state. Profile list cannot be retrieved at this moment. Please wait a few seconds and then try again.';
+      'La carte met actuellement à jour son état. La liste des profils ne peut pas être récupérée pour le moment. Veuillez patienter quelques secondes, puis réessayer.';
 
   @override
   String get useRemoteIcon => 'Utiliser l\'icône distante';
 
   @override
-  String get bleDisconnectedTitle => 'Bluetooth Connection Lost';
+  String get bleDisconnectedTitle => 'Connexion Bluetooth perdue';
 
   @override
   String get bleDisconnectedMessage =>
-      'The connection to the card reader was suddenly lost. Please ensure it is nearby and turned on.';
+      'La connexion au lecteur de carte a été brusquement perdue. Assurez-vous qu\'il est à proximité et allumé.';
 
   @override
   String get cardStuckRefreshingMessage =>
-      'Profile state change ongoing - try manually re-plug the SIM card if it stucks.';
+      'Changement d\'état du profil en cours - réinsérez manuellement la carte SIM si cela bloque.';
+
+  @override
+  String get cardNeedsReplugTitle => 'Réinsérez la carte SIM';
+
+  @override
+  String get cardNeedsReplugMessage =>
+      'La carte ne libère pas son applet eUICC, elle ne peut donc pas être gérée pour le moment. Retirez la carte SIM, réinsérez-la, puis réessayez.';
 
   @override
   String get activationCodeTitle => 'Code d\'activation';
@@ -1076,349 +1114,356 @@ class AppLocalizationsFr extends AppLocalizations {
   String get saveCertificate => 'Enregistrer le certificat';
 
   @override
-  String get searchingForReaders => 'Searching for readers...';
+  String get searchingForReaders => 'Recherche de lecteurs...';
 
   @override
-  String get initializationError => 'Initialization Error';
+  String get initializationError => 'Erreur d\'initialisation';
 
   @override
-  String get noReadersFound => 'No Readers Found';
+  String get noReadersFound => 'Aucun lecteur trouvé';
 
   @override
   String get noReadersFoundMessage =>
-      'Insert a compatible reader or scan for BLE devices to manage your eSIM profiles.';
+      'Insérez un lecteur compatible ou recherchez des appareils BLE pour gérer vos profils eSIM.';
 
   @override
-  String get scanBle => 'Scan BLE';
+  String get scanBle => 'Rechercher en BLE';
 
   @override
-  String get reminderDetails => 'Reminder Details';
+  String get reminderDetails => 'Détails du rappel';
 
   @override
-  String get profileNotFound => 'Profile not found';
+  String get profileNotFound => 'Profil introuvable';
 
   @override
-  String get resending => 'Resending...';
+  String get resending => 'Renvoi...';
 
   @override
-  String get noAddressInNotification => 'No address in notification data';
+  String get noAddressInNotification =>
+      'Aucune adresse dans les données de notification';
 
   @override
-  String get sentSuccessfully => 'Sent successfully';
+  String get sentSuccessfully => 'Envoyé avec succès';
 
   @override
-  String get sendFailed => 'Send failed';
+  String get sendFailed => 'Échec de l\'envoi';
 
   @override
-  String get copiedCurl => 'Copied cURL command to clipboard';
+  String get copiedCurl => 'Commande cURL copiée dans le presse-papiers';
 
   @override
-  String get noAddressToExport => 'No address to export';
+  String get noAddressToExport => 'Aucune adresse à exporter';
 
   @override
-  String get noHistoryAvailable => 'No history available';
+  String get noHistoryAvailable => 'Aucun historique disponible';
 
   @override
-  String get searchByIccid => 'Search by ICCID...';
+  String get searchByIccid => 'Rechercher par ICCID...';
 
   @override
-  String get resendNotification => 'Resend notification';
+  String get resendNotification => 'Renvoyer la notification';
 
   @override
-  String get exportAsCurl => 'Export as cURL';
+  String get exportAsCurl => 'Exporter en cURL';
 
   @override
-  String get viewDetails => 'View details';
+  String get viewDetails => 'Voir les détails';
 
   @override
-  String get deleteEntry => 'Delete entry';
+  String get deleteEntry => 'Supprimer l\'entrée';
 
   @override
   String activeReminders(int count) {
-    return '$count active reminders';
+    return '$count rappels actifs';
   }
 
   @override
-  String get noScheduledReminders => 'No scheduled reminders';
+  String get noScheduledReminders => 'Aucun rappel programmé';
 
   @override
   String get remindersAppearWhen =>
-      'Reminders appear when you add date tags to profiles.';
+      'Les rappels apparaissent lorsque vous ajoutez des tags de date aux profils.';
 
   @override
   String activeTagsCount(int count) {
-    return '$count active tags across all profiles';
+    return '$count tags actifs sur tous les profils';
   }
 
   @override
-  String get searchTagsOrProfiles => 'Search tags or profiles...';
+  String get searchTagsOrProfiles => 'Rechercher des tags ou des profils...';
 
   @override
-  String get noTagsFound => 'No tags found';
+  String get noTagsFound => 'Aucun tag trouvé';
 
   @override
   String get addTagsFromProfileMenu =>
-      'Add tags to your profiles from the profile edit menu to see them here.';
+      'Ajoutez des tags à vos profils depuis le menu d\'édition pour les voir ici.';
 
   @override
-  String get expired => 'Expired';
+  String get expired => 'Expiré';
 
   @override
   String daysLeft(int count) {
-    return '${count}d left';
+    return '$count j restants';
   }
 
   @override
   String hoursLeft(int count) {
-    return '${count}h left';
+    return '$count h restantes';
   }
 
   @override
-  String get expiresSoon => 'Expires soon';
+  String get expiresSoon => 'Expire bientôt';
 
   @override
-  String get soon => 'soon';
+  String get soon => 'bientôt';
 
   @override
-  String get activeTags => 'Active Tags';
+  String get activeTags => 'Tags actifs';
 
   @override
-  String get addNewTag => 'Add New Tag';
+  String get addNewTag => 'Ajouter un tag';
 
   @override
-  String get noTagsAssigned => 'No tags assigned to this profile';
+  String get noTagsAssigned => 'Aucun tag attribué à ce profil';
 
   @override
-  String get textTagHint => 'Text tag (e.g. Work, Travel)';
+  String get textTagHint => 'Tag texte (ex. Travail, Voyage)';
 
   @override
-  String get addDateExpiryTag => 'Add Date/Expiry Tag';
+  String get addDateExpiryTag => 'Ajouter un tag de date/expiration';
 
   @override
-  String get addNoteOptional => 'Add Note (Optional)';
+  String get addNoteOptional => 'Ajouter une note (facultatif)';
 
   @override
-  String get add => 'Add';
+  String get add => 'Ajouter';
 
   @override
-  String get noteHint => 'e.g. Expiry, 10GB, etc.';
+  String get noteHint => 'ex. Expiration, 10 Go, etc.';
 
   @override
-  String get invalidHexString => 'Invalid Hex String';
+  String get invalidHexString => 'Chaîne hexadécimale invalide';
 
   @override
-  String get resetToDefaults => 'Reset to Defaults';
+  String get resetToDefaults => 'Réinitialiser les valeurs par défaut';
 
   @override
-  String get resetToDefaultsSuccess => 'Reset to defaults';
+  String get resetToDefaultsSuccess => 'Valeurs par défaut restaurées';
 
   @override
-  String get addAidHex => 'Add AID (Hex)';
+  String get addAidHex => 'Ajouter un AID (hex)';
 
   @override
-  String get manageAutoNotif => 'Manage automatic notification processing';
+  String get manageAutoNotif =>
+      'Gérer le traitement automatique des notifications';
 
   @override
-  String get automaticProcessing => 'AUTOMATIC PROCESSING';
+  String get automaticProcessing => 'TRAITEMENT AUTOMATIQUE';
 
   @override
   String get notifProcessingInfo =>
-      'Processing notifications helps synchronization between your eUICC and the SM-DP+ server (carrier). Removing sent notifications keeps your card storage clean.';
+      'Le traitement des notifications facilite la synchronisation entre votre eUICC et le serveur SM-DP+ (opérateur). Supprimer les notifications envoyées permet de garder le stockage de votre carte propre.';
 
   @override
-  String get enabling => 'Enabling';
+  String get enabling => 'Activation';
 
   @override
-  String get afterEnabling => 'After enabling profile';
+  String get afterEnabling => 'Après l\'activation d\'un profil';
 
   @override
-  String get disabling => 'Disabling';
+  String get disabling => 'Désactivation';
 
   @override
-  String get afterDisabling => 'After disabling profile';
+  String get afterDisabling => 'Après la désactivation d\'un profil';
 
   @override
   String get installation => 'Installation';
 
   @override
-  String get afterDownload => 'After profile download';
+  String get afterDownload => 'Après le téléchargement d\'un profil';
 
   @override
-  String get deletion => 'Deletion';
+  String get deletion => 'Suppression';
 
   @override
-  String get afterDeletion => 'After deleting profile';
+  String get afterDeletion => 'Après la suppression d\'un profil';
 
   @override
-  String get autoSend => 'Auto-Send';
+  String get autoSend => 'Envoi automatique';
 
   @override
-  String get autoSendSubtitle => 'Send to server automatically';
+  String get autoSendSubtitle => 'Envoyer automatiquement au serveur';
 
   @override
-  String get autoRemove => 'Auto-Remove';
+  String get autoRemove => 'Suppression automatique';
 
   @override
-  String get autoRemoveSubtitle => 'Delete from card after sending';
+  String get autoRemoveSubtitle => 'Supprimer de la carte après l\'envoi';
 
   @override
-  String get removeWithoutSending => 'Remove Without Sending';
+  String get removeWithoutSending => 'Supprimer sans envoyer';
 
   @override
   String get removeWithoutSendingSubtitle =>
-      'Use with caution: server won\'t be notified';
+      'À utiliser avec précaution : le serveur ne sera pas notifié';
 
   @override
-  String get permissionsActive => 'Permissions Active';
+  String get permissionsActive => 'Permissions actives';
 
   @override
-  String get permissionsRequired => 'Permissions Required';
+  String get permissionsRequired => 'Permissions requises';
 
   @override
-  String get appCanSendNotif => 'App can send system notifications';
+  String get appCanSendNotif =>
+      'L\'application peut envoyer des notifications système';
 
   @override
-  String get requiredForReminders => 'Required for reminder alerts';
+  String get requiredForReminders => 'Nécessaire pour les alertes de rappel';
 
   @override
   String get unsupportedPlatformCheck =>
-      'Permission checking is not supported on this platform. Please do manual testing.';
+      'La vérification des permissions n\'est pas prise en charge sur cette plateforme. Veuillez effectuer un test manuel.';
 
   @override
   String get couldNotVerifyStatus =>
-      'Could not verify status. Please check Settings manually.';
+      'Impossible de vérifier l\'état. Veuillez consulter les Paramètres manuellement.';
 
   @override
-  String get testNotificationTitle => 'Test Notification';
+  String get testNotificationTitle => 'Notification de test';
 
   @override
-  String get seconds => 'seconds';
+  String get seconds => 'secondes';
 
   @override
-  String get startTest => 'Start Test';
+  String get startTest => 'Démarrer le test';
 
   @override
-  String get sendingNotif => 'Sending...';
+  String get sendingNotif => 'Envoi...';
 
   @override
-  String get hostIpLabel => 'Hostname / IP';
+  String get hostIpLabel => 'Nom d\'hôte / IP';
 
   @override
   String get portLabel => 'Port';
 
   @override
-  String get passwordOptionalLabel => 'Password (Optional)';
+  String get passwordOptionalLabel => 'Mot de passe (facultatif)';
 
   @override
-  String get configuredServers => 'Configured Servers';
+  String get configuredServers => 'Serveurs configurés';
 
   @override
-  String get secureHttps => 'Secure (HTTPS)';
+  String get secureHttps => 'Sécurisé (HTTPS)';
 
   @override
-  String get insecureHttp => 'Insecure (HTTP)';
+  String get insecureHttp => 'Non sécurisé (HTTP)';
 
   @override
-  String get urlCopied => 'URL copied';
+  String get urlCopied => 'URL copiée';
 
   @override
-  String get serverAddedSuccessfully => 'Server added successfully';
+  String get serverAddedSuccessfully => 'Serveur ajouté avec succès';
 
   @override
   String get authFailedCheckPassword =>
-      'Authentication failed. Check password.';
+      'Échec de l\'authentification. Vérifiez le mot de passe.';
 
   @override
-  String get addNewServer => 'Add New Server';
+  String get addNewServer => 'Ajouter un serveur';
 
   @override
-  String get autoLoadRemotes => 'Auto-load Remote Devices';
+  String get autoLoadRemotes =>
+      'Charger automatiquement les appareils distants';
 
   @override
   String get autoLoadRemotesSubtitle =>
-      'Automatically connect to configured servers on app startup';
+      'Se connecter automatiquement aux serveurs configurés au démarrage de l\'application';
 
   @override
-  String get getRemoCardGitHub => 'Get RemoCard from GitHub';
+  String get getRemoCardGitHub => 'Obtenir RemoCard sur GitHub';
 
   @override
-  String get instructions => 'Instructions:';
+  String get instructions => 'Instructions :';
 
   @override
-  String get instruction1 => '1. Install RemoCard app on your Android devices.';
+  String get instruction1 =>
+      '1. Installez l\'application RemoCard sur vos appareils Android.';
 
   @override
-  String get instruction2 => '2. Start the server in each RemoCard app.';
+  String get instruction2 =>
+      '2. Démarrez le serveur dans chaque application RemoCard.';
 
   @override
-  String get instruction3 => '3. Enter the IP addresses here.';
+  String get instruction3 => '3. Saisissez les adresses IP ici.';
 
   @override
   String get instruction4 =>
-      '4. All remote SIM slots will appear in the device list.';
+      '4. Tous les emplacements SIM distants apparaîtront dans la liste des appareils.';
 
   @override
-  String get appLogsCopied => 'Logs copied to clipboard';
+  String get appLogsCopied => 'Journaux copiés dans le presse-papiers';
 
   @override
-  String get aramInfoTitle => 'ARA-M Information';
+  String get aramInfoTitle => 'Informations ARA-M';
 
   @override
-  String get aramInfoSubtitle => 'Access Rule Applet details';
+  String get aramInfoSubtitle => 'Détails de l\'Access Rule Applet';
 
   @override
-  String get whatIsAram => 'What is ARA-M?';
+  String get whatIsAram => 'Qu\'est-ce que l\'ARA-M ?';
 
   @override
   String get aramDescription =>
-      'Access Rule Applet (ARA-M) is a mechanism on eUICCs (eSIMs) and SIM cards that defines which applications are allowed to manage profiles or perform low-level operations. If the app\'s hash is not present in the card\'s ARA-M allowlist, the Android system will block access, resulting in an \'Access Denied\' error.';
+      'L\'Access Rule Applet (ARA-M) est un mécanisme présent sur les eUICC (eSIM) et les cartes SIM qui définit quelles applications sont autorisées à gérer des profils ou à effectuer des opérations de bas niveau. Si l\'empreinte de l\'application ne figure pas dans la liste d\'autorisation ARA-M de la carte, le système Android bloquera l\'accès, ce qui provoquera une erreur « Accès refusé ».';
 
   @override
-  String get appCertHashes => 'App Certificate Hashes';
+  String get appCertHashes => 'Empreintes du certificat de l\'application';
 
   @override
   String get aramHashInstruction =>
-      'Pour assurer la compatibilité entre les versions d\'Android, ajoutez toutes les empreintes SHA-1 de certificat ci-dessous aux règles ARA-M de votre carte. Après une mise à niveau de la clé de signature de l\'application, différentes versions d\'Android peuvent vérifier des certificats différents de l\'historique de signature validé.';
+      'Pour accorder l\'accès à cette application, vous devrez peut-être ajouter l\'empreinte de certificat SHA-1 suivante aux règles ARA-M de votre carte. Cette empreinte est propre au certificat de votre version actuelle de l\'application.';
 
   @override
   String get aramSigningHistoryInstruction =>
-      'For compatibility across Android versions, add all SHA-1 certificate hashes below to your card\'s ARA-M rules. After an app signing key upgrade, different Android versions may check different certificates from the verified signing history.';
+      'Pour assurer la compatibilité entre les versions d\'Android, ajoutez toutes les empreintes de certificat SHA-1 ci-dessous aux règles ARA-M de votre carte. Après un changement de clé de signature, différentes versions d\'Android peuvent vérifier différents certificats issus de l\'historique de signature vérifié.';
 
   @override
-  String get certSha1Hash => 'Certificate SHA-1 Hash';
+  String get certSha1Hash => 'Empreinte SHA-1 du certificat';
 
   @override
-  String get unavailable => 'Unavailable';
+  String get unavailable => 'Indisponible';
 
   @override
-  String get troubleshooting => 'Troubleshooting';
+  String get troubleshooting => 'Dépannage';
 
   @override
-  String get troubleStep1 => 'Ensure you are using the correct Card Reader.';
+  String get troubleStep1 =>
+      'Assurez-vous d\'utiliser le bon lecteur de carte.';
 
   @override
   String get troubleStep2 =>
-      'If using a physical card, check if it\'s a test card or a production card (production cards often lock ARA-M).';
+      'Si vous utilisez une carte physique, vérifiez s\'il s\'agit d\'une carte de test ou d\'une carte de production (les cartes de production verrouillent souvent l\'ARA-M).';
 
   @override
   String get troubleStep3 =>
-      'The hashes above depend on whether you use the Debug, Regular, or Privileged (Magisk) version of the app.';
+      'Les empreintes ci-dessus dépendent de la version de l\'application utilisée : Debug, Regular ou Privileged (Magisk).';
 
   @override
   String get troubleStep4 =>
-      'Consider using the Privileged (Magisk) build which can bypass some Android API restrictions.';
+      'Envisagez d\'utiliser la version Privileged (Magisk), qui peut contourner certaines restrictions des API Android.';
 
   @override
-  String get hashCopied => 'Hash copied to clipboard';
+  String get hashCopied => 'Empreinte copiée dans le presse-papiers';
 
   @override
-  String get aidCopied => 'AID copied to clipboard';
+  String get aidCopied => 'AID copié dans le presse-papiers';
 
   @override
-  String get lastSeen => 'Last Seen';
+  String get lastSeen => 'Dernière détection';
 
   @override
-  String get unknownProvider => 'Unknown Provider';
+  String get unknownProvider => 'Fournisseur inconnu';
 
   @override
   String get unknownProfile => 'Profil inconnu';
@@ -1427,21 +1472,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tags => 'Tags';
 
   @override
-  String get noTags => 'No tags';
+  String get noTags => 'Aucun tag';
 
   @override
   String records(int count) {
-    return '$count records';
+    return '$count enregistrements';
   }
 
   @override
-  String get bytes => 'bytes';
+  String get bytes => 'octets';
 
   @override
-  String get responseCode => 'Response Code';
+  String get responseCode => 'Code de réponse';
 
   @override
-  String get responseBody => 'Response Body';
+  String get responseBody => 'Corps de la réponse';
 
   @override
   String get type => 'Type';
@@ -1451,137 +1496,141 @@ class AppLocalizationsFr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count profiles',
-      one: '1 profile',
+      other: '$count profils',
+      one: '1 profil',
     );
     return '$_temp0';
   }
 
   @override
-  String get isdrAids => 'ISD-R AIDs';
+  String get isdrAids => 'AID ISD-R';
 
   @override
-  String get configureDefaultAids => 'Configure default Application IDs';
+  String get configureDefaultAids =>
+      'Configurer les identifiants d\'application par défaut';
 
   @override
-  String get addAidHexHint => 'Add AID (Hex)';
+  String get addAidHexHint => 'Ajouter un AID (hex)';
 
   @override
   String get notificationProcessing => 'Notifications';
 
   @override
   String get manageAutoNotification =>
-      'Manage automatic notification processing';
+      'Gérer le traitement automatique des notifications';
 
   @override
   String get notificationProcessingHelp =>
-      'Processing notifications helps synchronization between your eUICC and the SM-DP+ server (carrier). Removing sent notifications keeps your card storage clean.';
+      'Le traitement des notifications facilite la synchronisation entre votre eUICC et le serveur SM-DP+ (opérateur). Supprimer les notifications envoyées permet de garder le stockage de votre carte propre.';
 
   @override
-  String get notificationProcessingTimings => 'Processing timings';
+  String get notificationProcessingTimings => 'Moments de traitement';
 
   @override
   String get notificationProcessingTimingsHelp =>
-      'Choose when automatic notification processing runs. Some safety-critical timings can only be disabled while Developer Mode is enabled.';
+      'Choisissez quand le traitement automatique des notifications s\'exécute. Certains moments critiques pour la sécurité ne peuvent être désactivés que lorsque le mode développeur est activé.';
 
   @override
-  String get afterEnablingProfile => 'After enabling profile';
+  String get afterEnablingProfile => 'Après l\'activation d\'un profil';
 
   @override
-  String get afterDisablingProfile => 'After disabling profile';
+  String get afterDisablingProfile => 'Après la désactivation d\'un profil';
 
   @override
-  String get afterProfileDownload => 'After profile download';
+  String get afterProfileDownload => 'Après le téléchargement d\'un profil';
 
   @override
-  String get afterProfileDeletion => 'After deleting profile';
+  String get afterProfileDeletion => 'Après la suppression d\'un profil';
 
   @override
-  String get initialLoad => 'Initial load';
+  String get initialLoad => 'Chargement initial';
 
   @override
   String get processNotificationsOnInitialLoad =>
-      'Process notifications after profiles finish loading';
+      'Traiter les notifications une fois le chargement des profils terminé';
 
   @override
-  String get afterSwitchingProfile => 'After switching profile';
+  String get afterSwitchingProfile => 'Après un changement de profil';
 
   @override
   String get processNotificationsAfterSwitchingProfile =>
-      'Process notifications after enabling or disabling a profile';
+      'Traiter les notifications après l\'activation ou la désactivation d\'un profil';
 
   @override
-  String get beforeProfileDownload => 'Before profile download';
+  String get beforeProfileDownload => 'Avant le téléchargement d\'un profil';
 
   @override
   String get processNotificationsBeforeProfileDownload =>
-      'Process notifications before starting a profile download';
+      'Traiter les notifications avant de démarrer le téléchargement d\'un profil';
 
   @override
-  String get afterProfileInstalled => 'After profile installed';
+  String get afterProfileInstalled => 'Après l\'installation d\'un profil';
 
   @override
   String get processNotificationsAfterProfileInstalled =>
-      'Process notifications after a profile has been installed';
+      'Traiter les notifications après l\'installation d\'un profil';
 
   @override
   String get processNotificationsAfterProfileDeletion =>
-      'Process notifications after deleting a profile';
+      'Traiter les notifications après la suppression d\'un profil';
 
   @override
   String get developerModeRequiredToDisableTiming =>
-      'Enable Developer Mode to disable this timing.';
+      'Activez le mode développeur pour désactiver ce moment.';
 
   @override
-  String get sendToServerAutomatically => 'Send to server automatically';
+  String get sendToServerAutomatically => 'Envoyer automatiquement au serveur';
 
   @override
-  String get removeFromCardAfterSending => 'Delete from card after sending';
+  String get removeFromCardAfterSending =>
+      'Supprimer de la carte après l\'envoi';
 
   @override
   String get removeWithoutSendingCaution =>
-      'Use with caution: server won\'t be notified';
+      'À utiliser avec précaution : le serveur ne sera pas notifié';
 
   @override
-  String get reminderSettings => 'Reminder Settings';
+  String get reminderSettings => 'Paramètres des rappels';
 
   @override
-  String get appCanSendNotifications => 'App can send system notifications';
+  String get appCanSendNotifications =>
+      'L\'application peut envoyer des notifications système';
 
   @override
-  String get requiredForReminderAlerts => 'Required for reminder alerts';
+  String get requiredForReminderAlerts =>
+      'Nécessaire pour les alertes de rappel';
 
   @override
-  String get enable => 'Enable';
+  String get enable => 'Activer';
 
   @override
   String get permissionCheckNotSupported =>
-      'Permission checking is not supported on this platform. Please do manual testing.';
+      'La vérification des permissions n\'est pas prise en charge sur cette plateforme. Veuillez effectuer un test manuel.';
 
   @override
-  String get testNotification => 'Test Notification';
+  String get testNotification => 'Notification de test';
 
   @override
   String get notificationsDisabledMessage =>
-      'Notifications are disabled. Please enable them in system settings to receive reminders.';
+      'Les notifications sont désactivées. Activez-les dans les paramètres système pour recevoir des rappels.';
 
   @override
-  String get openSettings => 'Open Settings';
+  String get openSettings => 'Ouvrir les paramètres';
 
   @override
-  String get applicationLogs => 'Application Logs';
+  String get applicationLogs => 'Journaux de l\'application';
 
   @override
-  String get refreshReload => 'Refresh/Reload';
+  String get refreshReload => 'Actualiser/Recharger';
 
   @override
-  String get toggleAutoScroll => 'Toggle Auto-scroll';
+  String get toggleAutoScroll => 'Activer/désactiver le défilement automatique';
 
   @override
-  String get refreshDevices => 'Refresh devices';
+  String get refreshDevices => 'Actualiser les appareils';
 
   @override
-  String get scanBluetooth => 'Scan Bluetooth';
+  String get scanBluetooth => 'Rechercher en Bluetooth';
 
   @override
   String get lessThan1Kb => '< 1 Ko';
@@ -1627,17 +1676,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get firmwareVersion => 'Version du micrologiciel';
 
   @override
-  String get beeSimFirmwareAction => 'Update BeeSIM firmware';
+  String get beeSimFirmwareAction => 'Mettre à jour le firmware BeeSIM';
 
   @override
-  String get beeSimFirmwareTitle => 'BeeSIM firmware update';
+  String get beeSimFirmwareTitle => 'Mise à jour du firmware BeeSIM';
 
   @override
   String get beeSimFirmwareWarning =>
-      'A BeeSIM firmware update is available. Keep the card powered, Bluetooth connected, and the app open until it finishes. Interrupting the update may leave the card temporarily unusable.';
+      'Une mise à jour du firmware BeeSIM est disponible. Gardez la carte alimentée, le Bluetooth connecté et l\'application ouverte jusqu\'à la fin de l\'opération. Interrompre la mise à jour peut rendre la carte temporairement inutilisable.';
 
   @override
-  String get beeSimFirmwareConfirm => 'Update firmware';
+  String get beeSimFirmwareConfirm => 'Mettre à jour le firmware';
 
   @override
   String get platformSupport => 'SUPPORT DE PLATEFORME';
@@ -1653,6 +1702,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get certInfrastructure => 'INFRASTRUCTURE DE CERTIFICATS';
+
+  @override
+  String get configuredAddresses => 'ADRESSES CONFIGURÉES';
+
+  @override
+  String get defaultSmdpAddress => 'SM-DP+ par défaut';
+
+  @override
+  String get rootDsAddress => 'SM-DS racine';
 
   @override
   String get euiccSignCi => 'CI de signature eUICC';
@@ -1684,22 +1742,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sending => 'Envoi...';
 
   @override
-  String get failedToSaveTags => 'Failed to save tags';
+  String get failedToSaveTags => 'Échec de l\'enregistrement des tags';
 
   @override
   String get note => 'Note';
 
   @override
-  String get notificationDetails => 'Notification Details';
+  String get notificationDetails => 'Détails de la notification';
 
   @override
-  String get unknown => 'Unknown';
+  String get unknown => 'Inconnu';
 
   @override
-  String get status => 'Status';
+  String get status => 'État';
 
   @override
-  String get sent => 'Sent';
+  String get sent => 'Envoyé';
 
   @override
   String get pending => 'En attente';
@@ -1807,35 +1865,35 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noNotifications => 'Aucune notification';
 
   @override
-  String get batchDownloadTitle => 'Batch Download';
+  String get batchDownloadTitle => 'Téléchargement par lot';
 
   @override
   String get batchDownloadHint =>
-      'Paste multiple LPA codes here (one per line, max 20)';
+      'Collez plusieurs codes LPA ici (un par ligne, 20 maximum)';
 
   @override
   String foundLpaCodes(int count) {
-    return '$count LPA codes found';
+    return '$count codes LPA trouvés';
   }
 
   @override
-  String get startBatch => 'Start Batch';
+  String get startBatch => 'Démarrer le lot';
 
   @override
-  String get noLpaCodesFound => 'No valid LPA codes found';
+  String get noLpaCodesFound => 'Aucun code LPA valide trouvé';
 
   @override
   String get insufficientSpaceStoppingBatch =>
-      'Insufficient space. Stopping batch download.';
+      'Espace insuffisant. Arrêt du téléchargement par lot.';
 
   @override
-  String get exportCsv => 'Export to CSV';
+  String get exportCsv => 'Exporter en CSV';
 
   @override
-  String get exportedSuccessfully => 'Exported successfully';
+  String get exportedSuccessfully => 'Exporté avec succès';
 
   @override
-  String get exportResults => 'Export Results';
+  String get exportResults => 'Exporter les résultats';
 
   @override
   String get lpa => 'LPA';
@@ -1844,86 +1902,86 @@ class AppLocalizationsFr extends AppLocalizations {
   String get smdp => 'SM-DP+';
 
   @override
-  String get confirmationCode => 'Confirmation Code';
+  String get confirmationCode => 'Code de confirmation';
 
   @override
-  String get size => 'Size';
+  String get size => 'Taille';
 
   @override
   String get message => 'Message';
 
   @override
-  String get remainingSpace => 'Remaining Space';
+  String get remainingSpace => 'Espace restant';
 
   @override
-  String get stopBatch => 'Stop Batch';
+  String get stopBatch => 'Arrêter le lot';
 
   @override
-  String get stopping => 'Stopping...';
+  String get stopping => 'Arrêt...';
 
   @override
-  String get remove => 'Remove';
+  String get remove => 'Supprimer';
 
   @override
-  String get updateAvailable => 'Update Available';
+  String get updateAvailable => 'Mise à jour disponible';
 
   @override
   String updateAvailableSubtitle(String appName, String version, String build) {
-    return 'A new version of $appName is available (v$version b$build). Would you like to update now?';
+    return 'Une nouvelle version de $appName est disponible (v$version b$build). Voulez-vous la mettre à jour maintenant ?';
   }
 
   @override
-  String get updateAction => 'Update';
+  String get updateAction => 'Mettre à jour';
 
   @override
-  String get later => 'Later';
+  String get later => 'Plus tard';
 
   @override
-  String get changelog => 'Changelog';
+  String get changelog => 'Journal des modifications';
 
   @override
-  String get sortBy => 'Sort by';
+  String get sortBy => 'Trier par';
 
   @override
   String get sortIccid => 'ICCID';
 
   @override
-  String get sortCountry => 'Country';
+  String get sortCountry => 'Pays';
 
   @override
-  String get sortAscending => 'Ascending';
+  String get sortAscending => 'Croissant';
 
   @override
-  String get sortDescending => 'Descending';
+  String get sortDescending => 'Décroissant';
 
   @override
-  String get searchProfiles => 'Search profiles...';
+  String get searchProfiles => 'Rechercher des profils...';
 
   @override
-  String get noProfilesMatch => 'No profiles match your search.';
+  String get noProfilesMatch => 'Aucun profil ne correspond à votre recherche.';
 
   @override
-  String get sortDefault => 'Default';
+  String get sortDefault => 'Par défaut';
 
   @override
-  String get sortNickname => 'Nickname';
+  String get sortNickname => 'Surnom';
 
   @override
-  String get showProfileSearch => 'Show Profile Search';
+  String get showProfileSearch => 'Afficher la recherche de profils';
 
   @override
   String get showProfileSearchSubtitle =>
-      'Show search and sort bar in profile list';
+      'Afficher la barre de recherche et de tri dans la liste des profils';
 
   @override
   String get noReaderFound =>
-      'No reader found. Please connect your eUICC adapter.';
+      'Aucun lecteur trouvé. Veuillez connecter votre adaptateur eUICC.';
 
   @override
-  String get readyToInstallProfile => 'Ready to install profile.';
+  String get readyToInstallProfile => 'Prêt à installer le profil.';
 
   @override
-  String get downloadHere => 'Download Here';
+  String get downloadHere => 'Télécharger ici';
 
   @override
   String get manage => 'Gérer';
@@ -1935,178 +1993,337 @@ class AppLocalizationsFr extends AppLocalizations {
   String get buyData => 'Données';
 
   @override
-  String get selectDevice => 'Select Device';
+  String get selectDevice => 'Sélectionner un appareil';
 
   @override
-  String get selectReaderTitle => 'Select Card';
+  String get selectReaderTitle => 'Sélectionner une carte';
 
   @override
-  String get authorizeSigning => 'Authorize Signing';
+  String get authorizeSigning => 'Autoriser la signature';
 
   @override
   String get signingDescription =>
-      'A website is requesting a secure signature from your eUICC.';
+      'Un site web demande une signature sécurisée à votre eUICC.';
 
   @override
-  String get smdpAddress => 'SM-DP+ Address';
+  String get smdpAddress => 'Adresse SM-DP+';
 
   @override
-  String get sign => 'Sign';
+  String get sign => 'Signer';
 
   @override
   String profilesInstalled(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count profiles installed',
-      one: '1 profile installed',
+      other: '$count profils installés',
+      one: '1 profil installé',
     );
     return '$_temp0';
   }
 
   @override
-  String get estimatedDownloadSize => 'Estimated download size';
+  String get estimatedDownloadSize => 'Taille de téléchargement estimée';
 
   @override
-  String get phoneFormatInternationalOnly => 'E.164 Int\'l Only';
+  String get phoneFormatInternationalOnly => 'E.164 int. uniquement';
 
   @override
-  String get phoneFormatInternationalAndMobile => 'Int\'l & Mobile';
+  String get phoneFormatInternationalAndMobile => 'Int. et mobile';
 
   @override
-  String get phoneFormatInternationalAndAll => 'Int\'l & National';
+  String get phoneFormatInternationalAndAll => 'Int. et national';
 
   @override
-  String get phoneFormatOff => 'Off';
+  String get phoneFormatOff => 'Désactivé';
 
   @override
-  String get settings_item_unit_b => 'Bytes';
+  String get settings_item_unit_b => 'Octets';
 
   @override
-  String get settings_item_unit_kb => 'kB (1,000 Bytes)';
+  String get settings_item_unit_kb => 'ko (1 000 octets)';
 
   @override
-  String get settings_item_unit_kib => 'kiB (1,024 Bytes)';
+  String get settings_item_unit_kib => 'kio (1 024 octets)';
 
   @override
-  String get settings_item_unit_adaptive_si => 'B / kB Adaptive';
+  String get settings_item_unit_adaptive_si => 'o / ko adaptatif';
 
   @override
-  String get settings_item_unit_adaptive_bi => 'B / kiB Adaptive';
+  String get settings_item_unit_adaptive_bi => 'o / kio adaptatif';
 
   @override
   String get insufficientStorageWarning =>
-      'Insufficient storage for installation. Installation might fail.';
+      'Espace de stockage insuffisant pour l\'installation. Celle-ci risque d\'échouer.';
 
   @override
-  String get estimateProfileSize => 'Estimate Profile Size';
+  String get estimateProfileSize => 'Estimer la taille du profil';
 
   @override
   String get estimateProfileSizeSubtitle =>
-      'Estimate size of profile metadata before download';
+      'Estimer la taille des métadonnées du profil avant le téléchargement';
 
   @override
-  String get customize => 'Customize';
+  String get customize => 'Personnaliser';
 
   @override
   String get customizeDescription =>
-      'Specify a new 6-character hex name and password for your writer.';
+      'Indiquez un nouveau nom hexadécimal de 6 caractères et un mot de passe pour votre lecteur.';
 
   @override
   String get customizeSuccess =>
-      'Writer customized. Please re-pair the device.';
+      'Lecteur personnalisé. Veuillez ré-appairer l\'appareil.';
 
   @override
   String customizeFailed(String error) {
-    return 'Failed to customize writer: $error';
+    return 'Échec de la personnalisation du lecteur : $error';
   }
 
   @override
-  String get deviceName => 'Device Name';
+  String get defaultPasswordWillChangeTitle =>
+      'Le mot de passe par défaut va changer';
 
   @override
-  String get success => 'Success';
+  String defaultPasswordWillChangeMessage(String password) {
+    return 'Cet appareil est connecté avec son mot de passe par défaut. Le renommer définira le mot de passe sur $password. Enregistrez ce mot de passe avant de vous reconnecter.';
+  }
 
   @override
-  String get devicePasswordHint => '6 hex chars or password string';
+  String get savedBleDevices => 'Appareils BLE déjà connectés';
 
   @override
-  String get sixHexChars => '6 hex chars';
+  String get savedBleDevicesSubtitle =>
+      'Afficher les noms et mots de passe des appareils enregistrés sur cet appareil';
 
   @override
-  String get database => 'Database';
+  String get savedBleDevicesDescription =>
+      'Chaque entrée correspond à un mot de passe NBLESim enregistré localement. Les mots de passe par défaut sont également enregistrés.';
+
+  @override
+  String get noSavedBleDevices => 'Aucun appareil BLE déjà connecté.';
+
+  @override
+  String get deviceName => 'Nom de l\'appareil';
+
+  @override
+  String get success => 'Succès';
+
+  @override
+  String get devicePasswordHint => '6 caractères hex ou mot de passe';
+
+  @override
+  String get sixHexChars => '6 caractères hex';
+
+  @override
+  String get database => 'Base de données';
 
   @override
   String exportSuccess(String path) {
-    return 'Database exported to $path';
+    return 'Base de données exportée vers $path';
   }
 
   @override
-  String get importDatabase => 'Import Database';
+  String get importDatabase => 'Importer la base de données';
 
   @override
-  String get importDatabaseSubtitle => 'Merge rows from another database file';
+  String get importDatabaseSubtitle =>
+      'Fusionner les entrées d\'un autre fichier de base de données';
 
   @override
-  String get importDatabaseDialogTitle => 'Select database file to import';
+  String get importDatabaseDialogTitle =>
+      'Sélectionnez le fichier de base de données à importer';
 
   @override
-  String get importDatabaseTitle => 'Import Database';
+  String get importDatabaseTitle => 'Importer la base de données';
 
   @override
   String get importDatabaseContent =>
-      'This will merge rows from the selected database into your current database. Existing rows with the same keys will be overwritten. Continue?';
+      'Les entrées de la base sélectionnée seront fusionnées avec votre base actuelle. Les entrées existantes ayant les mêmes clés seront écrasées. Continuer ?';
 
   @override
-  String get import => 'Import';
+  String get import => 'Importer';
 
   @override
-  String get importSuccess => 'Database imported successfully';
+  String get importSuccess => 'Base de données importée avec succès';
 
   @override
   String importFailed(String error) {
-    return 'Failed to import database: $error';
+    return 'Échec de l\'importation de la base de données : $error';
   }
 
   @override
-  String get resetDatabase => 'Reset Database';
+  String get resetDatabase => 'Réinitialiser la base de données';
 
   @override
-  String get resetDatabaseSubtitle => 'Clear all application data and restart';
+  String get resetDatabaseSubtitle =>
+      'Effacer toutes les données de l\'application et redémarrer';
 
   @override
-  String get resetDatabaseTitle => 'Reset Application Database';
+  String get resetDatabaseTitle =>
+      'Réinitialiser la base de données de l\'application';
 
   @override
   String get resetDatabaseContent =>
-      'This will completely delete all locally stored data, configurations, and logs. The application will close. Do you want to proceed?';
+      'Cette action supprimera définitivement toutes les données, configurations et journaux stockés localement. L\'application se fermera. Voulez-vous continuer ?';
 
   @override
-  String get deleteDatabase => 'Delete Database';
+  String get deleteDatabase => 'Supprimer la base de données';
 
   @override
   String resetFailed(String error) {
-    return 'Failed to reset database: $error';
+    return 'Échec de la réinitialisation de la base de données : $error';
   }
 
   @override
-  String get deviceImei => 'Device TAC';
+  String get deviceImei => 'TAC de l\'appareil';
 
   @override
-  String get deviceImeiSubtitle => 'Used for profile downloads';
+  String get deviceImeiSubtitle =>
+      'Utilisé pour les téléchargements de profils';
 
   @override
-  String get editDeviceImei => 'Edit Device TAC';
+  String get editDeviceImei => 'Modifier le TAC de l\'appareil';
 
   @override
   String get editDeviceImeiInfo =>
-      'Enter an 8-digit TAC, or a 15-digit IMEI. Default TAC: 35383741.';
+      'Saisissez un TAC à 8 chiffres ou un IMEI à 15 chiffres. TAC par défaut : 35383741.';
 
   @override
-  String get imeiDigits => 'TAC or IMEI digits';
+  String get imeiDigits => 'Chiffres du TAC ou de l\'IMEI';
 
   @override
-  String get importAction => 'Import';
+  String get importAction => 'Importer';
+
+  @override
+  String get transferTitle => 'Transférer l\'eSIM';
+
+  @override
+  String get transferAction => 'Transférer vers cet appareil';
+
+  @override
+  String get transferCheckingEligibility => 'Vérification de l\'éligibilité…';
+
+  @override
+  String get transferReadingSource => 'Lecture de la SIM source…';
+
+  @override
+  String get transferContactingCarrier => 'Contact de l\'opérateur…';
+
+  @override
+  String get transferIneligibleReader =>
+      'Ce profil ne peut pas être transféré avec ce lecteur. L\'authentification de la SIM source (EAP-AKA) n\'est pas accessible ici.';
+
+  @override
+  String get transferNoEntitlement =>
+      'Aucune configuration de transfert de l\'opérateur n\'a été trouvée pour ce profil. Vous pouvez saisir le serveur d\'entitlement manuellement.';
+
+  @override
+  String transferSourceCarrier(String carrier) {
+    return 'Opérateur source : $carrier';
+  }
+
+  @override
+  String get transferConfirmTitle => 'Transférer cet abonnement ?';
+
+  @override
+  String get transferConfirmBody =>
+      'L\'opérateur réémettra cet abonnement sur cette eUICC. Le profil source pourra être supprimé dans le cadre du transfert.';
+
+  @override
+  String get transferStart => 'Démarrer le transfert';
+
+  @override
+  String get transferDownloadingProfile =>
+      'Téléchargement du profil transféré…';
+
+  @override
+  String get transferDeleteSourceTitle => 'Supprimer le profil source';
+
+  @override
+  String transferDeleteSourceBody(String iccid) {
+    return 'L\'opérateur exige la suppression du profil source $iccid avant l\'activation. Le supprimer maintenant ?';
+  }
+
+  @override
+  String get transferDeleteSourceConfirm => 'Supprimer et continuer';
+
+  @override
+  String get transferUserInputSubmit => 'Valider';
+
+  @override
+  String get transferAccept => 'Accepter';
+
+  @override
+  String get transferReject => 'Refuser';
+
+  @override
+  String get transferPendingActivation =>
+      'L\'opérateur active encore cet abonnement. L\'opération se terminera sous peu ; vous pouvez fermer cette fenêtre et vérifier plus tard.';
+
+  @override
+  String get transferDismissed => 'L\'opérateur a rejeté le transfert.';
+
+  @override
+  String get transferDelayedDownload =>
+      'L\'opérateur livrera le profil sous peu. Une fois que vous l\'aurez installé, saisissez l\'ICCID installé pour terminer.';
+
+  @override
+  String get transferInstalledIccid => 'ICCID installé';
+
+  @override
+  String get transferSuccess => 'Transfert terminé';
+
+  @override
+  String transferFailed(String error) {
+    return 'Échec du transfert : $error';
+  }
+
+  @override
+  String get transferManualServerTitle => 'Serveur d\'entitlement (avancé)';
+
+  @override
+  String get transferManualServerHint => 'https://entitlement.example.com';
+
+  @override
+  String get transferEnablingSource => 'Préparation du profil source…';
+
+  @override
+  String get transferClose => 'Fermer';
+
+  @override
+  String get transferContinue => 'Continuer';
+
+  @override
+  String get transferSmdsDiscovering => 'Découverte des profils via SM-DS…';
+
+  @override
+  String get transferSmdsNoProfiles =>
+      'Aucun profil en attente n\'a été trouvé via la découverte SM-DS.';
+
+  @override
+  String get transferSelectProfile => 'Sélectionnez un profil à télécharger';
+
+  @override
+  String get discoverProfiles => 'Découvrir les profils (SM-DS)';
+
+  @override
+  String get discoveringProfiles => 'Découverte des profils…';
+
+  @override
+  String get discoveryNoProfiles =>
+      'Aucun profil en attente n\'a été trouvé via la découverte SM-DS.';
+
+  @override
+  String get transferSmdsServerTitle => 'Serveur SM-DS';
+
+  @override
+  String transferProfileOnServer(String eventId, String address) {
+    return '$eventId sur $address';
+  }
+
+  @override
+  String get downloadBusyCannotLeave =>
+      'Please wait for the current operation to finish.';
 
   @override
   String get qrtrReaderTitle => 'Qualcomm modem (QRTR)';
@@ -2114,12 +2331,4 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get qrtrReaderSubtitle =>
       'Qualcomm\'s low-level modem protocol (requires Shizuku)';
-
-  @override
-  String defaultPasswordWillChangeMessage(String password) {
-    return 'This device is connected with its default password. Renaming it will set the password to $password. Save this password before reconnecting.';
-  }
-
-  @override
-  String get defaultPasswordWillChangeTitle => 'Default password will change';
 }

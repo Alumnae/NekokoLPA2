@@ -12,36 +12,34 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsTitle => '설정';
 
   @override
-  String get displaySettings => 'Display Settings';
+  String get displaySettings => '디스플레이 설정';
 
   @override
   String get appearance => '외관';
 
   @override
-  String get appearanceSubtitle =>
-      'Customize theme, layout, and display preferences';
+  String get appearanceSubtitle => '테마, 레이아웃 및 디스플레이 기본 설정을 사용자 지정합니다.';
 
   @override
   String get darkMode => '다크 모드';
 
   @override
-  String get themeStyle => 'Theme Style';
+  String get themeStyle => '테마 스타일';
 
   @override
-  String get themeStyleSubtitle => 'Choose between Custom and MD3 style';
+  String get themeStyleSubtitle => '사용자 지정 스타일과 MD3 스타일 중 선택';
 
   @override
-  String get customDesign => 'Nekoko Style';
+  String get customDesign => 'Nekoko 스타일';
 
   @override
-  String get stockMD3 => 'Stock MD3';
+  String get stockMD3 => '기본 MD3';
 
   @override
-  String get waterfallLayout => 'Waterfall Layout';
+  String get waterfallLayout => '워터폴 레이아웃';
 
   @override
-  String get waterfallLayoutSubtitle =>
-      'Use Masonry style layout on wide screens';
+  String get waterfallLayoutSubtitle => '와이드 스크린에서 Masonry 스타일 레이아웃 사용합니다.';
 
   @override
   String get system => '시스템';
@@ -68,7 +66,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get autoLoadProfiles => '프로파일 자동 로드';
 
   @override
-  String get autoLoadProfilesSubtitle => '리더 선택 시 프로파일을 불러옵니다';
+  String get autoLoadProfilesSubtitle => '리더 선택 시 프로파일을 불러옵니다.';
 
   @override
   String get loadProfileIcons => '프로파일 아이콘 로드';
@@ -80,25 +78,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String get useNekokoIcons => '통신사 아이콘 사용';
 
   @override
-  String get useNekokoIconsSubtitle => 'operator-icons에서 통신사 아이콘을 가져옵니다';
+  String get useNekokoIconsSubtitle => 'operator-icons에서 통신사 아이콘을 가져옵니다.';
 
   @override
   String get forceDeviceDropdown => '기기 드롭다운 강제 사용';
 
   @override
-  String get forceDeviceDropdownSubtitle => '기기 선택 시 항상 드롭다운을 사용합니다';
+  String get forceDeviceDropdownSubtitle => '기기 선택 시 항상 드롭다운을 사용합니다.';
 
   @override
   String get sizeDisplayUnit => '크기 표시 단위';
 
   @override
-  String get sizeDisplayUnitSubtitle => '크기 표시에 사용할 단위 형식을 지정합니다';
+  String get sizeDisplayUnitSubtitle => '크기 표시에 사용할 단위 형식을 지정합니다.';
 
   @override
   String get phoneFormat => '전화번호 형식';
 
   @override
-  String get phoneFormatSubtitle => '전화번호 표시 형식을 지정합니다';
+  String get phoneFormatSubtitle => '전화번호 표시 형식을 지정합니다.';
 
   @override
   String get notifications => '알림';
@@ -107,7 +105,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationSettings => '알림 설정';
 
   @override
-  String get notificationSettingsSubtitle => '자동 처리 및 삭제를 설정합니다';
+  String get notificationSettingsSubtitle => '자동 처리 및 삭제를 설정합니다.';
 
   @override
   String get notificationHistory => '알림 내역';
@@ -181,7 +179,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get readerTypes => '리더 유형';
 
   @override
-  String get readerTypesSubtitle => '활성화된 리더 유형 관리 (CCID, Bluetooth, 원격 등)';
+  String get readerTypesSubtitle => '활성화된 리더 유형 관리 (CCID, 블루투스, 원격 등)';
 
   @override
   String get enabledReaderTypes => '활성화된 리더 유형';
@@ -202,10 +200,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ccidReaderSubtitle => 'USB 스마트 카드 리더 및 PC/SC 장치';
 
   @override
-  String get bluetoothReaderTitle => 'Bluetooth';
+  String get bluetoothReaderTitle => '블루투스';
 
   @override
-  String get bluetoothReaderSubtitle => 'Bluetooth LE 스마트 카드 리더 및 라이터';
+  String get bluetoothReaderSubtitle => '블루투스 LE 스마트 카드 리더 및 라이터';
 
   @override
   String get remoteReadersTitle => '원격 리더';
@@ -511,6 +509,36 @@ class AppLocalizationsKo extends AppLocalizations {
   String get connectingToReader => '리더에 연결 중...';
 
   @override
+  String get waitingForBluetooth => 'Waiting for Bluetooth to turn on...';
+
+  @override
+  String get connectingOverBluetooth => 'Connecting over Bluetooth...';
+
+  @override
+  String connectingOverBluetoothAttempt(int attempt, int total) {
+    return 'Connecting over Bluetooth (attempt $attempt of $total)...';
+  }
+
+  @override
+  String get discoveringReaderServices => 'Discovering reader services...';
+
+  @override
+  String get settingUpBluetoothLink => 'Setting up the Bluetooth link...';
+
+  @override
+  String get authenticatingWithReader => 'Authenticating with the reader...';
+
+  @override
+  String get initializingReader => 'Initializing the reader...';
+
+  @override
+  String get switchingReaderToEuiccMode =>
+      'Switching the reader to eUICC mode...';
+
+  @override
+  String get waitingForReaderRestart => 'Waiting for the reader to restart...';
+
+  @override
   String get moreOptions => '추가 옵션';
 
   @override
@@ -537,7 +565,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get deletingProfile => '프로파일 삭제 중...';
 
   @override
-  String get deleting => 'Deleting...';
+  String get deleting => '삭제 중...';
 
   @override
   String get dataUsage => '데이터 사용량';
@@ -561,7 +589,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationProcessingError => '알림 처리 중에는 작업을 수행할 수 없습니다';
 
   @override
-  String get operationInProgressError => 'Operation in progress, please wait';
+  String get operationInProgressError => '작업이 진행 중입니다. 잠시만 기다려 주세요.';
 
   @override
   String iccidCopied(Object iccid) {
@@ -799,25 +827,32 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noProfilesInstalledSubtitle => '이 eUICC 카드는 비어 있습니다.';
 
   @override
-  String get cardRefreshingTitle => 'Card is Refreshing';
+  String get cardRefreshingTitle => '카드 새로고침 중';
 
   @override
   String get cardRefreshingMessage =>
-      'The card is currently updating its state. Profile list cannot be retrieved at this moment. Please wait a few seconds and then try again.';
+      '카드가 현재 상태를 업데이트하고 있습니다. 지금은 프로파일 목록을 불러올 수 없습니다. 몇 초 후에 다시 시도해 주세요.';
 
   @override
   String get useRemoteIcon => '원격 아이콘 사용';
 
   @override
-  String get bleDisconnectedTitle => 'Bluetooth Connection Lost';
+  String get bleDisconnectedTitle => '블루투스 연결 끊김';
 
   @override
   String get bleDisconnectedMessage =>
-      'The connection to the card reader was suddenly lost. Please ensure it is nearby and turned on.';
+      '카드 리더와의 연결이 갑자기 끊어졌습니다. 기기가 근처에 있고 켜져 있는지 확인해 주세요.';
 
   @override
   String get cardStuckRefreshingMessage =>
-      'Profile state change ongoing - try manually re-plug the SIM card if it stucks.';
+      '프로파일 상태 변경이 진행 중입니다 - 멈춘 경우 SIM 카드를 수동으로 다시 꽂아 보세요.';
+
+  @override
+  String get cardNeedsReplugTitle => 'SIM 카드를 다시 삽입하세요';
+
+  @override
+  String get cardNeedsReplugMessage =>
+      '카드가 eUICC 애플릿을 넘겨주지 않아 지금은 관리할 수 없습니다. SIM 카드를 제거한 뒤 다시 삽입하고 한 번 더 시도하세요.';
 
   @override
   String get activationCodeTitle => '활성화 코드';
@@ -1321,7 +1356,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aramSigningHistoryInstruction =>
-      'For compatibility across Android versions, add all SHA-1 certificate hashes below to your card\'s ARA-M rules. After an app signing key upgrade, different Android versions may check different certificates from the verified signing history.';
+      'Android 버전 간 호환성을 위해 아래의 모든 SHA-1 인증서 해시를 카드의 ARA-M 규칙에 추가하세요. 앱 서명 키를 변경한 뒤에는 Android 버전에 따라 확인된 서명 기록의 서로 다른 인증서를 검사할 수 있습니다.';
 
   @override
   String get certSha1Hash => '인증서 SHA-1 해시';
@@ -1416,11 +1451,11 @@ class AppLocalizationsKo extends AppLocalizations {
       '알림을 처리하면 eUICC와 SM-DP+ 서버(통신사) 간의 동기화가 용이해집니다. 전송된 알림을 삭제하면 카드의 저장 공간을 깔끔하게 유지할 수 있습니다.';
 
   @override
-  String get notificationProcessingTimings => 'Processing timings';
+  String get notificationProcessingTimings => '처리 시점';
 
   @override
   String get notificationProcessingTimingsHelp =>
-      'Choose when automatic notification processing runs. Some safety-critical timings can only be disabled while Developer Mode is enabled.';
+      '자동 알림 처리가 실행되는 시점을 선택하세요. 일부 안전이 중요한 시점은 개발자 모드가 활성화된 경우에만 비활성화할 수 있습니다.';
 
   @override
   String get afterEnablingProfile => '프로파일 활성화 후';
@@ -1435,40 +1470,37 @@ class AppLocalizationsKo extends AppLocalizations {
   String get afterProfileDeletion => '프로파일 삭제 후';
 
   @override
-  String get initialLoad => 'Initial load';
+  String get initialLoad => '초기 로드';
 
   @override
-  String get processNotificationsOnInitialLoad =>
-      'Process notifications after profiles finish loading';
+  String get processNotificationsOnInitialLoad => '프로파일 로드 완료 후 알림 처리';
 
   @override
-  String get afterSwitchingProfile => 'After switching profile';
+  String get afterSwitchingProfile => '프로파일 전환 후';
 
   @override
   String get processNotificationsAfterSwitchingProfile =>
-      'Process notifications after enabling or disabling a profile';
+      '프로파일 활성화 또는 비활성화 후 알림 처리';
 
   @override
-  String get beforeProfileDownload => 'Before profile download';
+  String get beforeProfileDownload => '프로파일 다운로드 전';
 
   @override
   String get processNotificationsBeforeProfileDownload =>
-      'Process notifications before starting a profile download';
+      '프로파일 다운로드 시작 전 알림 처리';
 
   @override
-  String get afterProfileInstalled => 'After profile installed';
+  String get afterProfileInstalled => '프로파일 설치 후';
 
   @override
-  String get processNotificationsAfterProfileInstalled =>
-      'Process notifications after a profile has been installed';
+  String get processNotificationsAfterProfileInstalled => '프로파일 설치 완료 후 알림 처리';
 
   @override
-  String get processNotificationsAfterProfileDeletion =>
-      'Process notifications after deleting a profile';
+  String get processNotificationsAfterProfileDeletion => '프로파일 삭제 후 알림 처리';
 
   @override
   String get developerModeRequiredToDisableTiming =>
-      'Enable Developer Mode to disable this timing.';
+      '이 시점을 비활성화하려면 개발자 모드를 활성화하세요.';
 
   @override
   String get sendToServerAutomatically => '서버에 자동으로 전송';
@@ -1564,17 +1596,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get firmwareVersion => '펌웨어 버전';
 
   @override
-  String get beeSimFirmwareAction => 'Update BeeSIM firmware';
+  String get beeSimFirmwareAction => 'BeeSIM 펌웨어 업데이트';
 
   @override
-  String get beeSimFirmwareTitle => 'BeeSIM firmware update';
+  String get beeSimFirmwareTitle => 'BeeSIM 펌웨어 업데이트';
 
   @override
   String get beeSimFirmwareWarning =>
-      'A BeeSIM firmware update is available. Keep the card powered, Bluetooth connected, and the app open until it finishes. Interrupting the update may leave the card temporarily unusable.';
+      'BeeSIM 펌웨어 업데이트를 사용할 수 있습니다. 완료될 때까지 카드에 전원을 유지하고 Bluetooth 연결과 앱 실행 상태를 유지하세요. 업데이트를 중단하면 카드를 일시적으로 사용할 수 없게 될 수 있습니다.';
 
   @override
-  String get beeSimFirmwareConfirm => 'Update firmware';
+  String get beeSimFirmwareConfirm => '펌웨어 업데이트';
 
   @override
   String get platformSupport => '플랫폼 지원';
@@ -1590,6 +1622,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get certInfrastructure => '인증서 인프라';
+
+  @override
+  String get configuredAddresses => '구성된 주소';
+
+  @override
+  String get defaultSmdpAddress => '기본 SM-DP+';
+
+  @override
+  String get rootDsAddress => '루트 SM-DS';
 
   @override
   String get euiccSignCi => 'eUICC 서명 CI';
@@ -1627,7 +1668,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get note => '메모';
 
   @override
-  String get notificationDetails => '다운로드 세부 정보';
+  String get notificationDetails => '알림 세부 정보';
 
   @override
   String get unknown => '알 수 없음';
@@ -1898,31 +1939,31 @@ class AppLocalizationsKo extends AppLocalizations {
   String get estimatedDownloadSize => '예상 다운로드 크기';
 
   @override
-  String get phoneFormatInternationalOnly => 'E.164 Int\'l Only';
+  String get phoneFormatInternationalOnly => 'E.164 국제 전용';
 
   @override
-  String get phoneFormatInternationalAndMobile => 'Int\'l & Mobile';
+  String get phoneFormatInternationalAndMobile => '국제 & 휴대전화';
 
   @override
-  String get phoneFormatInternationalAndAll => 'Int\'l & National';
+  String get phoneFormatInternationalAndAll => '국제 & 국내';
 
   @override
-  String get phoneFormatOff => 'Off';
+  String get phoneFormatOff => '끄기';
 
   @override
-  String get settings_item_unit_b => 'Bytes';
+  String get settings_item_unit_b => '바이트';
 
   @override
-  String get settings_item_unit_kb => 'kB (1,000 Bytes)';
+  String get settings_item_unit_kb => 'kB (1,000바이트)';
 
   @override
-  String get settings_item_unit_kib => 'kiB (1,024 Bytes)';
+  String get settings_item_unit_kib => 'kiB (1,024바이트)';
 
   @override
-  String get settings_item_unit_adaptive_si => 'B / kB Adaptive';
+  String get settings_item_unit_adaptive_si => 'B / kB 자동';
 
   @override
-  String get settings_item_unit_adaptive_bi => 'B / kiB Adaptive';
+  String get settings_item_unit_adaptive_bi => 'B / kiB 자동';
 
   @override
   String get insufficientStorageWarning => '저장 공간이 부족하여 설치가 실패할 수 있습니다.';
@@ -1934,107 +1975,254 @@ class AppLocalizationsKo extends AppLocalizations {
   String get estimateProfileSizeSubtitle => '다운로드 전 프로파일 메타데이터 크기 예측';
 
   @override
-  String get customize => 'Customize';
+  String get customize => '사용자 지정';
 
   @override
-  String get customizeDescription =>
-      'Specify a new 6-character hex name and password for your writer.';
+  String get customizeDescription => '라이터에 사용할 새 6자리 16진수 이름과 비밀번호를 지정하세요.';
 
   @override
-  String get customizeSuccess =>
-      'Writer customized. Please re-pair the device.';
+  String get customizeSuccess => '라이터가 사용자 지정되었습니다. 기기를 다시 페어링해 주세요.';
 
   @override
   String customizeFailed(String error) {
-    return 'Failed to customize writer: $error';
+    return '라이터 사용자 지정 실패: $error';
   }
 
   @override
-  String get deviceName => 'Device Name';
+  String get defaultPasswordWillChangeTitle => '기본 비밀번호가 변경됩니다';
 
   @override
-  String get success => 'Success';
+  String defaultPasswordWillChangeMessage(String password) {
+    return '이 기기는 기본 비밀번호로 연결되어 있습니다. 이름을 변경하면 비밀번호가 $password(으)로 설정됩니다. 다시 연결하기 전에 이 비밀번호를 저장하세요.';
+  }
 
   @override
-  String get devicePasswordHint => '6 hex chars or password string';
+  String get savedBleDevices => '이전에 연결한 BLE 기기';
 
   @override
-  String get sixHexChars => '6 hex chars';
+  String get savedBleDevicesSubtitle => '이 기기에 저장된 기기 이름과 비밀번호를 확인합니다';
 
   @override
-  String get database => 'Database';
+  String get savedBleDevicesDescription =>
+      '각 항목은 로컬에 저장된 NBLESim 비밀번호입니다. 기본 비밀번호도 함께 저장됩니다.';
+
+  @override
+  String get noSavedBleDevices => '이전에 연결한 BLE 기기가 없습니다.';
+
+  @override
+  String get deviceName => '기기 이름';
+
+  @override
+  String get success => '성공';
+
+  @override
+  String get devicePasswordHint => '6자리 16진수 또는 비밀번호 문자열';
+
+  @override
+  String get sixHexChars => '6자리 16진수';
+
+  @override
+  String get database => '데이터베이스';
 
   @override
   String exportSuccess(String path) {
-    return 'Database exported to $path';
+    return '데이터베이스를 $path에 내보냈습니다';
   }
 
   @override
-  String get importDatabase => 'Import Database';
+  String get importDatabase => '데이터베이스 가져오기';
 
   @override
-  String get importDatabaseSubtitle => 'Merge rows from another database file';
+  String get importDatabaseSubtitle => '다른 데이터베이스 파일에서 행 병합';
 
   @override
-  String get importDatabaseDialogTitle => 'Select database file to import';
+  String get importDatabaseDialogTitle => '가져올 데이터베이스 파일 선택';
 
   @override
-  String get importDatabaseTitle => 'Import Database';
+  String get importDatabaseTitle => '데이터베이스 가져오기';
 
   @override
   String get importDatabaseContent =>
-      'This will merge rows from the selected database into your current database. Existing rows with the same keys will be overwritten. Continue?';
+      '선택한 데이터베이스의 행을 현재 데이터베이스로 병합합니다. 키가 같은 기존 행은 덮어쓰여집니다. 계속하시겠습니까?';
 
   @override
-  String get import => 'Import';
+  String get import => '가져오기';
 
   @override
-  String get importSuccess => 'Database imported successfully';
+  String get importSuccess => '데이터베이스를 성공적으로 가져왔습니다';
 
   @override
   String importFailed(String error) {
-    return 'Failed to import database: $error';
+    return '데이터베이스 가져오기 실패: $error';
   }
 
   @override
-  String get resetDatabase => 'Reset Database';
+  String get resetDatabase => '데이터베이스 초기화';
 
   @override
-  String get resetDatabaseSubtitle => 'Clear all application data and restart';
+  String get resetDatabaseSubtitle => '모든 애플리케이션 데이터를 지우고 다시 시작';
 
   @override
-  String get resetDatabaseTitle => 'Reset Application Database';
+  String get resetDatabaseTitle => '애플리케이션 데이터베이스 초기화';
 
   @override
   String get resetDatabaseContent =>
-      'This will completely delete all locally stored data, configurations, and logs. The application will close. Do you want to proceed?';
+      '이 작업은 로컬에 저장된 모든 데이터, 설정 및 로그를 완전히 삭제합니다. 애플리케이션이 종료됩니다. 계속하시겠습니까?';
 
   @override
-  String get deleteDatabase => 'Delete Database';
+  String get deleteDatabase => '데이터베이스 삭제';
 
   @override
   String resetFailed(String error) {
-    return 'Failed to reset database: $error';
+    return '데이터베이스 초기화 실패: $error';
   }
 
   @override
-  String get deviceImei => 'Device TAC';
+  String get deviceImei => '기기 TAC';
 
   @override
-  String get deviceImeiSubtitle => 'Used for profile downloads';
+  String get deviceImeiSubtitle => '프로파일 다운로드에 사용됩니다';
 
   @override
-  String get editDeviceImei => 'Edit Device TAC';
+  String get editDeviceImei => '기기 TAC 편집';
 
   @override
   String get editDeviceImeiInfo =>
-      'Enter an 8-digit TAC, or a 15-digit IMEI. Default TAC: 35383741.';
+      '8자리 TAC 또는 15자리 IMEI를 입력하세요. 기본 TAC: 35383741.';
 
   @override
-  String get imeiDigits => 'TAC or IMEI digits';
+  String get imeiDigits => 'TAC 또는 IMEI 숫자';
 
   @override
-  String get importAction => 'Import';
+  String get importAction => '가져오기';
+
+  @override
+  String get transferTitle => 'eSIM 이전';
+
+  @override
+  String get transferAction => '이 기기로 이전';
+
+  @override
+  String get transferCheckingEligibility => '이전 가능 여부 확인 중…';
+
+  @override
+  String get transferReadingSource => '원본 SIM 읽는 중…';
+
+  @override
+  String get transferContactingCarrier => '통신사에 연결하는 중…';
+
+  @override
+  String get transferIneligibleReader =>
+      '이 리더에서는 이 프로파일을 이전할 수 없습니다. 원본 SIM의 인증(EAP-AKA)에 여기서 접근할 수 없습니다.';
+
+  @override
+  String get transferNoEntitlement =>
+      '이 프로파일에 대한 통신사 이전 설정을 찾을 수 없습니다. Entitlement 서버를 직접 입력할 수 있습니다.';
+
+  @override
+  String transferSourceCarrier(String carrier) {
+    return '원본 통신사: $carrier';
+  }
+
+  @override
+  String get transferConfirmTitle => '이 가입 회선을 이전할까요?';
+
+  @override
+  String get transferConfirmBody =>
+      '통신사가 이 가입 회선을 이 eUICC로 다시 발급합니다. 이전 과정에서 원본 프로파일이 삭제될 수 있습니다.';
+
+  @override
+  String get transferStart => '이전 시작';
+
+  @override
+  String get transferDownloadingProfile => '이전된 프로파일 다운로드 중…';
+
+  @override
+  String get transferDeleteSourceTitle => '원본 프로파일 삭제';
+
+  @override
+  String transferDeleteSourceBody(String iccid) {
+    return '통신사에서 활성화 전에 원본 프로파일 $iccid을(를) 삭제하도록 요구합니다. 지금 삭제할까요?';
+  }
+
+  @override
+  String get transferDeleteSourceConfirm => '삭제 후 계속';
+
+  @override
+  String get transferUserInputSubmit => '제출';
+
+  @override
+  String get transferAccept => '수락';
+
+  @override
+  String get transferReject => '거부';
+
+  @override
+  String get transferPendingActivation =>
+      '통신사에서 아직 이 가입 회선을 활성화하는 중입니다. 곧 완료되며, 이 창을 닫고 나중에 다시 확인해도 됩니다.';
+
+  @override
+  String get transferDismissed => '통신사가 이전을 거부했습니다.';
+
+  @override
+  String get transferDelayedDownload =>
+      '통신사가 곧 프로파일을 전달합니다. 설치를 완료한 뒤 설치된 ICCID를 입력하여 마무리하세요.';
+
+  @override
+  String get transferInstalledIccid => '설치된 ICCID';
+
+  @override
+  String get transferSuccess => '이전 완료';
+
+  @override
+  String transferFailed(String error) {
+    return '이전 실패: $error';
+  }
+
+  @override
+  String get transferManualServerTitle => 'Entitlement 서버(고급)';
+
+  @override
+  String get transferManualServerHint => 'https://entitlement.example.com';
+
+  @override
+  String get transferEnablingSource => '원본 프로파일 준비 중…';
+
+  @override
+  String get transferClose => '닫기';
+
+  @override
+  String get transferContinue => '계속';
+
+  @override
+  String get transferSmdsDiscovering => 'SM-DS로 프로파일 검색 중…';
+
+  @override
+  String get transferSmdsNoProfiles => 'SM-DS 검색으로 대기 중인 프로파일을 찾지 못했습니다.';
+
+  @override
+  String get transferSelectProfile => '다운로드할 프로파일 선택';
+
+  @override
+  String get discoverProfiles => '프로파일 검색 (SM-DS)';
+
+  @override
+  String get discoveringProfiles => '프로파일 검색 중…';
+
+  @override
+  String get discoveryNoProfiles => 'SM-DS 검색으로 대기 중인 프로파일을 찾지 못했습니다.';
+
+  @override
+  String get transferSmdsServerTitle => 'SM-DS 서버';
+
+  @override
+  String transferProfileOnServer(String eventId, String address) {
+    return '$address의 $eventId';
+  }
+
+  @override
+  String get downloadBusyCannotLeave =>
+      'Please wait for the current operation to finish.';
 
   @override
   String get qrtrReaderTitle => 'Qualcomm modem (QRTR)';
@@ -2042,12 +2230,4 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get qrtrReaderSubtitle =>
       'Qualcomm\'s low-level modem protocol (requires Shizuku)';
-
-  @override
-  String defaultPasswordWillChangeMessage(String password) {
-    return 'This device is connected with its default password. Renaming it will set the password to $password. Save this password before reconnecting.';
-  }
-
-  @override
-  String get defaultPasswordWillChangeTitle => 'Default password will change';
 }

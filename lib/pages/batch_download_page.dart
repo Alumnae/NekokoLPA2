@@ -258,15 +258,12 @@ class _BatchDownloadPageState extends State<BatchDownloadPage> {
       final metadata = session.getProfileMetadata();
       if (metadata == null) throw Exception("Failed to retrieve metadata");
 
-      String? rawIccid = metadata.iccid != null
-          ? HexUtils.swapNibbles(HexUtils.bytesToHex(metadata.iccid!))
+      final String? rawIccid = metadata.iccid != null
+          ? IccidFormatter.forDisplay(
+              HexUtils.swapNibbles(HexUtils.bytesToHex(metadata.iccid!)),
+            )
           : null;
-      if (rawIccid?.endsWith('F') == true) {
-        rawIccid = rawIccid!.substring(0, rawIccid.length - 1);
-      }
-      item.iccid = rawIccid != null
-          ? IccidFormatter.forDisplay(rawIccid)
-          : null;
+      item.iccid = rawIccid;
 
       // Step 2: Confirmation Code Handling
       final signed2 = session.getSmdpSigned2();
@@ -397,7 +394,7 @@ class _BatchDownloadPageState extends State<BatchDownloadPage> {
 
       session.processInitiateAuthenticationResponse(
         'Executed-Success',
-        Uint8List.fromList(utf8.encode(txnId)),
+        txnId,
         serverCert,
       );
 
@@ -417,7 +414,7 @@ class _BatchDownloadPageState extends State<BatchDownloadPage> {
       final authClientReq = session.getAuthenticateClientRequest();
       final clientResp = await Es9PlusService().authenticateClient(
         smdpAddress: ac.smdpAddress,
-        transactionId: utf8.decode(authClientReq.transactionId!),
+        transactionId: txnId,
         authenticateServerResponse: base64Encode(
           authClientReq.authenticateServerResponse!.encode(),
         ),
@@ -429,7 +426,7 @@ class _BatchDownloadPageState extends State<BatchDownloadPage> {
 
         final authClientResponse = AuthenticateClientResponseEs9(
           authenticateClientOk: AuthenticateClientOk(
-            transactionId: Uint8List.fromList(utf8.encode(txnId)),
+            transactionId: session.getTransactionId(),
             profileMetadata: metadata,
             smdpSigned2: clientResp['smdpSigned2'] != null
                 ? SmdpSigned2.decode(base64Decode(clientResp['smdpSigned2']))
@@ -471,7 +468,7 @@ class _BatchDownloadPageState extends State<BatchDownloadPage> {
       final smdpSigned2 = session.getSmdpSigned2()!;
       final smdpSignature2 = session.getSmdpSignature2()!;
       final serverCert = session.getServerCertificate()!;
-      final txnId = utf8.decode(session.getTransactionId()!);
+      final txnId = session.getTransactionIdHex()!;
 
       Uint8List? hashCc;
       if (session.confirmationCode != null) {

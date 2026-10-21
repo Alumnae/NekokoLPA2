@@ -21,8 +21,8 @@
   "autoLoadProfilesSubtitle": "选择读卡器时自动加载卡内配置",
   "loadProfileIcons": "加载配置图标",
   "loadProfileIconsSubtitle": "从eUICC读取图标（较慢）",
-  "useNekokoIcons": "使用运营商图标",
-  "useNekokoIconsSubtitle": "从 operator-icons 获取运营商图标",
+  "useNekokoIcons": "使用 Nekoko Cloud 图标",
+  "useNekokoIconsSubtitle": "从 Nekoko 获取运营商图标",
   "forceDeviceDropdown": "强制从下拉菜单选择设备",
   "forceDeviceDropdownSubtitle": "始终使用下拉菜单选择设备",
   "sizeDisplayUnit": "容量显示单位",
@@ -170,7 +170,7 @@
   "deleteProfile": "删除配置",
   "deleteProfileConfirmation": "确定要删除配置 {profileName} 吗？\n此操作无法撤销。",
   "deletingProfile": "正在删除配置...",
-  "deleting": "Deleting...",
+  "deleting": "正在删除...",
   "dataUsage": "流量消耗",
   "details": "详情",
   "rename": "重命名",
@@ -178,7 +178,7 @@
   "manageTags": "管理标签",
   "copyIccid": "复制 ICCID",
   "notificationProcessingError": "通知正在处理中，无法执行操作",
-  "operationInProgressError": "Operation in progress, please wait",
+  "operationInProgressError": "操作进行中，请稍候",
   "iccidCopied": "ICCID 已复制: {iccid}",
   "operationRestricted": "操作受限",
   "notificationProcessingDownloadError": "通知仍在处理中。请在下载新配置前等待处理完成。",
@@ -192,7 +192,7 @@
   "tagsManagedSeparately": "注意：标签通过“管理标签”菜单独立管理。",
   "changeProfileIcon": "更改配置图标",
   "selectFromGallery": "从相册选择",
-  "nekokoOperatorIcon": "运营商图标",
+  "nekokoOperatorIcon": "Nekoko 运营商图标",
   "iconFromEsim": "来自 eSIM 卡的图标",
   "updateIconFailed": "更新图标失败: {error}",
   "failedToReadImage": "无法读取图片文件",
@@ -256,6 +256,8 @@
   "bleDisconnectedTitle": "蓝牙连接丢失",
   "bleDisconnectedMessage": "与卡片阅读器的连接突然丢失。请确保它在附近并已开启。",
   "cardStuckRefreshingMessage": "配置文件状态正在更改——如果卡住，请手动将SIM卡重新插入。",
+  "cardNeedsReplugTitle": "请重新插拔 SIM 卡",
+  "cardNeedsReplugMessage": "卡片未交出其 eUICC 小程序，因此当前无法管理。请取出 SIM 卡后重新插入，然后再试一次。",
   "activationCodeTitle": "激活码",
   "activationCodeSubtitle": "扫描二维码、拖拽图片或手动输入 LPA 字符串。",
   "fullActivationCodeLabel": "完整激活码",
@@ -444,7 +446,8 @@
   "whatIsAram": "什么是 ARA-M？",
   "aramDescription": "访问规则小应用 (ARA-M) 是 eUICC (eSIM) 和 SIM 卡上的一种机制，它定义了哪些应用程序被允许管理配置或执行低级操作。如果应用的哈希值不在卡片的 ARA-M 允许列表中，安卓系统将阻止访问，导致“访问被拒绝”错误。",
   "appCertHashes": "应用证书哈希",
-  "aramHashInstruction": "为兼容不同 Android 版本，请将下方所有 SHA-1 证书哈希添加到卡片的 ARA-M 规则中。应用签名密钥升级后，不同 Android 版本可能会检查已验证签名历史中的不同证书。",
+  "aramHashInstruction": "为了向此应用授予访问权限，您可能需要将以下 SHA-1 证书哈希添加到卡片的 ARA-M 规则中。此哈希值对您当前应用构建的证书是唯一的。",
+  "aramSigningHistoryInstruction": "为兼容不同的 Android 版本，请将下方所有 SHA-1 证书哈希添加到卡片的 ARA-M 规则中。应用签名密钥升级后，不同的 Android 版本可能会校验已验证签名历史中的不同证书。",
   "certSha1Hash": "证书 SHA-1 哈希",
   "unavailable": "不可用",
   "troubleshooting": "故障排除",
@@ -471,7 +474,7 @@
   "responseCode": "响应代码",
   "responseBody": "响应体",
   "type": "类型",
-  "profileCount": "{count, plural, =1{1 profile} other{{count} profiles}}",
+  "profileCount": "{count, plural, =1{1 个配置} other{{count} 个配置}}",
   "@profileCount": {
     "placeholders": {
       "count": {
@@ -485,22 +488,22 @@
   "notificationProcessing": "通知设置",
   "manageAutoNotification": "管理自动通知处理",
   "notificationProcessingHelp": "处理通知有助于您的 eUICC 与 SM-DP+ 服务器（运营商）之间的同步。删除已发送的通知可以保持卡存储清洁。",
-  "notificationProcessingTimings": "Processing timings",
-  "notificationProcessingTimingsHelp": "Choose when automatic notification processing runs. Some safety-critical timings can only be disabled while Developer Mode is enabled.",
+  "notificationProcessingTimings": "处理时机",
+  "notificationProcessingTimingsHelp": "选择自动处理通知的时机。部分涉及安全的关键时机仅在启用开发者模式后才能关闭。",
   "afterEnablingProfile": "启用配置后",
   "afterDisablingProfile": "禁用配置后",
   "afterProfileDownload": "下载配置后",
   "afterProfileDeletion": "删除配置后",
-  "initialLoad": "Initial load",
-  "processNotificationsOnInitialLoad": "Process notifications after profiles finish loading",
-  "afterSwitchingProfile": "After switching profile",
-  "processNotificationsAfterSwitchingProfile": "Process notifications after enabling or disabling a profile",
-  "beforeProfileDownload": "Before profile download",
-  "processNotificationsBeforeProfileDownload": "Process notifications before starting a profile download",
-  "afterProfileInstalled": "After profile installed",
-  "processNotificationsAfterProfileInstalled": "Process notifications after a profile has been installed",
-  "processNotificationsAfterProfileDeletion": "Process notifications after deleting a profile",
-  "developerModeRequiredToDisableTiming": "Enable Developer Mode to disable this timing.",
+  "initialLoad": "初次加载",
+  "processNotificationsOnInitialLoad": "配置加载完成后处理通知",
+  "afterSwitchingProfile": "切换配置后",
+  "processNotificationsAfterSwitchingProfile": "启用或禁用配置后处理通知",
+  "beforeProfileDownload": "下载配置前",
+  "processNotificationsBeforeProfileDownload": "开始下载配置前处理通知",
+  "afterProfileInstalled": "配置安装后",
+  "processNotificationsAfterProfileInstalled": "配置安装完成后处理通知",
+  "processNotificationsAfterProfileDeletion": "删除配置后处理通知",
+  "developerModeRequiredToDisableTiming": "启用开发者模式后才能关闭此时机。",
   "sendToServerAutomatically": "自动发送到服务器",
   "removeFromCardAfterSending": "发送后从卡中删除",
   "removeWithoutSendingCaution": "请谨慎使用：服务器将不会收到通知",
@@ -544,11 +547,18 @@
   },
   "sasAccreditation": "SAS 认证",
   "firmwareVersion": "固件版本",
+  "beeSimFirmwareAction": "更新 BeeSIM 固件",
+  "beeSimFirmwareTitle": "BeeSIM 固件更新",
+  "beeSimFirmwareWarning": "BeeSIM 有可用的固件更新。更新完成前请保持卡片供电、蓝牙连接以及应用处于打开状态。中断更新可能导致卡片暂时无法使用。",
+  "beeSimFirmwareConfirm": "更新固件",
   "platformSupport": "平台支持",
   "rspVersion": "RSP 版本",
   "bppVersion": "BPP 版本",
   "gpVersion": "GlobalPlatform 版本",
   "certInfrastructure": "证书基础结构",
+  "configuredAddresses": "已配置的地址",
+  "defaultSmdpAddress": "默认 SM-DP+",
+  "rootDsAddress": "根 SM-DS",
   "euiccSignCi": "eUICC 签名 CI",
   "euiccVerifyCi": "eUICC 验证 CI",
   "none": "无",
@@ -712,22 +722,22 @@
     }
   },
   "estimatedDownloadSize": "预估下载大小",
-  "phoneFormatInternationalOnly": "E.164 Int'l Only",
-  "phoneFormatInternationalAndMobile": "Int'l & Mobile",
-  "phoneFormatInternationalAndAll": "Int'l & National",
+  "phoneFormatInternationalOnly": "仅 E.164 国际格式",
+  "phoneFormatInternationalAndMobile": "国际与移动格式",
+  "phoneFormatInternationalAndAll": "国际与国内格式",
   "phoneFormatOff": "关闭",
   "settings_item_unit_b": "字节",
-  "settings_item_unit_kb": "kB (1,000 Bytes)",
-  "settings_item_unit_kib": "kiB (1,024 Bytes)",
-  "settings_item_unit_adaptive_si": "B / kB Adaptive",
-  "settings_item_unit_adaptive_bi": "B / kiB Adaptive",
+  "settings_item_unit_kb": "kB（1,000 字节）",
+  "settings_item_unit_kib": "kiB（1,024 字节）",
+  "settings_item_unit_adaptive_si": "B / kB 自适应",
+  "settings_item_unit_adaptive_bi": "B / kiB 自适应",
   "insufficientStorageWarning": "可用空间不足，安装可能会失败。",
   "estimateProfileSize": "估计配置文件大小",
   "estimateProfileSizeSubtitle": "在下载前估计配置文件元数据的大小",
   "customize": "自定义",
-  "customizeDescription": "Specify a new 6-character hex name and password for your writer.",
-  "customizeSuccess": "Writer customized. Please re-pair the device.",
-  "customizeFailed": "Failed to customize writer: {error}",
+  "customizeDescription": "为您的写卡器指定新的 6 位十六进制名称和密码。",
+  "customizeSuccess": "写卡器已自定义。请重新配对设备。",
+  "customizeFailed": "自定义写卡器失败：{error}",
   "@customizeFailed": {
     "placeholders": {
       "error": {
@@ -735,6 +745,19 @@
       }
     }
   },
+  "defaultPasswordWillChangeTitle": "默认密码将被更改",
+  "defaultPasswordWillChangeMessage": "此设备正使用默认密码连接。重命名后密码将变为 {password}。请在重新连接前保存该密码。",
+  "@defaultPasswordWillChangeMessage": {
+    "placeholders": {
+      "password": {
+        "type": "String"
+      }
+    }
+  },
+  "savedBleDevices": "曾连接的 BLE 设备",
+  "savedBleDevicesSubtitle": "查看保存在本设备上的设备名称和密码",
+  "savedBleDevicesDescription": "每条记录都是本地保存的 NBLESim 密码，默认密码也会被保存。",
+  "noSavedBleDevices": "没有曾连接的 BLE 设备。",
   "deviceName": "设备名称",
   "success": "成功",
   "devicePasswordHint": "6 个十六进制字符或密码字符串",
@@ -776,10 +799,79 @@
       }
     }
   },
-  "deviceImei": "设备 TAC",
+  "deviceImei": "设备 IMEI (TAC)",
   "deviceImeiSubtitle": "用于配置下载",
-  "editDeviceImei": "编辑设备 TAC",
-  "editDeviceImeiInfo": "输入 8 位 TAC，或 15 位 IMEI。默认 TAC：35383741。",
-  "imeiDigits": "TAC 或 IMEI 数字",
-  "importAction": "导入"
+  "editDeviceImei": "编辑设备 IMEI",
+  "editDeviceImeiInfo": "输入 16 位数 (8 字节)。标准 IMEI 以 35 开始。",
+  "imeiDigits": "IMEI (Digits)",
+  "importAction": "导入",
+  "transferTitle": "转移 eSIM",
+  "transferAction": "转移到此设备",
+  "transferCheckingEligibility": "正在检查资格…",
+  "transferReadingSource": "正在读取源 SIM 卡…",
+  "transferContactingCarrier": "正在联系运营商…",
+  "transferIneligibleReader": "此配置无法在该读卡器上转移。此处无法访问源 SIM 卡的认证（EAP-AKA）。",
+  "transferNoEntitlement": "未找到该配置的运营商转移配置。您可以手动输入 entitlement 服务器。",
+  "transferSourceCarrier": "源运营商：{carrier}",
+  "@transferSourceCarrier": {
+    "placeholders": {
+      "carrier": {
+        "type": "String"
+      }
+    }
+  },
+  "transferConfirmTitle": "要转移此订阅吗？",
+  "transferConfirmBody": "运营商会将此订阅重新签发到此 eUICC 上。作为转移的一部分，源配置可能会被删除。",
+  "transferStart": "开始转移",
+  "transferDownloadingProfile": "正在下载已转移的配置…",
+  "transferDeleteSourceTitle": "删除源配置",
+  "transferDeleteSourceBody": "运营商要求在激活前删除源配置 {iccid}。现在删除吗？",
+  "@transferDeleteSourceBody": {
+    "placeholders": {
+      "iccid": {
+        "type": "String"
+      }
+    }
+  },
+  "transferDeleteSourceConfirm": "删除并继续",
+  "transferUserInputSubmit": "提交",
+  "transferAccept": "接受",
+  "transferReject": "拒绝",
+  "transferPendingActivation": "运营商仍在激活此订阅，稍后即可完成；您可以关闭此页面，稍后再查看。",
+  "transferDismissed": "运营商已拒绝此次转移。",
+  "transferDelayedDownload": "运营商将稍后下发该配置。安装完成后，请输入已安装的 ICCID 以结束流程。",
+  "transferInstalledIccid": "已安装的 ICCID",
+  "transferSuccess": "转移完成",
+  "transferFailed": "转移失败：{error}",
+  "@transferFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "transferManualServerTitle": "Entitlement 服务器（高级）",
+  "transferManualServerHint": "https://entitlement.example.com",
+  "transferEnablingSource": "正在准备源配置…",
+  "transferClose": "关闭",
+  "transferContinue": "继续",
+  "transferSmdsDiscovering": "正在通过 SM-DS 发现配置…",
+  "transferSmdsNoProfiles": "未通过 SM-DS 发现待处理的配置。",
+  "transferSelectProfile": "选择要下载的配置",
+  "discoverProfiles": "发现配置（SM-DS）",
+  "discoveringProfiles": "正在发现配置…",
+  "discoveryNoProfiles": "未通过 SM-DS 发现待处理的配置。",
+  "transferSmdsServerTitle": "SM-DS 服务器",
+  "transferProfileOnServer": "{address} 上的 {eventId}",
+  "@transferProfileOnServer": {
+    "placeholders": {
+      "eventId": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadBusyCannotLeave": "Please wait for the current operation to finish."
 }

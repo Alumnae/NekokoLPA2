@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import '../models/asn1/rsp_definitions.g.dart';
+import '../utils/hex_utils.dart';
 
 /// Manages the state and flow of a profile download session
 /// Following SGP.22 ES9+ and ES10 interaction flow
@@ -10,6 +11,7 @@ class ProfileDownloadSession {
 
   // ES9+ responses
   Uint8List? _transactionId;
+  String? _transactionIdHex;
   Uint8List? _serverCertificate;
 
   AuthenticateClientResponseEs9? _authenticateClientResponse;
@@ -61,12 +63,20 @@ class ProfileDownloadSession {
   }
 
   // Step 4: Process InitiateAuthenticationResponse from ES9+
+  ///
+  /// [transactionId] is the hex text the SM-DP+ sent. It is decoded once here
+  /// so everything downstream works in the octets SGP.22 defines
+  /// (TransactionId ::= OCTET STRING (SIZE(1..16))); hashCc is computed over
+  /// them, so hashing the hex text instead yields a code the server rejects.
+  /// The original text is kept verbatim for the ES9+ JSON, which must echo the
+  /// server's own spelling rather than a re-encoded one.
   void processInitiateAuthenticationResponse(
     String functionExecutionStatus,
-    Uint8List transactionId,
+    String transactionId,
     Uint8List serverCertificate,
   ) {
-    _transactionId = transactionId;
+    _transactionIdHex = transactionId;
+    _transactionId = HexUtils.hexToBytes(transactionId);
     _serverCertificate = serverCertificate;
   }
 
@@ -123,8 +133,14 @@ class ProfileDownloadSession {
     return _authenticateClientResponse?.authenticateClientOk?.smdpSignature2;
   }
 
+  /// The transaction id as octets, for hashCc and ASN.1 fields.
   Uint8List? getTransactionId() {
     return _transactionId;
+  }
+
+  /// The transaction id as the SM-DP+ spelled it, for ES9+ JSON bodies.
+  String? getTransactionIdHex() {
+    return _transactionIdHex;
   }
 
   Uint8List? getServerCertificate() {

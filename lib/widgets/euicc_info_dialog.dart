@@ -6,7 +6,13 @@ import '../utils/hex_utils.dart';
 import '../l10n/app_localizations.dart';
 
 class EuiccInfoDialog {
-  static void show(BuildContext context, EUICCInfo2 info2) {
+  /// [configured] is the ES10a GetEuiccConfiguredAddresses response. It is
+  /// optional: not every caller has one, and a card need not answer it.
+  static void show(
+    BuildContext context,
+    EUICCInfo2 info2, {
+    EuiccConfiguredDataResponse? configured,
+  }) {
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -41,22 +47,28 @@ class EuiccInfoDialog {
                   ),
                 ),
                 const Spacer(),
-                Text(
-                  value,
-                  style: isMono
-                      ? AppTheme.mono(
-                          TextStyle(
+                // Flexible, because a long value on a narrow dialog otherwise
+                // overflows the row rather than shortening.
+                Flexible(
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.right,
+                    overflow: TextOverflow.ellipsis,
+                    style: isMono
+                        ? AppTheme.mono(
+                            TextStyle(
+                              color: theme.colorScheme.onSurface,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          )
+                        : TextStyle(
                             color: theme.colorScheme.onSurface,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
                           ),
-                        )
-                      : TextStyle(
-                          color: theme.colorScheme.onSurface,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  ),
                 ),
               ],
             ),
@@ -218,6 +230,44 @@ class EuiccInfoDialog {
                                 info2.euiccCiPKIdListForVerification,
                               ),
                             ),
+
+                            if (configured != null) ...[
+                              const SizedBox(height: 8),
+                              Divider(color: theme.dividerColor),
+                              const SizedBox(height: 8),
+                              Text(
+                                l10n.configuredAddresses,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.2,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              // defaultDpAddress is OPTIONAL in SGP.22; only
+                              // rootDsAddress is guaranteed.
+                              _AddressRow(
+                                label: l10n.defaultSmdpAddress,
+                                value:
+                                    configured.defaultDpAddress
+                                            ?.trim()
+                                            .isNotEmpty ==
+                                        true
+                                    ? configured.defaultDpAddress!.trim()
+                                    : l10n.unavailable,
+                              ),
+                              _AddressRow(
+                                label: l10n.rootDsAddress,
+                                value:
+                                    configured.rootDsAddress
+                                            ?.trim()
+                                            .isNotEmpty ==
+                                        true
+                                    ? configured.rootDsAddress!.trim()
+                                    : l10n.unavailable,
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -251,6 +301,50 @@ class EuiccInfoDialog {
           ),
         );
       },
+    );
+  }
+}
+
+/// A label with its value on the line below.
+///
+/// Addresses run to thirty-odd characters, which the single-line rows above
+/// would either overflow or squeeze into nothing on a narrow dialog. Selectable
+/// because the whole point of showing an address is being able to copy it.
+class _AddressRow extends StatelessWidget {
+  const _AddressRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: AppTheme.onSurfaceSubtle(context),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          SelectableText(
+            value,
+            style: AppTheme.mono(
+              TextStyle(
+                color: theme.colorScheme.onSurface,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

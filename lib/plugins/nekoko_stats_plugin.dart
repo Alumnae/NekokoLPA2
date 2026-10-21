@@ -98,6 +98,8 @@ class NekokoStatsPlugin extends ProfilePlugin {
   }
 
   Future<Map<String, dynamic>> _collectDeviceInfoForStats() async {
+    if (AppSettings().variant != 'esim9') return {};
+
     try {
       final deviceInfo = DeviceInfoPlugin();
       String? brand;
@@ -130,7 +132,7 @@ class NekokoStatsPlugin extends ProfilePlugin {
 
       return result;
     } catch (e) {
-      _log.fine('Failed to collect device info: $e');
+      _log.fine('Failed to collect 9e device info: $e');
       return {};
     }
   }

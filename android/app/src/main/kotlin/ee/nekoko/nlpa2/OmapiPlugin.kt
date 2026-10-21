@@ -606,14 +606,19 @@ class OmapiPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
+    private fun normalizeReaderName(readerName: String): String {
+        return readerName.substringBefore('|').substringBefore(" (").trim()
+    }
+
     @RequiresApi(Build.VERSION_CODES.P)
     private fun handleConnect(call: MethodCall, result: Result) {
         if (rejectIfPoisoned(result)) return
-        val readerName =
+        val rawReaderName =
                 call.argument<String>("reader")
                         ?: return runOnUiThread {
                             result.error("INVALID_ARGUMENT", "reader name required", null)
                         }
+        val readerName = normalizeReaderName(rawReaderName)
 
         if (seService == null || !seService!!.isConnected) {
             return runOnUiThread { result.error("NOT_CONNECTED", "SE Service not connected", null) }
@@ -626,7 +631,7 @@ class OmapiPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         val reader =
-                seService!!.readers.firstOrNull { it.name == readerName.split('|').first() }
+                seService!!.readers.firstOrNull { it.name == readerName }
                         ?: return runOnUiThread {
                             result.error("READER_NOT_FOUND", "Reader $readerName not found", null)
                         }
@@ -660,33 +665,34 @@ class OmapiPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     @RequiresApi(Build.VERSION_CODES.P)
     private fun getOrCreateSession(readerName: String): Session? {
         if (cleanupCoordinator.poisonInfo != null) return null
-        val existingSession = readerSessions[readerName]
+        val normalizedReaderName = normalizeReaderName(readerName)
+        val existingSession = readerSessions[normalizedReaderName]
         if (existingSession != null) {
             return existingSession
         }
 
-        Log.i(TAG, "No session for reader $readerName, attempting to open new session...")
+        Log.i(TAG, "No session for reader $normalizedReaderName, attempting to open new session...")
         val service = seService
         if (service == null || !service.isConnected) {
             Log.e(TAG, "SE Service not connected")
             return null
         }
 
-        val reader = service.readers.firstOrNull { it.name == readerName }
+        val reader = service.readers.firstOrNull { it.name == normalizedReaderName }
         if (reader == null) {
-            Log.e(TAG, "Reader $readerName not found")
+            Log.e(TAG, "Reader $normalizedReaderName not found")
             return null
         }
 
         return try {
             val newSession = reader.openSession()
-            readerSessions[readerName] = newSession
-            if (readerChannels[readerName] == null) {
-                readerChannels[readerName] = java.util.concurrent.ConcurrentHashMap()
+            readerSessions[normalizedReaderName] = newSession
+            if (readerChannels[normalizedReaderName] == null) {
+                readerChannels[normalizedReaderName] = java.util.concurrent.ConcurrentHashMap()
             }
             newSession
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to open session for reader $readerName", e)
+            Log.e(TAG, "Failed to open session for reader $normalizedReaderName", e)
             null
         }
     }
@@ -694,11 +700,12 @@ class OmapiPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     @RequiresApi(Build.VERSION_CODES.P)
     private fun handleDisconnect(call: MethodCall, result: Result) {
         if (rejectIfPoisoned(result)) return
-        val readerName =
+        val rawReaderName =
                 call.argument<String>("reader")
                         ?: return runOnUiThread {
                             result.error("INVALID_ARGUMENT", "reader name required", null)
                         }
+        val readerName = normalizeReaderName(rawReaderName)
 
         val cleanup = cleanupReaderSessions(readerName)
         if (reportCleanupFailure(result, cleanup)) return
@@ -738,11 +745,12 @@ class OmapiPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     @RequiresApi(Build.VERSION_CODES.P)
     private fun handleTransmit(call: MethodCall, result: Result) {
         if (rejectIfPoisoned(result)) return
-        val readerName =
+        val rawReaderName =
                 call.argument<String>("reader")
                         ?: return runOnUiThread {
                             result.error("INVALID_ARGUMENT", "reader name required", null)
                         }
+        val readerName = normalizeReaderName(rawReaderName)
         val apduHex =
                 call.argument<String>("apdu")
                         ?: return runOnUiThread {
@@ -817,11 +825,12 @@ class OmapiPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     @RequiresApi(Build.VERSION_CODES.P)
     private fun handleOpenChannel(call: MethodCall, result: Result, isRetry: Boolean = false) {
         if (rejectIfPoisoned(result)) return
-        val readerName =
+        val rawReaderName =
                 call.argument<String>("reader")
                         ?: return runOnUiThread {
                             result.error("INVALID_ARGUMENT", "reader name required", null)
                         }
+        val readerName = normalizeReaderName(rawReaderName)
 
         val singleAid = call.argument<String>("aid")
         val aidsList = call.argument<List<String>>("aids")
@@ -933,11 +942,12 @@ class OmapiPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     @RequiresApi(Build.VERSION_CODES.P)
     private fun handleCloseChannel(call: MethodCall, result: Result) {
         if (rejectIfPoisoned(result)) return
-        val readerName =
+        val rawReaderName =
                 call.argument<String>("reader")
                         ?: return runOnUiThread {
                             result.error("INVALID_ARGUMENT", "reader name required", null)
                         }
+        val readerName = normalizeReaderName(rawReaderName)
         val aidHex =
                 call.argument<String>("aid")
                         ?: return runOnUiThread {
@@ -958,11 +968,12 @@ class OmapiPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     @RequiresApi(Build.VERSION_CODES.P)
     private fun handleCloseChannels(call: MethodCall, result: Result) {
         if (rejectIfPoisoned(result)) return
-        val readerName =
+        val rawReaderName =
                 call.argument<String>("reader")
                         ?: return runOnUiThread {
                             result.error("INVALID_ARGUMENT", "reader name required", null)
                         }
+        val readerName = normalizeReaderName(rawReaderName)
 
         val cleanup = cleanupReaderSessions(readerName)
         if (reportCleanupFailure(result, cleanup)) return
@@ -972,11 +983,12 @@ class OmapiPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     @RequiresApi(Build.VERSION_CODES.P)
     private fun handleTransmitOnChannel(call: MethodCall, result: Result) {
         if (rejectIfPoisoned(result)) return
-        val readerName =
+        val rawReaderName =
                 call.argument<String>("reader")
                         ?: return runOnUiThread {
                             result.error("INVALID_ARGUMENT", "reader name required", null)
                         }
+        val readerName = normalizeReaderName(rawReaderName)
         val aidHex =
                 call.argument<String>("aid")
                         ?: return runOnUiThread {
@@ -1137,11 +1149,13 @@ class OmapiPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     private fun cleanupReaderSessions(readerName: String): OmapiCleanupResult {
-        val result = cleanupCoordinator.cleanupReader(readerName)
+        // Sessions and channels are keyed by the normalized name.
+        val normalizedReaderName = normalizeReaderName(readerName)
+        val result = cleanupCoordinator.cleanupReader(normalizedReaderName)
         if (result is OmapiCleanupResult.RebootRequired) {
             Log.e(
                     TAG,
-                    "Channel close failed for $readerName; local references were dropped and OMAPI is poisoned",
+                    "Channel close failed for $normalizedReaderName; local references were dropped and OMAPI is poisoned",
             )
         }
         return result

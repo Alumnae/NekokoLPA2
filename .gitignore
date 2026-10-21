@@ -5,9 +5,11 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 analyze.log
 
@@ -48,10 +50,6 @@ app.*.map.json
 .env
 *.jks
 *.keystore
-*.p12
-*.pfx
-*.pem
-!android/app/community.jks
 android/key.properties
 google-services.json
 GoogleService-Info.plist
@@ -60,5 +58,3 @@ release/
 outputs/
 store/
 signer/
-scripts/
-tools/

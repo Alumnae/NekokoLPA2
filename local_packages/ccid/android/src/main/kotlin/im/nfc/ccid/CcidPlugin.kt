@@ -128,6 +128,21 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
         context.unregisterReceiver(usbReceiver)
+        for (name in readers.keys.toList()) {
+            val reader = readers[name] ?: continue
+            closeReaderConnection(reader)
+            readers[name] = reader.copy(ccid = null)
+        }
+    }
+
+    /** Releases the USB resources a reader holds, tolerating a closed handle. */
+    private fun closeReaderConnection(reader: Reader) {
+        val ccid = reader.ccid ?: return
+        try {
+            ccid.close()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to close connection for ${reader.name}: $e")
+        }
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -183,15 +198,25 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 Log.d(TAG, "Powering off: $reader")
                 ccid.iccPowerOff()
                 Log.d(TAG, "Powering on: $reader")
+                var atr: String? = null
+                var lastError: Exception? = null
                 for (i in 0..10) {
                     try {
-
-                        ccid.iccPowerOn()
+                        atr = ccid.iccPowerOn().toHexString()
                         break
-                    } finally {
-                        Log.d(TAG, "Powering on: $reader failed. retrying")
-                        continue
+                    } catch (e: Exception) {
+                        lastError = e
+                        Log.d(TAG, "Powering on: $reader failed ($e). retrying")
                     }
+                }
+                if (atr != null) {
+                    result.success(atr)
+                } else {
+                    result.error(
+                        "CCID_POWER_CYCLE_ERROR",
+                        "Failed to power on card: ${lastError?.message}",
+                        null
+                    )
                 }
             }
 
@@ -202,7 +227,9 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("CCID_READER_NOT_FOUND", "Reader not found", null)
                     return
                 }
+                closeReaderConnection(reader)
                 readers[name] = reader.copy(ccid = null)
+                result.success(null)
             }
 
             else -> {
@@ -267,6 +294,8 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     results.put(readerName, resp?.second ?: "");
                     if (resp != null) {
                         readerATR[device.hashCode()] = resp.second
+                        // Probing owns this connection; nothing keeps the handle.
+                        resp.first.close()
                     }
                 }
             }
@@ -288,6 +317,7 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         if (reader.ccid != null) {
+            closeReaderConnection(reader)
             readers[name] = reader.copy(ccid = null)
 //            result.error("CCID_READER_ALREADY_CONNECTED", "Reader already connected", null)
 //            return
@@ -353,20 +383,32 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             Log.e(TAG, "Failed to open device")
             return null
         }
-        val endpoints = getEndpoints(usbInterface)
-        val ccid = Ccid(usbConnection, endpoints.first, endpoints.second)
-        val descriptor = ccid.getDescriptor(interfaceIdx)
-        if (descriptor?.supportsProtocol(Protocol.T0) != true) {
-            Log.d(TAG, "Unsupported protocol")
-            return null
+        val endpoints = try {
+            getEndpoints(usbInterface)
+        } catch (e: Exception) {
+            usbConnection.close()
+            throw e
         }
-        if (!usbConnection.claimInterface(usbInterface, true)) {
-            Log.e(TAG, "Failed to claim interface")
-            return null
+        val ccid = Ccid(usbConnection, endpoints.first, endpoints.second, usbInterface)
+        try {
+            val descriptor = ccid.getDescriptor(interfaceIdx)
+            if (descriptor?.supportsProtocol(Protocol.T0) != true) {
+                Log.d(TAG, "Unsupported protocol")
+                ccid.close()
+                return null
+            }
+            if (!usbConnection.claimInterface(usbInterface, true)) {
+                Log.e(TAG, "Failed to claim interface")
+                ccid.close()
+                return null
+            }
+            val atr = ccid.iccPowerOn()
+            Log.d(TAG, "ATR: ${atr.toHexString()}")
+            return Pair(ccid, atr.toHexString())
+        } catch (e: Exception) {
+            ccid.close()
+            throw e
         }
-        val atr = ccid.iccPowerOn()
-        Log.d(TAG, "ATR: ${atr.toHexString()}")
-        return Pair(ccid, atr.toHexString())
     }
 
     private fun getEndpoints(usbInterface: UsbInterface): Pair<UsbEndpoint, UsbEndpoint> {

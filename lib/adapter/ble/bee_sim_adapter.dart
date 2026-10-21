@@ -151,6 +151,7 @@ class BeeSimAdapter extends BaseAdapter implements BleAdapter {
       try {
         if (await Ble.adapterState.first != BluetoothAdapterState.on) {
           _log.info("Waiting for Bluetooth adapter to be ON...");
+          reportConnectStep(ReaderConnectStep.waitingForBluetooth);
           await Ble.adapterState
               .where((s) => s == BluetoothAdapterState.on)
               .first
@@ -162,7 +163,7 @@ class BeeSimAdapter extends BaseAdapter implements BleAdapter {
         }
         _ensureConnectActive(connectGeneration);
 
-        await connectBleDevice(_device!, _log);
+        await connectBleDevice(_device!, _log, progress: connectProgress);
         _ensureConnectActive(connectGeneration);
 
         _isBeeSimConnected = true;
@@ -177,6 +178,7 @@ class BeeSimAdapter extends BaseAdapter implements BleAdapter {
           }
         });
 
+        reportConnectStep(ReaderConnectStep.discoveringServices);
         final services = await _device!.discoverServices();
         _ensureConnectActive(connectGeneration);
 
@@ -227,6 +229,7 @@ class BeeSimAdapter extends BaseAdapter implements BleAdapter {
           );
         }
 
+        reportConnectStep(ReaderConnectStep.enablingNotifications);
         await _rxChar!.setNotifyValue(true);
         _ensureConnectActive(connectGeneration);
         await Future.delayed(const Duration(milliseconds: 200));
@@ -253,6 +256,7 @@ class BeeSimAdapter extends BaseAdapter implements BleAdapter {
         // raises TX power to level 4. Keeping that level for this app session
         // covers every download entry point and avoids a weaker long transfer.
         _log.info("Initializing BeeSIM...");
+        reportConnectStep(ReaderConnectStep.initializing);
         _commandPacer.reset();
         await _sendCommand(
           Uint8List.fromList([0xA0, 0x3E, 0x04, 0x00, 0x00]),

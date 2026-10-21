@@ -7,6 +7,7 @@ import '../adapter/euicc_adapter.dart';
 import '../models/activation_code.dart';
 import '../models/asn1/rsp_definitions.g.dart';
 import '../services/es9plus_service.dart';
+import '../utils/foreground_card_session.dart';
 import '../utils/hex_utils.dart';
 import '../utils/iccid_formatter.dart';
 import '../widgets/common/simple_dialog_container.dart';
@@ -14,6 +15,7 @@ import '../widgets/common/loading_spinner.dart';
 import '../widgets/styled_header_scaffold.dart';
 import '../theme/app_theme.dart';
 import '../logic/profile_download_session.dart';
+import '../logic/profile_download_retry.dart';
 import 'package:logging/logging.dart';
 import '../utils/mcc_mapper.dart';
 import '../utils/crypto_utils.dart';
@@ -92,14 +94,58 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
   final TextEditingController _confirmationCodeController = TextEditingController();
   AuthenticateResponseOk? _authServerResponse; // Store for euiccInfo2 access
   AuthenticateResponseOk? _authServer2Response;
+
+  /// Identifies the RSP session both the eUICC and the SM-DP+ are holding once
+  /// AuthenticateServer succeeds. Non-null exactly while a CancelSession is
+  /// owed; cleared once the download commits or the session is cancelled.
+  ///
+  /// Held as the server's own hex text: the ES9+ body must echo that spelling,
+  /// while the ES10b request takes the octets it decodes to.
+  String? _pendingCancelTransactionIdHex;
+  String? _pendingCancelSmdpAddress;
+
+  /// True while this page owns a card session that background work must not
+  /// disturb. Held from the first card exchange until the flow ends or the
+  /// page goes away; see NotificationService.beginForegroundSession.
+  bool _holdsCardSession = false;
+
+  void _setHoldsCardSession(bool held) {
+    if (held == _holdsCardSession) return;
+    _holdsCardSession = held;
+    if (held) {
+      ForegroundCardSession.begin();
+    } else {
+      ForegroundCardSession.end();
+    }
+  }
+
+  /// Waits for background card work that is already running to finish.
+  ///
+  /// Claiming the foreground session stops new background passes starting, but
+  /// one already in flight spends seconds on the network between its card
+  /// reads and still owns a logical channel. Opening ours alongside it gives
+  /// two sessions on one adapter, and whichever finishes first closes the
+  /// channel under the other -- the card answers 6881.
+  ///
+  /// Bounded: if the flag were ever left set, a download must still proceed
+  /// rather than hang.
+  Future<void> _waitForBackgroundCardWork() async {
+    final service = NotificationService();
+    if (!service.isProcessing.value) return;
+
+    _log.info('Waiting for background notification processing to release the card');
+    final deadline = DateTime.now().add(const Duration(seconds: 20));
+    while (service.isProcessing.value && DateTime.now().isBefore(deadline)) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    if (service.isProcessing.value) {
+      _log.warning('Background card work still running; continuing anyway');
+    } else {
+      _log.info('Background card work finished; taking the card');
+    }
+  }
   EUICCInfo2? _finalEuiccInfo2;
   Channel? _sessionChannel;
-  
-  // Stored auth parameters for re-verification
-  Uint8List? _serverSigned1;
-  Uint8List? _serverSignature1;
-  Uint8List? _euiccCiPKId;
-  Uint8List? _serverCert;
   Uint8List? _euiccInfo1Bytes;
 
   @override
@@ -264,6 +310,7 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
 
   @override
   void dispose() {
+    _setHoldsCardSession(false);
     _controller.removeListener(_onFullCodeChanged);
     _smdpController.removeListener(_onAddressOrMatchingIdChanged);
     _matchingIdController.removeListener(_onAddressOrMatchingIdChanged);
@@ -278,49 +325,147 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
     _ccController.dispose();
     _smdpOidController.dispose();
     _confirmationCodeController.dispose();
+    if (_pendingCancelTransactionIdHex != null) {
+      // Leaving without the Cancel button: no card I/O is possible from here,
+      // so the SM-DP+ falls back to its own session timeout.
+      _log.warning('Page closed with an RSP session still open; not cancelled');
+    }
     _sessionChannel?.close();
     super.dispose();
   }
 
-  void _startPreview() async {
-     _log.info("Download preview requested");
-     setState(() {
-       _showValidationErrors = true;
-       _touchedFields.addAll(['full', 'smdp', 'matchingId', 'cc', 'oid']);
-     });
-     
-     if (_smdpErrorText != null || _matchingIdErrorText != null || _oidErrorText != null || _fullErrorText != null) {
-       return;
+  Future<void> _startPreview() async {
+    await _authenticateDownloadSession();
+  }
+
+  /// Rejects the previewed profile: releases the RSP session before leaving so
+  /// the order does not stay stuck server-side, then closes the page.
+  Future<void> _cancelPreview() async {
+    setState(() => _isLoading = true);
+    // Cleanup on the way out — bounded so a wedged SM-DP+ cannot trap the user
+    // on a page they have already dismissed.
+    await _cancelRspSession().timeout(
+      const Duration(seconds: 20),
+      onTimeout: () => _log.warning('CancelSession timed out; leaving anyway'),
+    );
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    Navigator.pop(context);
+  }
+
+  /// Tears down an RSP session the user walked away from, on the eUICC and
+  /// then at the SM-DP+ (SGP.22 §3.1.3.2).
+  ///
+  /// Best effort by design: this runs on the way out, so a failure is logged
+  /// and swallowed rather than blocking the user behind a dead session.
+  /// Cancelling only the eUICC still leaves the order pending server-side, so
+  /// the ES9+ leg is attempted even when the ES10b leg fails.
+  Future<void> _cancelRspSession({
+    CancelSessionReason reason = CancelSessionReason.endUserRejection,
+  }) async {
+    final transactionIdHex = _pendingCancelTransactionIdHex;
+    final smdpAddress = _pendingCancelSmdpAddress;
+    if (transactionIdHex == null || smdpAddress == null) return;
+    final transactionId = HexUtils.hexToBytes(transactionIdHex);
+
+    // Claim it up front so a second cancel (dispose after the button) is a
+    // no-op rather than a duplicate round trip.
+    _pendingCancelTransactionIdHex = null;
+    _pendingCancelSmdpAddress = null;
+
+    final channel = _sessionChannel;
+    _sessionChannel = null;
+
+    CancelSessionResponse? euiccResponse;
+    try {
+      euiccResponse = await widget.profileManager.cancelSession(
+        transactionId: transactionId,
+        reason: reason,
+        useChannel: channel,
+      );
+    } catch (e) {
+      _log.warning('ES10b.CancelSession failed: $e');
+    } finally {
+      try {
+        await channel?.close();
+      } catch (_) {}
+    }
+
+    if (euiccResponse == null) return;
+
+    try {
+      await Es9PlusService().cancelSession(
+        smdpAddress: smdpAddress,
+        transactionId: transactionIdHex,
+        cancelSessionResponse: base64Encode(euiccResponse.encode()),
+      );
+      _log.info('RSP session cancelled with $smdpAddress');
+    } catch (e) {
+      _log.warning('ES9+.cancelSession failed: $e');
+    }
+  }
+
+  Future<Channel?> _authenticateDownloadSession({
+    ActivationCode? activationCode,
+    String? confirmationCode,
+    bool retryingInstall = false,
+  }) async {
+     if (!retryingInstall) {
+       _log.info("Download preview requested");
+       setState(() {
+         _showValidationErrors = true;
+         _touchedFields.addAll(['full', 'smdp', 'matchingId', 'cc', 'oid']);
+       });
+
+       if (_smdpErrorText != null || _matchingIdErrorText != null || _oidErrorText != null || _fullErrorText != null) {
+         return null;
+       }
      }
 
      final code = _controller.text.trim();
-     final ac = ActivationCode.parse(code);
-     _log.info(
-       "Download preview activation code parsed: "
-       "hasAc=${ac != null}, inputLength=${code.length}",
-     );
+     final ac = activationCode ?? ActivationCode.parse(code);
+     if (!retryingInstall) {
+       _log.info(
+         "Download preview activation code parsed: "
+         "hasAc=${ac != null}, inputLength=${code.length}",
+       );
+     }
      
      if (ac == null) {
-       setState(() => _error = AppLocalizations.of(context)!.invalidAcFormatDetailed);
-       return;
+       if (mounted) {
+         setState(() => _error = AppLocalizations.of(context)!.invalidAcFormatDetailed);
+       }
+       return null;
      }
 
 
-     setState(() {
-       _isLoading = true;
-       _error = null;
-       _statusMessage = AppLocalizations.of(context)!.connectingToEuicc;
-     });
+     if (!retryingInstall) {
+       setState(() {
+         _isLoading = true;
+         _error = null;
+         _statusMessage = AppLocalizations.of(context)!.connectingToEuicc;
+       });
+     }
 
      try {
-       await widget.adapter.connect(widget.reader);
-       _sessionChannel?.close();
+       // From here the page owns a card session, and keeps it open across the
+       // user's confirmation, so background card work has to stand down.
+       // Claim first so nothing new starts, then let anything already running
+       // finish before opening a session of our own.
+       _setHoldsCardSession(true);
+       await _waitForBackgroundCardWork();
+       if (!retryingInstall) {
+         await widget.adapter.connect(widget.reader);
+         _sessionChannel?.close();
+       }
        _sessionChannel = null;
        
        final channel = await widget.profileManager.openSession();
        try {
           // Step 1 & 2: Get eUICC Info and Challenge
-          setState(() => _statusMessage = AppLocalizations.of(context)!.gettingChallenge);
+          if (mounted) {
+            setState(() => _statusMessage = AppLocalizations.of(context)!.gettingChallenge);
+          }
           final challengeBytes = await widget.profileManager.getEuiccChallenge(useChannel: channel);
           final info1Bytes = await widget.profileManager.getEuiccInfo1(useChannel: channel);
           _euiccInfo1Bytes = info1Bytes;
@@ -329,6 +474,10 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
           try {
             currentEid = await widget.profileManager.getEid(useChannel: channel);
           } catch (e) {
+            if (retryingInstall &&
+                isTransientProfileDownloadBluetoothError(e)) {
+              rethrow;
+            }
             _log.warning("Failed to get EID for size prediction: $e");
           }
 
@@ -345,9 +494,11 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
           }
           
           // Use the actual confirmation code if we have one, otherwise fallback to parsed
-          final effectiveCc = (_actualConfirmationCode != null && _actualConfirmationCode!.isNotEmpty) 
-             ? _actualConfirmationCode 
-             : (ac.confirmationCode != '1' ? ac.confirmationCode : null);
+          final effectiveCc = retryingInstall
+              ? confirmationCode
+              : ((_actualConfirmationCode != null && _actualConfirmationCode!.isNotEmpty)
+                  ? _actualConfirmationCode
+                  : (ac.confirmationCode != '1' ? ac.confirmationCode : null));
 
           // Create download session
           final session = ProfileDownloadSession(
@@ -363,7 +514,9 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
           _log.fine("eUICC Challenge: ${HexUtils.bytesToHex(challengeBytes)}");
           
           // Step 3: InitiateAuthentication with SM-DP+
-          setState(() => _statusMessage = AppLocalizations.of(context)!.authenticatingWithSmdp);
+          if (mounted) {
+            setState(() => _statusMessage = AppLocalizations.of(context)!.authenticatingWithSmdp);
+          }
           final initAuthReq = session.getInitiateAuthenticationRequest();
           final initAuthResp = await Es9PlusService().initiateAuthentication(
              smdpAddress: ac.smdpAddress, 
@@ -397,20 +550,17 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
           final serverCert = _decodeEs9Base64(initAuthResp['serverCertificate'], 'serverCertificate');
           final txnId = initAuthResp['transactionId'] as String;
 
-          _serverSigned1 = serverSigned1;
-          _serverSignature1 = serverSignature1;
-          _euiccCiPKId = euiccCiPKId;
-          _serverCert = serverCert;
-          
           // Store transaction ID and server certificate in session
           session.processInitiateAuthenticationResponse(
-            'Executed-Success', 
-            Uint8List.fromList(utf8.encode(txnId)),
+            'Executed-Success',
+            txnId,
             serverCert
           );
           
           // Step 4: AuthenticateServer with eUICC
-          setState(() => _statusMessage = AppLocalizations.of(context)!.verifyingSignatures);
+          if (mounted) {
+            setState(() => _statusMessage = AppLocalizations.of(context)!.verifyingSignatures);
+          }
           final authServerResp = await widget.profileManager.authenticateServer(
              serverSigned1: serverSigned1, 
              serverSignature1: serverSignature1, 
@@ -423,11 +573,13 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
           session.processAuthenticateServerResponse(authServerResp);
           
           // Step 5: AuthenticateClient with SM-DP+
-          setState(() => _statusMessage = AppLocalizations.of(context)!.retrievingMetadata);
+          if (mounted) {
+            setState(() => _statusMessage = AppLocalizations.of(context)!.retrievingMetadata);
+          }
           final authClientReq = session.getAuthenticateClientRequest();
           final clientResp = await Es9PlusService().authenticateClient(
              smdpAddress: ac.smdpAddress, 
-             transactionId: utf8.decode(authClientReq.transactionId!), 
+             transactionId: txnId,
              authenticateServerResponse: base64Encode(authClientReq.authenticateServerResponse!.encode()),
           );
           
@@ -442,7 +594,7 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
               
               final authClientResponse = AuthenticateClientResponseEs9(
                 authenticateClientOk: AuthenticateClientOk(
-                  transactionId: Uint8List.fromList(utf8.encode(txnId)),
+                  transactionId: session.getTransactionId(),
                   profileMetadata: metadata,
                   smdpSigned2: clientResp['smdpSigned2'] != null ? SmdpSigned2.decode(_decodeEs9Base64(clientResp['smdpSigned2'], 'smdpSigned2')) : null,
                   smdpSignature2: clientResp['smdpSignature2'] != null ? _decodeEs9Base64(clientResp['smdpSignature2'], 'smdpSignature2') : null,
@@ -456,7 +608,9 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
                 final signed2 = session.getSmdpSigned2();
                 // Check if confirmation code is required
                 final ccRequired = signed2?.ccRequiredFlag ?? false;
-                
+                if (!mounted) {
+                  throw StateError('Download page disposed during authentication');
+                }
                 setState(() {
                   _metadata = session.getProfileMetadata();
                   if (_metadata?.estimatedProfileSize != null && _metadata!.estimatedProfileSize! > 0) {
@@ -483,8 +637,10 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
                   _session = session;
                   _isConfirmationCodeRequired = ccRequired;
                   _authServerResponse = authServerResp; // Store for preview
-                  _isLoading = false;
+                  if (!retryingInstall) _isLoading = false;
                   _sessionChannel = channel;
+                  _pendingCancelTransactionIdHex = session.getTransactionIdHex();
+                  _pendingCancelSmdpAddress = ac.smdpAddress;
                 });
               } else {
                 throw Exception("Client authentication failed");
@@ -493,10 +649,14 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
               throw Exception("No profile metadata returned.");
           }
        } catch (e) {
-          await channel.close();
+          if (!retryingInstall || !isTransientProfileDownloadBluetoothError(e)) {
+            await channel.close();
+          }
           rethrow;
        }
+       return channel;
      } catch (e, stackTrace) {
+       if (retryingInstall) rethrow;
        _log.severe("Error during profile download: $e", e, stackTrace);
        if (mounted) {
          setState(() {
@@ -524,10 +684,19 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
      } finally {
        // Keep connection alive between transactions
      }
+     return null;
   }
 
-  void _downloadProfile() async {
-    if (_session == null || _metadata == null) return;
+  Future<void> _downloadProfile() async {
+    final previewSession = _session;
+    if (previewSession == null || _metadata == null) return;
+
+    final activationCode = ActivationCode.parse(_controller.text);
+    if (activationCode == null) return;
+    final enteredConfirmationCode = _confirmationCodeController.text.trim();
+    final confirmationCode = enteredConfirmationCode.isNotEmpty
+        ? enteredConfirmationCode
+        : previewSession.confirmationCode;
 
     setState(() {
       _isLoading = true;
@@ -535,45 +704,105 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
       _statusMessage = AppLocalizations.of(context)!.preparingDownload;
     });
 
+    int? bppSize;
+    try {
+      await ProfileDownloadRetry(maxAttempts: 3).run<void>(
+        (attempt) async {
+          bppSize = null;
+          _log.info(
+            'Profile download attempt '
+            '${attempt.number}/${attempt.maxAttempts} started',
+          );
+          await _downloadProfileAttempt(
+            attempt: attempt,
+            activationCode: activationCode,
+            confirmationCode: confirmationCode,
+            onBppSize: (value) => bppSize = value,
+          );
+        },
+        beforeRetry: (event) async {
+          _sessionChannel = null;
+          _log.warning(
+            'Profile download attempt '
+            '${event.attempt}/${event.maxAttempts} failed with a transient '
+            'Bluetooth error; retrying with a fresh session',
+          );
+          if (mounted) {
+            setState(() {
+              _progress = null;
+              _statusMessage =
+                  AppLocalizations.of(context)!.connectingToEuicc;
+            });
+          }
+        },
+      );
+    } catch (e, stackTrace) {
+      _handleInstallationFailure(
+        e,
+        _authServerResponse,
+        bppSize: bppSize,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  Future<void> _downloadProfileAttempt({
+    required ProfileDownloadRetryAttempt attempt,
+    required ActivationCode activationCode,
+    required String? confirmationCode,
+    required ValueChanged<int?> onBppSize,
+  }) async {
      int? bppSize;
      Channel? channel;
-     try {
+     var shouldCloseChannel = true;
       _log.info("Profile download requested");
+      if (attempt.number > 1) {
+        _sessionChannel = null;
+        if (mounted) {
+          setState(() {
+            _progress = null;
+            _statusMessage = AppLocalizations.of(context)!.connectingToEuicc;
+          });
+        }
+        await widget.adapter.reconnect();
+      }
       await widget.adapter.connect(widget.reader);
-      
-      final ac = ActivationCode.parse(_controller.text)!;
+
       _log.info(
         "Profile download context: reader=${widget.reader.id}, "
-        "smdp=${ac.smdpAddress}, matchingIdLength=${ac.matchingId.length}, "
-        "hasConfirmationCode=${_session!.confirmationCode != null}",
+        "smdp=${activationCode.smdpAddress}, "
+        "matchingIdLength=${activationCode.matchingId.length}, "
+        "hasConfirmationCode=${confirmationCode != null}",
       );
-      // Use existing session channel if available, or start a new one
-      if (_sessionChannel != null) {
+      if (attempt.number == 1 && _sessionChannel != null) {
         _log.info("Reusing existing authenticated session channel");
         channel = _sessionChannel;
       } else {
-        _log.info("Session channel lost, opening new channel and re-authenticating...");
-        channel = await widget.profileManager.openSession();
-        // Since we opened a new channel, we MUST re-run the mutual authentication
-        // to set up the ES10b session context on the eUICC.
-        await widget.profileManager.authenticateServer(
-          serverSigned1: _serverSigned1!,
-          serverSignature1: _serverSignature1!,
-          euiccCiPKIdToBeUsed: _euiccCiPKId!,
-          serverCertificate: _serverCert!,
-          matchingId: ac.matchingId,
-          useChannel: channel,
+        _log.info(
+          'Profile download attempt ${attempt.number}/${attempt.maxAttempts} '
+          'starting a fresh eUICC and SM-DP+ session',
         );
+        channel = await _authenticateDownloadSession(
+          activationCode: activationCode,
+          confirmationCode: confirmationCode,
+          retryingInstall: true,
+        );
+      }
+
+      if (channel == null || _session == null || _metadata == null) {
+        throw StateError('Authenticated download session is missing');
       }
 
       try {
         final smdpSigned2 = _session!.getSmdpSigned2()!;
         final smdpSignature2 = _session!.getSmdpSignature2()!;
         final serverCert = _session!.getServerCertificate()!;
-        final txnId = utf8.decode(_session!.getTransactionId()!);
+        final txnId = _session!.getTransactionIdHex()!;
 
         // Step 1: Prepare Download on eUICC
-        setState(() => _statusMessage = AppLocalizations.of(context)!.preparingEuicc);
+        if (mounted) {
+          setState(() => _statusMessage = AppLocalizations.of(context)!.preparingEuicc);
+        }
         
         Uint8List? hashCc;
         if (_session!.confirmationCode != null) {
@@ -602,6 +831,7 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
               autoRemoveDelete: settings.notifAutoRemoveDelete,
             );
           } catch (e) {
+            if (isTransientProfileDownloadBluetoothError(e)) rethrow;
             _log.warning("Pre-download notification processing failed: $e");
           }
         }
@@ -615,9 +845,11 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
         );
 
         // Step 2: Get Bound Profile Package from SM-DP+
-        setState(() => _statusMessage = AppLocalizations.of(context)!.fetchingProfilePackage);
+        if (mounted) {
+          setState(() => _statusMessage = AppLocalizations.of(context)!.fetchingProfilePackage);
+        }
         final bppResp = await Es9PlusService().getBoundProfilePackage(
-          smdpAddress: ac.smdpAddress,
+          smdpAddress: activationCode.smdpAddress,
           transactionId: txnId,
           prepareDownloadResponse: base64Encode(prepareDownloadResp.encode())
         );
@@ -632,10 +864,13 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
 
         final bppBytes = _decodeEs9Base64(bppResp['boundProfilePackage'], 'boundProfilePackage');
         bppSize = bppBytes.length;
+        onBppSize(bppSize);
         _log.info("Decoded bound profile package: $bppSize bytes");
 
         // Step 3: Load Bound Profile Package to eUICC
-        setState(() => _statusMessage = AppLocalizations.of(context)!.installing(0, bppBytes.length));
+        if (mounted) {
+          setState(() => _statusMessage = AppLocalizations.of(context)!.installing(0, bppBytes.length));
+        }
         await widget.profileManager.loadBoundProfilePackage(
           bppBytes, 
           useChannel: channel,
@@ -656,18 +891,30 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
           }
         );
 
-        // Success!
-        _installedIccid = _metadata?.iccid != null 
-            ? HexUtils.swapNibbles(HexUtils.bytesToHex(_metadata!.iccid!)) 
-            : null;
-        if (_installedIccid?.endsWith('F') == true) {
-          _installedIccid = _installedIccid!.substring(0, _installedIccid!.length - 1);
-        }
+        // Success! The session is consumed, so nothing is owed a CancelSession.
+        _pendingCancelTransactionIdHex = null;
+        _pendingCancelSmdpAddress = null;
 
-        // Post-installation: Get updated free space
-        if (_euiccInfo1Bytes != null) {
+        _installedIccid = _metadata?.iccid != null
+            ? IccidFormatter.forDisplay(
+                HexUtils.swapNibbles(HexUtils.bytesToHex(_metadata!.iccid!)),
+              )
+            : null;
+
+        // Post-installation: Get updated free space.
+        //
+        // The eUICC will report its free space to a plain ES10b GetEUICCInfo2,
+        // which is one APDU. The ES9+ round trip below exists only to get that
+        // same figure *signed* by the eUICC, as evidence for the size
+        // statistics; measured against a real SM-DP+ it costs about 1.2 s. With
+        // statistics off nothing consumes the signature, so take the cheap path
+        // -- the consumed size is still recorded locally either way.
+        final wantsSignedInfo2 = AppSettings().enableNekokoStats;
+        if (_euiccInfo1Bytes != null && wantsSignedInfo2) {
           try {
-             setState(() => _statusMessage = AppLocalizations.of(context)!.finalizing);
+             if (mounted) {
+               setState(() => _statusMessage = AppLocalizations.of(context)!.finalizing);
+             }
              // Start a new logical sequence to get fresh eUICCInfo2
              
              // 1. Get new challenge
@@ -677,8 +924,8 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
              // We can reuse the original download session object logic or create a temp one 
              // but we just need the request parameters.
              final tempSession = ProfileDownloadSession(
-                smdpAddress: ac.smdpAddress,
-                matchingId: ac.matchingId,
+                smdpAddress: activationCode.smdpAddress,
+                matchingId: activationCode.matchingId,
              );
              tempSession.processEuiccInfo1(_euiccInfo1Bytes!);
              tempSession.processEuiccChallenge(newChallenge);
@@ -686,7 +933,7 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
              final initAuthReq = tempSession.getInitiateAuthenticationRequest();
              
              final initAuthResp = await Es9PlusService().initiateAuthentication(
-                smdpAddress: ac.smdpAddress, 
+                smdpAddress: activationCode.smdpAddress,
                 euiccChallenge: base64Encode(initAuthReq.euiccChallenge!), 
                 euiccInfo1: base64Encode(initAuthReq.euiccInfo1!.encode()),
                 clientTransactionId: "1" // Use different transaction ID
@@ -708,7 +955,7 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
                     serverSignature1: serverSignature1,
                     euiccCiPKIdToBeUsed: euiccCiPKId,
                     serverCertificate: serverCert,
-                    matchingId: ac.matchingId,
+                    matchingId: activationCode.matchingId,
                     useChannel: channel
                  );
                  _finalEuiccInfo2 = finalAuthResp.euiccSigned1?.euiccInfo2;
@@ -727,7 +974,8 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
              }
           }
         } else {
-           // Fallback to simple getEuiccInfo2 if we don't have info1 stored
+           // Reached when statistics are off, or when no EUICCInfo1 was kept.
+           // One APDU, unsigned, which is all the local size record needs.
            try {
              _finalEuiccInfo2 = await widget.profileManager.getEuiccInfo2(useChannel: channel);
            } catch (e) {
@@ -749,15 +997,21 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
                    } catch (_) {}
                    
                    if (eid != null) {
-                     final e1Before = _authServerResponse!;
-                     final e1After = _authServer2Response!;
-                     
+                     // Only present when the signed pair was fetched. Asserting
+                     // it threw away the whole size record whenever the ES9+
+                     // step was skipped or failed.
+                     final signedAfter = _authServer2Response;
+
                      await DatabaseService().saveProfileSize(
-                        eid, 
-                        _installedIccid!, 
+                        eid,
+                        _installedIccid!,
                         consumed,
-                        info2Before: base64Encode(e1Before.encode()),
-                        info2After: base64Encode(e1After.encode()),
+                        info2Before: signedAfter == null
+                            ? null
+                            : base64Encode(_authServerResponse!.encode()),
+                        info2After: signedAfter == null
+                            ? null
+                            : base64Encode(signedAfter.encode()),
                         bppLength: bppBytes.length,
                      );
                   }
@@ -783,6 +1037,10 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
           }
         }
 
+        // The install is done; the channel is released just below, so let
+        // background card work resume even if this page stays on screen.
+        _setHoldsCardSession(false);
+
         if (mounted) {
           setState(() {
              _isLoading = false;
@@ -796,30 +1054,39 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
           authAfter: _authServer2Response,
           bppSize: bppSize,
         );
+      } catch (e) {
+        if (isTransientProfileDownloadBluetoothError(e)) {
+          shouldCloseChannel = false;
+          if (channel == _sessionChannel) _sessionChannel = null;
+          _log.warning(
+            'Profile download attempt '
+            '${attempt.number}/${attempt.maxAttempts} lost its Bluetooth '
+            'session; abandoning the stale logical channel',
+          );
+        }
+        rethrow;
       } finally {
-        if (channel != null) {
+        if (shouldCloseChannel) {
           try {
             await channel.close();
             if (channel == _sessionChannel) _sessionChannel = null;
           } catch (_) {}
         }
       }
-    } catch (e, stackTrace) {
-      _handleInstallationFailure(
-        e,
-        _authServerResponse,
-        bppSize: bppSize,
-        stackTrace: stackTrace,
-      );
-    } finally {
-      // Keep connection alive between transactions
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: !_isLoading && !_isInternalUpdating && NotificationService().pendingCount.value == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop || !mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.downloadBusyCannotLeave),
+          ),
+        );
+      },
       child: StyledHeaderScaffold(
         title: AppLocalizations.of(context)!.downloadProfileTitle,
         body: SizedBox(
@@ -1497,7 +1764,7 @@ class _DownloadProfilePageState extends State<DownloadProfilePage> {
               Expanded(
                 child: _buildInlineFilledButton(
                   context,
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: _cancelPreview,
                   label: AppLocalizations.of(context)!.cancel,
                   isGrey: true,
                 ),

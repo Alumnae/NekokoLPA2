@@ -5,9 +5,10 @@ import 'package:logging/logging.dart';
 import '../euicc_adapter.dart';
 import '../../utils/hex_utils.dart';
 import '../../utils/error_codes.dart';
+import 'ble_adapter.dart';
 import 'ble_transport_utils.dart';
 
-class RedBle2Adapter extends BaseAdapter {
+class RedBle2Adapter extends BaseAdapter implements BleAdapter {
   static final Logger _log = Logger('RedBle2Adapter');
 
   RedBle2Adapter() : super(_log);
@@ -53,7 +54,7 @@ class RedBle2Adapter extends BaseAdapter {
 
       log.info("Connecting to RedBle2 device: $deviceId");
       try {
-        await connectBleDevice(_device!, log);
+        await connectBleDevice(_device!, log, progress: connectProgress);
         log.info("Connected to device: $deviceId");
 
         await _connSub?.cancel();
@@ -66,6 +67,7 @@ class RedBle2Adapter extends BaseAdapter {
           }
         });
 
+        reportConnectStep(ReaderConnectStep.discoveringServices);
         final services = await _device!.discoverServices();
         final service = services.firstWhere(
           (s) => s.uuid == _serviceUuid,
@@ -91,9 +93,11 @@ class RedBle2Adapter extends BaseAdapter {
         );
         log.info("Found characteristics - TX: $_txCharUuid, RX: $_rxCharUuid");
 
+        reportConnectStep(ReaderConnectStep.enablingNotifications);
         await _rxChar!.setNotifyValue(true);
 
         log.info("Initializing port protocol...");
+        reportConnectStep(ReaderConnectStep.initializing);
         await _claim();
 
         final atrBytes = await _powerOn();

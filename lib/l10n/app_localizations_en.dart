@@ -543,6 +543,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectingToReader => 'Connecting to reader...';
 
   @override
+  String get waitingForBluetooth => 'Waiting for Bluetooth to turn on...';
+
+  @override
+  String get connectingOverBluetooth => 'Connecting over Bluetooth...';
+
+  @override
+  String connectingOverBluetoothAttempt(int attempt, int total) {
+    return 'Connecting over Bluetooth (attempt $attempt of $total)...';
+  }
+
+  @override
+  String get discoveringReaderServices => 'Discovering reader services...';
+
+  @override
+  String get settingUpBluetoothLink => 'Setting up the Bluetooth link...';
+
+  @override
+  String get authenticatingWithReader => 'Authenticating with the reader...';
+
+  @override
+  String get initializingReader => 'Initializing the reader...';
+
+  @override
+  String get switchingReaderToEuiccMode =>
+      'Switching the reader to eUICC mode...';
+
+  @override
+  String get waitingForReaderRestart => 'Waiting for the reader to restart...';
+
+  @override
   String get moreOptions => 'More options';
 
   @override
@@ -857,6 +887,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get cardStuckRefreshingMessage =>
       'Profile state change ongoing - try manually re-plug the SIM card if it stucks.';
+
+  @override
+  String get cardNeedsReplugTitle => 'Re-plug the SIM card';
+
+  @override
+  String get cardNeedsReplugMessage =>
+      'The card will not hand over its eUICC applet, so it cannot be managed right now. Remove the SIM card and insert it again, then try once more.';
 
   @override
   String get activationCodeTitle => 'Activation Code';
@@ -1643,6 +1680,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get certInfrastructure => 'CERTIFICATE INFRASTRUCTURE';
 
   @override
+  String get configuredAddresses => 'CONFIGURED ADDRESSES';
+
+  @override
+  String get defaultSmdpAddress => 'Default SM-DP+';
+
+  @override
+  String get rootDsAddress => 'Root SM-DS';
+
+  @override
   String get euiccSignCi => 'eUICC Sign CI';
 
   @override
@@ -2008,6 +2054,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get defaultPasswordWillChangeTitle => 'Default password will change';
+
+  @override
+  String defaultPasswordWillChangeMessage(String password) {
+    return 'This device is connected with its default password. Renaming it will set the password to $password. Save this password before reconnecting.';
+  }
+
+  @override
+  String get savedBleDevices => 'Previously connected BLE devices';
+
+  @override
+  String get savedBleDevicesSubtitle =>
+      'View device names and passwords saved on this device';
+
+  @override
+  String get savedBleDevicesDescription =>
+      'Each entry is a locally saved NBLESim password. Default passwords are saved too.';
+
+  @override
+  String get noSavedBleDevices => 'No previously connected BLE devices.';
+
+  @override
   String get deviceName => 'Device Name';
 
   @override
@@ -2095,17 +2163,139 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importAction => 'Import';
 
   @override
+  String get transferTitle => 'Transfer eSIM';
+
+  @override
+  String get transferAction => 'Transfer to this device';
+
+  @override
+  String get transferCheckingEligibility => 'Checking eligibility…';
+
+  @override
+  String get transferReadingSource => 'Reading source SIM…';
+
+  @override
+  String get transferContactingCarrier => 'Contacting carrier…';
+
+  @override
+  String get transferIneligibleReader =>
+      'This profile cannot be transferred on this reader. The source SIM\'s authentication (EAP-AKA) is not reachable here.';
+
+  @override
+  String get transferNoEntitlement =>
+      'No carrier transfer configuration was found for this profile. You can enter the entitlement server manually.';
+
+  @override
+  String transferSourceCarrier(String carrier) {
+    return 'Source carrier: $carrier';
+  }
+
+  @override
+  String get transferConfirmTitle => 'Transfer this subscription?';
+
+  @override
+  String get transferConfirmBody =>
+      'The carrier will re-issue this subscription onto this eUICC. The source profile may be deleted as part of the transfer.';
+
+  @override
+  String get transferStart => 'Start transfer';
+
+  @override
+  String get transferDownloadingProfile => 'Downloading transferred profile…';
+
+  @override
+  String get transferDeleteSourceTitle => 'Delete source profile';
+
+  @override
+  String transferDeleteSourceBody(String iccid) {
+    return 'The carrier requires the source profile $iccid to be deleted before activation. Delete it now?';
+  }
+
+  @override
+  String get transferDeleteSourceConfirm => 'Delete and continue';
+
+  @override
+  String get transferUserInputSubmit => 'Submit';
+
+  @override
+  String get transferAccept => 'Accept';
+
+  @override
+  String get transferReject => 'Decline';
+
+  @override
+  String get transferPendingActivation =>
+      'The carrier is still activating this subscription. It will finish shortly; you can close this and check again later.';
+
+  @override
+  String get transferDismissed => 'The carrier dismissed the transfer.';
+
+  @override
+  String get transferDelayedDownload =>
+      'The carrier will deliver the profile shortly. Once you have installed it, enter the installed ICCID to finish.';
+
+  @override
+  String get transferInstalledIccid => 'Installed ICCID';
+
+  @override
+  String get transferSuccess => 'Transfer complete';
+
+  @override
+  String transferFailed(String error) {
+    return 'Transfer failed: $error';
+  }
+
+  @override
+  String get transferManualServerTitle => 'Entitlement server (advanced)';
+
+  @override
+  String get transferManualServerHint => 'https://entitlement.example.com';
+
+  @override
+  String get transferEnablingSource => 'Preparing source profile…';
+
+  @override
+  String get transferClose => 'Close';
+
+  @override
+  String get transferContinue => 'Continue';
+
+  @override
+  String get transferSmdsDiscovering => 'Discovering profiles via SM-DS…';
+
+  @override
+  String get transferSmdsNoProfiles =>
+      'No pending profiles were found via SM-DS discovery.';
+
+  @override
+  String get transferSelectProfile => 'Select a profile to download';
+
+  @override
+  String get discoverProfiles => 'Discover profiles (SM-DS)';
+
+  @override
+  String get discoveringProfiles => 'Discovering profiles…';
+
+  @override
+  String get discoveryNoProfiles =>
+      'No pending profiles were found via SM-DS discovery.';
+
+  @override
+  String get transferSmdsServerTitle => 'SM-DS server';
+
+  @override
+  String transferProfileOnServer(String eventId, String address) {
+    return '$eventId on $address';
+  }
+
+  @override
+  String get downloadBusyCannotLeave =>
+      'Please wait for the current operation to finish.';
+
+  @override
   String get qrtrReaderTitle => 'Qualcomm modem (QRTR)';
 
   @override
   String get qrtrReaderSubtitle =>
       'Qualcomm\'s low-level modem protocol (requires Shizuku)';
-
-  @override
-  String defaultPasswordWillChangeMessage(String password) {
-    return 'This device is connected with its default password. Renaming it will set the password to $password. Save this password before reconnecting.';
-  }
-
-  @override
-  String get defaultPasswordWillChangeTitle => 'Default password will change';
 }

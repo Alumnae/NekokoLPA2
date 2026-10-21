@@ -18,5 +18,13 @@
 	<true/>
 	<key>com.apple.security.smartcard</key>
 	<true/>
+	<!-- Debug only. The app has to be launched through LaunchServices for
+	     CoreBluetooth's TCC grant to resolve, so `flutter run` stdout is not
+	     available; this lets the session log land somewhere readable instead
+	     of inside the container, which macOS shields from every other process. -->
+	<key>com.apple.security.temporary-exception.files.absolute-path.read-write</key>
+	<array>
+		<string>/private/tmp/</string>
+	</array>
 </dict>
 </plist>

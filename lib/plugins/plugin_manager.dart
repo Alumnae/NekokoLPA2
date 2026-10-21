@@ -4,6 +4,7 @@ import 'plugin_base.dart';
 import 'build_plugin_registry.dart';
 import '../models/euicc_profile.dart';
 import '../models/profile_card_bottom_data.dart';
+import '../settings/app_settings.dart';
 
 class PluginManager extends ChangeNotifier {
   static final Logger _log = Logger('PluginManager');
@@ -15,17 +16,32 @@ class PluginManager extends ChangeNotifier {
 
   final List<ProfilePlugin> _plugins = [];
 
-  List<ProfilePlugin> get plugins => List.unmodifiable(_plugins);
+  bool _isPluginAvailable(ProfilePlugin plugin) =>
+      plugin.id != 'vowifi' || AppSettings().vowifiAvailable;
+
+  Iterable<ProfilePlugin> get _availablePlugins =>
+      _plugins.where(_isPluginAvailable);
+
+  List<ProfilePlugin> get plugins => List.unmodifiable(_availablePlugins);
 
   void _registerPlugins() {
     _plugins
       ..clear()
-      ..addAll(BuildPluginRegistry.createPlugins());
+      ..addAll(BuildPluginRegistry.createPlugins().where(_isPluginAvailable));
   }
 
-  bool hasPlugin(String id) => _plugins.any((plugin) => plugin.id == id);
+  bool hasPlugin(String id) =>
+      _availablePlugins.any((plugin) => plugin.id == id);
 
-  List<AppTabSpec> get appTabs => _plugins
+  List<AppTabSpec> get appTabs => _availablePlugins
+      .where((plugin) {
+        if (plugin.id == 'vowifi') {
+          if (!AppSettings().vowifiEnabled) {
+            return false;
+          }
+        }
+        return true;
+      })
       .map((plugin) => plugin.appTab)
       .whereType<AppTabSpec>()
       .toList(growable: false);
@@ -34,7 +50,7 @@ class PluginManager extends ChangeNotifier {
     String eid,
     List<EuiccProfile> profiles,
   ) async {
-    for (final plugin in _plugins) {
+    for (final plugin in _availablePlugins) {
       await plugin.onProfilesLoaded(eid, profiles, onUpdate: notifyListeners);
     }
     notifyListeners();
@@ -43,7 +59,7 @@ class PluginManager extends ChangeNotifier {
   Future<void> notifyInstallationReported(
     InstallationReportContext report,
   ) async {
-    for (final plugin in _plugins) {
+    for (final plugin in _availablePlugins) {
       try {
         await plugin.onInstallationReported(report);
       } catch (e, stackTrace) {
@@ -57,7 +73,7 @@ class PluginManager extends ChangeNotifier {
   }
 
   List<Widget> buildHeaders(BuildContext context, String? eid) {
-    return _plugins
+    return _availablePlugins
         .map((p) => p.buildHeader(context, eid))
         .whereType<Widget>()
         .toList();
@@ -67,7 +83,7 @@ class PluginManager extends ChangeNotifier {
     BuildContext context,
     ReaderActionContext actionContext,
   ) {
-    return _plugins
+    return _availablePlugins
         .expand((plugin) => plugin.buildReaderActions(context, actionContext))
         .toList(growable: false);
   }
@@ -76,7 +92,7 @@ class PluginManager extends ChangeNotifier {
     BuildContext context,
     EuiccProfile profile,
   ) {
-    return _plugins
+    return _availablePlugins
         .where((p) => p.isMatch(profile))
         .map((p) => p.buildProfileCardExtra(context, profile))
         .whereType<Widget>()
@@ -86,7 +102,7 @@ class PluginManager extends ChangeNotifier {
   ProfileCardBottomData? getMergedProfileCardBottomData(EuiccProfile profile) {
     ProfileCardBottomData? mergedData;
 
-    final matchingPlugins = _plugins.where((p) => p.isMatch(profile));
+    final matchingPlugins = _availablePlugins.where((p) => p.isMatch(profile));
 
     for (final plugin in matchingPlugins) {
       final data = plugin.getProfileCardBottomData(profile);
@@ -116,11 +132,18 @@ class PluginManager extends ChangeNotifier {
 
   List<PluginAction> getProfileActions(
     BuildContext context,
-    EuiccProfile profile,
-  ) {
-    return _plugins
+    EuiccProfile profile, {
+    ReaderActionContext? actionContext,
+  }) {
+    return _availablePlugins
         .where((p) => p.isMatch(profile))
-        .expand((p) => p.getProfileActions(context, profile))
+        .expand(
+          (p) => p.getProfileActions(
+            context,
+            profile,
+            actionContext: actionContext,
+          ),
+        )
         .toList();
   }
 
@@ -129,14 +152,14 @@ class PluginManager extends ChangeNotifier {
     String? eid, {
     String? aid,
   }) {
-    return _plugins
+    return _availablePlugins
         .expand((p) => p.getEidActions(context, eid, aid: aid))
         .toList();
   }
 
   Map<String, WidgetBuilder> get allRoutes {
     final routes = <String, WidgetBuilder>{};
-    for (final plugin in _plugins) {
+    for (final plugin in _availablePlugins) {
       routes.addAll(plugin.routes);
     }
     return routes;

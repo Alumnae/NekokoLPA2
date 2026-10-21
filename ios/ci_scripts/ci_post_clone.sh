@@ -69,6 +69,7 @@ flutter --version
 echo "Precaching Flutter artifacts..."
 flutter precache --ios --macos --universal
 
+
 # Install Flutter dependencies
 echo "Getting Flutter dependencies..."
 flutter pub get

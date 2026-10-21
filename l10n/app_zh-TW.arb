@@ -21,8 +21,8 @@
   "autoLoadProfilesSubtitle": "選擇讀卡機時自動載入卡片設定",
   "loadProfileIcons": "載入設定檔圖示",
   "loadProfileIconsSubtitle": "從eUICC讀取圖示（較慢）",
-  "useNekokoIcons": "使用電信商圖示",
-  "useNekokoIconsSubtitle": "從 operator-icons 獲取電信商圖示",
+  "useNekokoIcons": "使用 Nekoko Cloud 圖示",
+  "useNekokoIconsSubtitle": "從 Nekoko 獲取電信商圖示",
   "forceDeviceDropdown": "強制從下拉選單選擇裝置",
   "forceDeviceDropdownSubtitle": "始終使用下拉選單選擇裝置",
   "sizeDisplayUnit": "容量顯示單位",
@@ -79,10 +79,10 @@
   "disableRefreshFlagsSubtitle": "不適用於外部讀卡機",
   "apduMaxSegmentSize": "APDU 最大分段大小",
   "apduMaxSegmentSizeSubtitle": "每個 APDU 資料塊的最大大小",
-  "ensureSingleChannel": "Ensure Single Channel",
-  "ensureSingleChannelSubtitle": "Close other logical channels before opening a new one",
+  "ensureSingleChannel": "確保單通道",
+  "ensureSingleChannelSubtitle": "在開啟新邏輯通道前關閉其他通道",
   "analytics": "分析與雲端服務",
-  "nekokoCloud": "Nekoko Cloud",
+  "nekokoCloud": "Nekoko 雲",
   "nekokoCloudSubtitle": "分析安裝數據以改進預測",
   "developer": "開發者",
   "developerMode": "開發者模式",
@@ -100,9 +100,9 @@
   "build": "組建",
   "checkUpdates": "檢查更新",
   "checkUpdatesSubtitle": "啟動時自動檢查新版本",
-  "licenses": "Open Source Licenses",
-  "licensesSubtitle": "License information for open source libraries used",
-  "noUpdatesFound": "No updates found",
+  "licenses": "開源許可",
+  "licensesSubtitle": "所使用的開源函式庫的許可資訊",
+  "noUpdatesFound": "找不到更新",
   "profilesTitle": "設定檔列表",
   "switchEstkSlot": "切換 eSTK 插槽",
   "notificationsButton": "通知",
@@ -116,9 +116,9 @@
   "retryConnection": "連接",
   "remoteConnectionFailed": "遠端讀卡機連線失敗",
   "remoteConnectionFailedMessage": "確保遠端伺服器正在執行且可存取。\n\n{error}",
-  "errorBluetoothTimeout": "Bluetooth operation timed out. Please try again.",
-  "errorOmapiSecurity": "Security error: Access to the card was denied by the OS or ARA-M rules.",
-  "errorApplicationNotFound": "eUICC management application (ISD-R) not found. This card may not be a valid eUICC.",
+  "errorBluetoothTimeout": "藍牙操作超時。請再試一次。",
+  "errorOmapiSecurity": "安全錯誤：作業系統或 ARA-M 規則拒絕存取該卡片。",
+  "errorApplicationNotFound": "找不到 eUICC 管理應用程式 (ISD-R) 。此卡可能不是有效的 eUICC。",
   "changeSettings": "更改設定",
   "connectCompatibleReader": "請連接相容的讀卡機以開始。",
   "connectReaderMessageBle": "如果您有支援藍牙的 eUICC，也可以掃描藍牙裝置。",
@@ -132,7 +132,7 @@
   "noDataLoaded": "未連接",
   "loadProfiles": "連接",
   "disconnect": "斷開連接",
-  "disconnecting": "Disconnecting...",
+  "disconnecting": "正在中斷連接...",
   "profilesEmpty": "卡內無設定檔",
   "profilesEmptyMessage": "此 eUICC 卡是空的。",
   "renameProfile": "重命名設定檔",
@@ -170,7 +170,7 @@
   "deleteProfile": "刪除設定檔",
   "deleteProfileConfirmation": "確定要刪除設定檔 {profileName} 嗎？\n此操作無法復原。",
   "deletingProfile": "正在刪除設定檔...",
-  "deleting": "Deleting...",
+  "deleting": "正在刪除...",
   "dataUsage": "流量消耗",
   "details": "詳情",
   "rename": "重新命名",
@@ -178,7 +178,7 @@
   "manageTags": "管理標籤",
   "copyIccid": "複製 ICCID",
   "notificationProcessingError": "通知正在處理中，無法執行操作",
-  "operationInProgressError": "Operation in progress, please wait",
+  "operationInProgressError": "操作進行中，請稍候",
   "iccidCopied": "ICCID 已複製: {iccid}",
   "operationRestricted": "操作受限",
   "notificationProcessingDownloadError": "通知仍在處理中。請在下載新設定檔前等待處理完成。",
@@ -192,7 +192,7 @@
   "tagsManagedSeparately": "注意：標籤透過「管理標籤」選單獨立管理。",
   "changeProfileIcon": "變更設定檔圖示",
   "selectFromGallery": "從相簿選擇",
-  "nekokoOperatorIcon": "電信商圖示",
+  "nekokoOperatorIcon": "Nekoko 營運商圖示",
   "iconFromEsim": "來自 eSIM 卡的圖示",
   "updateIconFailed": "更新圖示失敗: {error}",
   "failedToReadImage": "無法讀取圖片檔案",
@@ -250,12 +250,14 @@
   "noCardDetectedSubtitle": "在此插槽中未找到不支援或活動的 eUICC。",
   "noProfilesInstalled": "未安裝任何設定檔",
   "noProfilesInstalledSubtitle": "此 eUICC 卡片是空的。",
-  "cardRefreshingTitle": "Card is Refreshing",
-  "cardRefreshingMessage": "The card is currently updating its state. Profile list cannot be retrieved at this moment. Please wait a few seconds and then try again.",
+  "cardRefreshingTitle": "正在重新整理卡片",
+  "cardRefreshingMessage": "卡片正在更新狀態。此時無法檢索個人資料列表。請等待幾秒鐘，然後重試。",
   "useRemoteIcon": "使用遠端圖示",
-  "bleDisconnectedTitle": "Bluetooth Connection Lost",
-  "bleDisconnectedMessage": "The connection to the card reader was suddenly lost. Please ensure it is nearby and turned on.",
-  "cardStuckRefreshingMessage": "Profile state change ongoing - try manually re-plug the SIM card if it stucks.",
+  "bleDisconnectedTitle": "藍牙連線中斷",
+  "bleDisconnectedMessage": "與讀卡機的連線突然中斷。請確認它在附近並已開啟。",
+  "cardStuckRefreshingMessage": "設定檔狀態正在更改——如果卡住，請手動將SIM卡重新插入。",
+  "cardNeedsReplugTitle": "請重新插拔 SIM 卡",
+  "cardNeedsReplugMessage": "卡片未交出其 eUICC 小程式，因此目前無法管理。請取出 SIM 卡後重新插入，然後再試一次。",
   "activationCodeTitle": "激活碼",
   "activationCodeSubtitle": "掃描二維碼、拖拽圖片或手動輸入 LPA 字串。",
   "fullActivationCodeLabel": "完整激活碼",
@@ -444,7 +446,8 @@
   "whatIsAram": "什麼是 ARA-M？",
   "aramDescription": "存取規則小應用 (ARA-M) 是 eUICC (eSIM) 和 SIM 卡上的一種機制，它定義了哪些應用程式被允許管理設定檔或執行低級操作。如果應用程式的哈希值不在卡片的 ARA-M 允許列表中，安卓系統將阻止存取，導致「存取被拒絕」錯誤。",
   "appCertHashes": "應用程式證書哈希",
-  "aramHashInstruction": "為相容不同 Android 版本，請將下方所有 SHA-1 憑證雜湊新增到卡片的 ARA-M 規則中。應用程式簽署金鑰升級後，不同 Android 版本可能會檢查已驗證簽署記錄中的不同憑證。",
+  "aramHashInstruction": "為了向此應用程式授予存取權限，您可能需要將以下 SHA-1 證書哈希添加到卡片的 ARA-M 規則中。此哈希值對您當前應用程式組建的證書是唯一的。",
+  "aramSigningHistoryInstruction": "為相容不同的 Android 版本，請將下方所有 SHA-1 證書雜湊新增到卡片的 ARA-M 規則中。應用簽名金鑰升級後，不同的 Android 版本可能會校驗已驗證簽名歷史中的不同證書。",
   "certSha1Hash": "證書 SHA-1 哈希",
   "unavailable": "不可用",
   "troubleshooting": "故障排除",
@@ -471,7 +474,7 @@
   "responseCode": "響應代碼",
   "responseBody": "響應體",
   "type": "類型",
-  "profileCount": "{count, plural, =1{1 profile} other{{count} profiles}}",
+  "profileCount": "{count, plural, =1{1 個設定檔} other{{count} 個設定檔}}",
   "@profileCount": {
     "placeholders": {
       "count": {
@@ -485,22 +488,22 @@
   "notificationProcessing": "通知設置",
   "manageAutoNotification": "管理自動通知處理",
   "notificationProcessingHelp": "處理通知有助於您的 eUICC 與 SM-DP+ 服務器（運營商）之間的同步。刪除已發送的通知可以保持卡存儲清潔。",
-  "notificationProcessingTimings": "Processing timings",
-  "notificationProcessingTimingsHelp": "Choose when automatic notification processing runs. Some safety-critical timings can only be disabled while Developer Mode is enabled.",
+  "notificationProcessingTimings": "處理時機",
+  "notificationProcessingTimingsHelp": "選擇自動處理通知的時機。部分涉及安全的關鍵時機僅在啟用開發者模式後才能關閉。",
   "afterEnablingProfile": "啟用配置後",
   "afterDisablingProfile": "禁用配置後",
   "afterProfileDownload": "下載配置後",
   "afterProfileDeletion": "刪除配置後",
-  "initialLoad": "Initial load",
-  "processNotificationsOnInitialLoad": "Process notifications after profiles finish loading",
-  "afterSwitchingProfile": "After switching profile",
-  "processNotificationsAfterSwitchingProfile": "Process notifications after enabling or disabling a profile",
-  "beforeProfileDownload": "Before profile download",
-  "processNotificationsBeforeProfileDownload": "Process notifications before starting a profile download",
-  "afterProfileInstalled": "After profile installed",
-  "processNotificationsAfterProfileInstalled": "Process notifications after a profile has been installed",
-  "processNotificationsAfterProfileDeletion": "Process notifications after deleting a profile",
-  "developerModeRequiredToDisableTiming": "Enable Developer Mode to disable this timing.",
+  "initialLoad": "初次載入",
+  "processNotificationsOnInitialLoad": "設定檔載入完成後處理通知",
+  "afterSwitchingProfile": "切換設定檔後",
+  "processNotificationsAfterSwitchingProfile": "啟用或停用設定檔後處理通知",
+  "beforeProfileDownload": "下載設定檔前",
+  "processNotificationsBeforeProfileDownload": "開始下載設定檔前處理通知",
+  "afterProfileInstalled": "設定檔安裝後",
+  "processNotificationsAfterProfileInstalled": "設定檔安裝完成後處理通知",
+  "processNotificationsAfterProfileDeletion": "刪除設定檔後處理通知",
+  "developerModeRequiredToDisableTiming": "啟用開發者模式後才能關閉此時機。",
   "sendToServerAutomatically": "自動發送到服務器",
   "removeFromCardAfterSending": "發送後從卡中刪除",
   "removeWithoutSendingCaution": "請謹慎使用：服務器將不會收到通知",
@@ -544,11 +547,18 @@
   },
   "sasAccreditation": "SAS 認證",
   "firmwareVersion": "韌體版本",
+  "beeSimFirmwareAction": "更新 BeeSIM 韌體",
+  "beeSimFirmwareTitle": "BeeSIM 韌體更新",
+  "beeSimFirmwareWarning": "BeeSIM 有可用的韌體更新。更新完成前請保持卡片供電、藍牙連接以及應用處於開啟狀態。中斷更新可能導致卡片暫時無法使用。",
+  "beeSimFirmwareConfirm": "更新韌體",
   "platformSupport": "平台支持",
   "rspVersion": "RSP 版本",
   "bppVersion": "BPP 版本",
   "gpVersion": "GlobalPlatform 版本",
   "certInfrastructure": "證書基礎結構",
+  "configuredAddresses": "已配置的地址",
+  "defaultSmdpAddress": "預設 SM-DP+",
+  "rootDsAddress": "根 SM-DS",
   "euiccSignCi": "eUICC 簽名 CI",
   "euiccVerifyCi": "eUICC 驗證 CI",
   "none": "無",
@@ -572,15 +582,15 @@
   "status": "狀態",
   "sent": "已發送",
   "pending": "待處理",
-  "notifTypeInstall": "Install",
-  "notifTypeDelete": "Delete",
-  "notifTypeEnable": "Enable",
-  "notifTypeDisable": "Disable",
-  "notifTypeRpmEnable": "RPM Enable",
-  "notifTypeRpmDisable": "RPM Disable",
-  "notifTypeRpmDelete": "RPM Delete",
-  "notifTypeLoadRpm": "Load RPM",
-  "confirmDeleteNotification": "Are you sure you want to delete notification #{seq}?",
+  "notifTypeInstall": "安裝",
+  "notifTypeDelete": "刪除",
+  "notifTypeEnable": "啟用",
+  "notifTypeDisable": "停用",
+  "notifTypeRpmEnable": "RPM 啟用",
+  "notifTypeRpmDisable": "RPM 停用",
+  "notifTypeRpmDelete": "RPM 刪除",
+  "notifTypeLoadRpm": "載入 RPM",
+  "confirmDeleteNotification": "您確定要刪除通知 #{seq} 嗎？",
   "@confirmDeleteNotification": {
     "placeholders": {
       "seq": {
@@ -588,8 +598,8 @@
       }
     }
   },
-  "notificationRemoved": "Notification removed",
-  "failedToRemove": "Failed to remove: {error}",
+  "notificationRemoved": "通知已移除",
+  "failedToRemove": "移除失敗: {error}",
   "@failedToRemove": {
     "placeholders": {
       "error": {
@@ -597,8 +607,8 @@
       }
     }
   },
-  "curlCopied": "cURL command extracted to clipboard",
-  "failedToGenerateCurl": "Failed to generate cURL: {error}",
+  "curlCopied": "已將 cURL 命令複製到剪貼簿",
+  "failedToGenerateCurl": "生成 cURL 失敗: {error}",
   "@failedToGenerateCurl": {
     "placeholders": {
       "error": {
@@ -606,11 +616,11 @@
       }
     }
   },
-  "noNotificationAddress": "No notification address available",
-  "sendingNotification": "Sending notification...",
-  "notifSentSuccessfully": "Notification sent successfully",
-  "failedToSendNotification": "Failed to send notification",
-  "errorSendingNotification": "Error sending notification: {error}",
+  "noNotificationAddress": "無可用通知地址",
+  "sendingNotification": "正在傳送通知...",
+  "notifSentSuccessfully": "通知傳送成功",
+  "failedToSendNotification": "傳送通知失敗",
+  "errorSendingNotification": "傳送通知時出錯: {error}",
   "@errorSendingNotification": {
     "placeholders": {
       "error": {
@@ -618,7 +628,7 @@
       }
     }
   },
-  "pendingCount": "{count} pending",
+  "pendingCount": "{count} 條待處理",
   "@pendingCount": {
     "placeholders": {
       "count": {
@@ -626,20 +636,20 @@
       }
     }
   },
-  "currentReader": "Current Reader",
-  "errorLoadingNotifications": "Error loading notifications",
-  "allCaughtUp": "You're all caught up",
-  "sequence": "Sequence",
-  "operation": "Operation",
-  "profileNameLabel": "Profile Name",
-  "failedToSend": "Failed to send",
-  "onCard": "On card",
-  "sendNotification": "Send notification",
-  "deleteNotification": "Delete notification",
-  "noNotifications": "No notifications",
-  "batchDownloadTitle": "Batch Download",
-  "batchDownloadHint": "Paste multiple LPA codes here (one per line, max 20)",
-  "foundLpaCodes": "{count} LPA codes found",
+  "currentReader": "目前讀卡機",
+  "errorLoadingNotifications": "載入通知時出錯",
+  "allCaughtUp": "您已處理完所有內容",
+  "sequence": "序列號",
+  "operation": "操作",
+  "profileNameLabel": "設定檔名稱",
+  "failedToSend": "傳送失敗",
+  "onCard": "卡內",
+  "sendNotification": "傳送通知",
+  "deleteNotification": "刪除通知",
+  "noNotifications": "無通知",
+  "batchDownloadTitle": "批次下載",
+  "batchDownloadHint": "在此貼上多個 LPA 代碼（每行一個，最多 20 個）",
+  "foundLpaCodes": "找到 {count} 個 LPA 程式碼",
   "@foundLpaCodes": {
     "placeholders": {
       "count": {
@@ -647,23 +657,23 @@
       }
     }
   },
-  "startBatch": "Start Batch",
-  "noLpaCodesFound": "No valid LPA codes found",
-  "insufficientSpaceStoppingBatch": "Insufficient space. Stopping batch download.",
-  "exportCsv": "Export to CSV",
-  "exportedSuccessfully": "Exported successfully",
-  "exportResults": "Export Results",
+  "startBatch": "開始批次任務",
+  "noLpaCodesFound": "未找到有效的 LPA 程式碼",
+  "insufficientSpaceStoppingBatch": "空間不足。正在停止批次下載。",
+  "exportCsv": "匯出為 CSV",
+  "exportedSuccessfully": "匯出成功",
+  "exportResults": "匯出結果",
   "lpa": "LPA",
   "smdp": "SM-DP+",
-  "confirmationCode": "Confirmation Code",
-  "size": "Size",
-  "message": "Message",
-  "remainingSpace": "Remaining Space",
-  "stopBatch": "Stop Batch",
-  "stopping": "Stopping...",
-  "remove": "Remove",
-  "updateAvailable": "Update Available",
-  "updateAvailableSubtitle": "A new version of {appName} is available (v{version} b{build}). Would you like to update now?",
+  "confirmationCode": "確認碼",
+  "size": "大小",
+  "message": "內容",
+  "remainingSpace": "剩餘空間",
+  "stopBatch": "停止批次",
+  "stopping": "正在停止...",
+  "remove": "移除",
+  "updateAvailable": "發現更新",
+  "updateAvailableSubtitle": "{appName} 的新版本已釋出 (v{version} b{build})。現在更新嗎？",
   "@updateAvailableSubtitle": {
     "placeholders": {
       "appName": {
@@ -677,33 +687,33 @@
       }
     }
   },
-  "updateAction": "Update",
-  "later": "Later",
-  "changelog": "Changelog",
-  "sortBy": "Sort by",
+  "updateAction": "更新",
+  "later": "稍後",
+  "changelog": "更新日誌",
+  "sortBy": "排序方式",
   "sortIccid": "ICCID",
-  "sortCountry": "Country",
-  "sortAscending": "Ascending",
-  "sortDescending": "Descending",
-  "searchProfiles": "Search profiles...",
-  "noProfilesMatch": "No profiles match your search.",
-  "sortDefault": "Default",
-  "sortNickname": "Nickname",
-  "showProfileSearch": "Show Profile Search",
-  "showProfileSearchSubtitle": "Show search and sort bar in profile list",
-  "noReaderFound": "No reader found. Please connect your eUICC adapter.",
-  "readyToInstallProfile": "Ready to install profile.",
-  "downloadHere": "Download Here",
+  "sortCountry": "國家/地區",
+  "sortAscending": "升序",
+  "sortDescending": "降序",
+  "searchProfiles": "搜尋設定檔...",
+  "noProfilesMatch": "沒有符合搜尋條件的設定檔。",
+  "sortDefault": "預設",
+  "sortNickname": "暱稱",
+  "showProfileSearch": "顯示設定檔搜尋",
+  "showProfileSearchSubtitle": "在設定檔列表中顯示搜尋和排序欄",
+  "noReaderFound": "找不到讀卡機。請連接您的 eUICC 轉接器。",
+  "readyToInstallProfile": "準備安裝設定檔。",
+  "downloadHere": "在此下載",
   "manage": "管理",
   "buyCard": "卡片",
   "buyData": "數據",
-  "selectDevice": "Select Device",
-  "selectReaderTitle": "Select Card",
-  "authorizeSigning": "Authorize Signing",
-  "signingDescription": "A website is requesting a secure signature from your eUICC.",
-  "smdpAddress": "SM-DP+ Address",
-  "sign": "Sign",
-  "profilesInstalled": "{count, plural, =1{1 profile installed} other{{count} profiles installed}}",
+  "selectDevice": "選擇裝置",
+  "selectReaderTitle": "選擇卡片",
+  "authorizeSigning": "授權簽名",
+  "signingDescription": "網站正在請求您的 eUICC 進行安全簽名。",
+  "smdpAddress": "SM-DP+ 地址",
+  "sign": "簽名",
+  "profilesInstalled": "{count, plural, =1{已安裝1個設定檔} other{{count} 設定檔已安裝}}",
   "@profilesInstalled": {
     "placeholders": {
       "count": {
@@ -712,22 +722,22 @@
     }
   },
   "estimatedDownloadSize": "預估下載大小",
-  "phoneFormatInternationalOnly": "E.164 Int'l Only",
-  "phoneFormatInternationalAndMobile": "Int'l & Mobile",
-  "phoneFormatInternationalAndAll": "Int'l & National",
-  "phoneFormatOff": "Off",
-  "settings_item_unit_b": "Bytes",
-  "settings_item_unit_kb": "kB (1,000 Bytes)",
-  "settings_item_unit_kib": "kiB (1,024 Bytes)",
-  "settings_item_unit_adaptive_si": "B / kB Adaptive",
-  "settings_item_unit_adaptive_bi": "B / kiB Adaptive",
+  "phoneFormatInternationalOnly": "僅 E.164 國際格式",
+  "phoneFormatInternationalAndMobile": "國際與移動格式",
+  "phoneFormatInternationalAndAll": "國際與國內格式",
+  "phoneFormatOff": "關閉",
+  "settings_item_unit_b": "位元組",
+  "settings_item_unit_kb": "kB（1,000 位元組）",
+  "settings_item_unit_kib": "kiB（1,024 位元組）",
+  "settings_item_unit_adaptive_si": "B / kB 自適應",
+  "settings_item_unit_adaptive_bi": "B / kiB 自適應",
   "insufficientStorageWarning": "可用空間不足，安裝可能會失敗。",
   "estimateProfileSize": "估計配置文件大小",
   "estimateProfileSizeSubtitle": "在下載前估計配置文件元數據的大小",
-  "customize": "Customize",
-  "customizeDescription": "Specify a new 6-character hex name and password for your writer.",
-  "customizeSuccess": "Writer customized. Please re-pair the device.",
-  "customizeFailed": "Failed to customize writer: {error}",
+  "customize": "自訂",
+  "customizeDescription": "為您的寫卡機指定新的 6 位十六進位制名稱和密碼。",
+  "customizeSuccess": "寫卡機已自訂。請重新配對裝置。",
+  "customizeFailed": "自訂寫卡機失敗：{error}",
   "@customizeFailed": {
     "placeholders": {
       "error": {
@@ -735,12 +745,25 @@
       }
     }
   },
-  "deviceName": "Device Name",
-  "success": "Success",
-  "devicePasswordHint": "6 hex chars or password string",
-  "sixHexChars": "6 hex chars",
-  "database": "Database",
-  "exportSuccess": "Database exported to {path}",
+  "defaultPasswordWillChangeTitle": "預設密碼將被更改",
+  "defaultPasswordWillChangeMessage": "此裝置正使用預設密碼連接。重新命名後密碼將變為 {password}。請在重新連接前儲存該密碼。",
+  "@defaultPasswordWillChangeMessage": {
+    "placeholders": {
+      "password": {
+        "type": "String"
+      }
+    }
+  },
+  "savedBleDevices": "曾連接的 BLE 裝置",
+  "savedBleDevicesSubtitle": "檢視儲存在本裝置上的裝置名稱和密碼",
+  "savedBleDevicesDescription": "每條記錄都是本地儲存的 NBLESim 密碼，預設密碼也會被儲存。",
+  "noSavedBleDevices": "沒有曾連接的 BLE 裝置。",
+  "deviceName": "裝置名稱",
+  "success": "成功",
+  "devicePasswordHint": "6 個十六進位制字元或密碼字串",
+  "sixHexChars": "6 個十六進位制字元",
+  "database": "資料庫",
+  "exportSuccess": "資料庫已匯出到: {path}",
   "@exportSuccess": {
     "placeholders": {
       "path": {
@@ -748,14 +771,14 @@
       }
     }
   },
-  "importDatabase": "Import Database",
-  "importDatabaseSubtitle": "Merge rows from another database file",
-  "importDatabaseDialogTitle": "Select database file to import",
-  "importDatabaseTitle": "Import Database",
-  "importDatabaseContent": "This will merge rows from the selected database into your current database. Existing rows with the same keys will be overwritten. Continue?",
-  "import": "Import",
-  "importSuccess": "Database imported successfully",
-  "importFailed": "Failed to import database: {error}",
+  "importDatabase": "匯入資料庫",
+  "importDatabaseSubtitle": "從另一個資料庫檔案合併行",
+  "importDatabaseDialogTitle": "選擇要匯入的資料庫檔案",
+  "importDatabaseTitle": "匯入資料庫",
+  "importDatabaseContent": "這將把所選資料庫中的行合併到您目前的資料庫。使用相同鍵的現有行將被覆蓋。是否繼續？",
+  "import": "匯入",
+  "importSuccess": "資料庫匯入成功",
+  "importFailed": "匯出資料庫失敗: {error}",
   "@importFailed": {
     "placeholders": {
       "error": {
@@ -763,12 +786,12 @@
       }
     }
   },
-  "resetDatabase": "Reset Database",
-  "resetDatabaseSubtitle": "Clear all application data and restart",
-  "resetDatabaseTitle": "Reset Application Database",
-  "resetDatabaseContent": "This will completely delete all locally stored data, configurations, and logs. The application will close. Do you want to proceed?",
-  "deleteDatabase": "Delete Database",
-  "resetFailed": "Failed to reset database: {error}",
+  "resetDatabase": "重置資料庫",
+  "resetDatabaseSubtitle": "清除所有應用資料並重啟",
+  "resetDatabaseTitle": "重置應用資料庫",
+  "resetDatabaseContent": "這將完全刪除所有本地儲存的資料、設定檔和日誌。應用程式將關閉。您確定要繼續嗎？",
+  "deleteDatabase": "刪除資料庫",
+  "resetFailed": "重置資料庫失敗: {error}",
   "@resetFailed": {
     "placeholders": {
       "error": {
@@ -776,10 +799,79 @@
       }
     }
   },
-  "deviceImei": "Device TAC",
-  "deviceImeiSubtitle": "Used for profile downloads",
-  "editDeviceImei": "Edit Device TAC",
-  "editDeviceImeiInfo": "Enter an 8-digit TAC, or a 15-digit IMEI. Default TAC: 35383741.",
-  "imeiDigits": "TAC or IMEI digits",
-  "importAction": "Import"
+  "deviceImei": "裝置 IMEI (TAC)",
+  "deviceImeiSubtitle": "用於設定檔下載",
+  "editDeviceImei": "編輯裝置 IMEI",
+  "editDeviceImeiInfo": "輸入 16 位數 (8 位元組)。標準 IMEI 以 35 開始。",
+  "imeiDigits": "IMEI (Digits)",
+  "importAction": "匯入",
+  "transferTitle": "轉移 eSIM",
+  "transferAction": "轉移到此裝置",
+  "transferCheckingEligibility": "正在檢查資格…",
+  "transferReadingSource": "正在讀取源 SIM 卡…",
+  "transferContactingCarrier": "正在聯絡電信商…",
+  "transferIneligibleReader": "此設定檔無法在該讀卡機上轉移。此處無法存取源 SIM 卡的認證（EAP-AKA）。",
+  "transferNoEntitlement": "未找到該設定檔的電信商轉移設定檔。您可以手動輸入 entitlement 伺服器。",
+  "transferSourceCarrier": "源電信商：{carrier}",
+  "@transferSourceCarrier": {
+    "placeholders": {
+      "carrier": {
+        "type": "String"
+      }
+    }
+  },
+  "transferConfirmTitle": "要轉移此訂閱嗎？",
+  "transferConfirmBody": "電信商會將此訂閱重新簽發到此 eUICC 上。作為轉移的一部分，源設定檔可能會被刪除。",
+  "transferStart": "開始轉移",
+  "transferDownloadingProfile": "正在下載已轉移的設定檔…",
+  "transferDeleteSourceTitle": "刪除源設定檔",
+  "transferDeleteSourceBody": "電信商要求在啟用前刪除源設定檔 {iccid}。現在刪除嗎？",
+  "@transferDeleteSourceBody": {
+    "placeholders": {
+      "iccid": {
+        "type": "String"
+      }
+    }
+  },
+  "transferDeleteSourceConfirm": "刪除並繼續",
+  "transferUserInputSubmit": "提交",
+  "transferAccept": "接受",
+  "transferReject": "拒絕",
+  "transferPendingActivation": "電信商仍在啟用此訂閱，稍後即可完成；您可以關閉此頁面，稍後再檢視。",
+  "transferDismissed": "電信商已拒絕此次轉移。",
+  "transferDelayedDownload": "電信商將稍後下發該設定檔。安裝完成後，請輸入已安裝的 ICCID 以結束流程。",
+  "transferInstalledIccid": "已安裝的 ICCID",
+  "transferSuccess": "轉移完成",
+  "transferFailed": "轉移失敗：{error}",
+  "@transferFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "transferManualServerTitle": "Entitlement 伺服器（高階）",
+  "transferManualServerHint": "https://entitlement.example.com",
+  "transferEnablingSource": "正在準備源設定檔…",
+  "transferClose": "關閉",
+  "transferContinue": "繼續",
+  "transferSmdsDiscovering": "正在透過 SM-DS 發現設定檔…",
+  "transferSmdsNoProfiles": "未透過 SM-DS 發現待處理的設定檔。",
+  "transferSelectProfile": "選擇要下載的設定檔",
+  "discoverProfiles": "發現設定檔（SM-DS）",
+  "discoveringProfiles": "正在發現設定檔…",
+  "discoveryNoProfiles": "未透過 SM-DS 發現待處理的設定檔。",
+  "transferSmdsServerTitle": "SM-DS 伺服器",
+  "transferProfileOnServer": "{address} 上的 {eventId}",
+  "@transferProfileOnServer": {
+    "placeholders": {
+      "eventId": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadBusyCannotLeave": "Please wait for the current operation to finish."
 }

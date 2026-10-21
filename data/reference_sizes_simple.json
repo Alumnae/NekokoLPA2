@@ -2668,7 +2668,7 @@
     },
     {
       "plmn": "20810",
-      "serviceProviderName": "RégloMobile",
+      "serviceProviderName": "R\u00e9gloMobile",
       "rsp": "rsp-3040.idemia.io",
       "reference_size": 34166,
       "eum_sizes": {
@@ -9559,6 +9559,24 @@
     },
     {
       "plmn": "26001",
+      "serviceProviderName": "99esim",
+      "rsp": "smdp.io",
+      "reference_size": 9440,
+      "eum_sizes": {
+        "89044045": 9440,
+        "35840574": 28936,
+        "89033023": 7685,
+        "89033024": 8491,
+        "89034011": 10215,
+        "89041030": 9206,
+        "89043051": 15361,
+        "89049032": 11837,
+        "89086029": 7442,
+        "89086030": 23105
+      }
+    },
+    {
+      "plmn": "26001",
       "serviceProviderName": "Roamify",
       "rsp": "rsp.openroam.com",
       "reference_size": 59264,
@@ -13313,7 +13331,7 @@
     },
     {
       "plmn": "310240",
-      "serviceProviderName": "Infimobile ",
+      "serviceProviderName": "Infimobile\u202f",
       "rsp": "t-mobile.idemia.io",
       "reference_size": 43104,
       "eum_sizes": {
@@ -23952,7 +23970,7 @@
     },
     {
       "plmn": "46000",
-      "serviceProviderName": "中国移动",
+      "serviceProviderName": "\u4e2d\u56fd\u79fb\u52a8",
       "rsp": "rsp-eu.simlessly.com",
       "reference_size": 24811,
       "eum_sizes": {
@@ -24025,7 +24043,7 @@
     },
     {
       "plmn": "46001",
-      "serviceProviderName": "中国联通",
+      "serviceProviderName": "\u4e2d\u56fd\u8054\u901a",
       "rsp": "rsp-eu.simlessly.com",
       "reference_size": 26112,
       "eum_sizes": {
@@ -24079,7 +24097,7 @@
     },
     {
       "plmn": "46002",
-      "serviceProviderName": "中国移动",
+      "serviceProviderName": "\u4e2d\u56fd\u79fb\u52a8",
       "rsp": "rsp-eu.simlessly.com",
       "reference_size": 24480,
       "eum_sizes": {
@@ -24133,7 +24151,7 @@
     },
     {
       "plmn": "46007",
-      "serviceProviderName": "中国移动",
+      "serviceProviderName": "\u4e2d\u56fd\u79fb\u52a8",
       "rsp": "118.178.126.108:443",
       "reference_size": 52533,
       "eum_sizes": {
@@ -24223,7 +24241,7 @@
     },
     {
       "plmn": "46011",
-      "serviceProviderName": "中国电信",
+      "serviceProviderName": "\u4e2d\u56fd\u7535\u4fe1",
       "rsp": "118.178.126.108:443",
       "reference_size": 24961,
       "eum_sizes": {

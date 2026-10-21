@@ -58,9 +58,13 @@ class NBridgeAdapter extends BaseAdapter {
 
     final slots = await NBridgeService.listSlots();
     final readers = slots.map((slot) {
-      final slotId = slot['id'] as String? ?? '';
+      final rawSlotId = slot['id'] as String? ?? '';
+      final slotId = _normalizeSlotId(rawSlotId);
 
-      String displayName = slot['displayName'] as String? ?? slotId;
+      String displayName = slot['displayName'] as String? ?? rawSlotId;
+      if (displayName == rawSlotId && slotId != rawSlotId) {
+        displayName = rawSlotId.replaceFirst('omapi:', '');
+      }
 
       return Reader(id: slotId, name: displayName, source: this, context: slot);
     }).toList();
@@ -68,6 +72,13 @@ class NBridgeAdapter extends BaseAdapter {
     _lastReaders = readers;
     _lastListTime = now;
     return readers;
+  }
+
+  static String _normalizeSlotId(String slotId) {
+    if (slotId.startsWith('omapi:')) {
+      return slotId.split('|').first.split(' (').first.trim();
+    }
+    return slotId;
   }
 
   @override

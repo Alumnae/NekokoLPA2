@@ -6,13 +6,17 @@ project(runner LANGUAGES CXX)
 # work.
 #
 # Any new source files that you add to the application should be added here.
+# Default resource file
+set(RESOURCE_FILE "Runner.rc")
+
+
 add_executable(${BINARY_NAME} WIN32
   "flutter_window.cpp"
   "main.cpp"
   "utils.cpp"
   "win32_window.cpp"
   "${FLUTTER_MANAGED_DIR}/generated_plugin_registrant.cc"
-  "Runner.rc"
+  "${RESOURCE_FILE}"
   "runner.exe.manifest"
 )
 

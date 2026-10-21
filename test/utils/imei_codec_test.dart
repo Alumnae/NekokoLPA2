@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nlpa2/ts43/sim/identifier.dart';
 import 'package:nlpa2/utils/imei_codec.dart';
 
 void main() {
@@ -39,6 +40,16 @@ void main() {
       calculateImeiLuhnChecksum(digits.substring(0, 14)).toString(),
     );
     expect(tacDigitsFromStoredBytes(stored), defaultDeviceTac);
+  });
+
+  test('stored IMEI bytes are not swapped BCD', () {
+    // TS.43 sends Device.imei as plain digits. Reading the stored bytes with
+    // the swapped-BCD decoder used for SIM files yields a pairwise-swapped
+    // 16-digit string that IMEI-validating carriers reject.
+    final stored = storedImeiBytesFromDigits('353837410000013');
+
+    expect(imeiDigitsFromStoredBytes(stored), '353837410000013');
+    expect(decodeBcd(stored), isNot('353837410000013'));
   });
 
   test('normalizes full IMEI digits to stored bytes with filler nibble', () {

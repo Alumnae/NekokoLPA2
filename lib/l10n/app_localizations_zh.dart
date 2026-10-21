@@ -75,10 +75,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loadProfileIconsSubtitle => '从eUICC读取图标（较慢）';
 
   @override
-  String get useNekokoIcons => '使用运营商图标';
+  String get useNekokoIcons => '使用 Nekoko Cloud 图标';
 
   @override
-  String get useNekokoIconsSubtitle => '从 operator-icons 获取运营商图标';
+  String get useNekokoIconsSubtitle => '从 Nekoko 获取运营商图标';
 
   @override
   String get forceDeviceDropdown => '强制从下拉菜单选择设备';
@@ -504,6 +504,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get connectingToReader => '正在连接到读卡器...';
 
   @override
+  String get waitingForBluetooth => 'Waiting for Bluetooth to turn on...';
+
+  @override
+  String get connectingOverBluetooth => 'Connecting over Bluetooth...';
+
+  @override
+  String connectingOverBluetoothAttempt(int attempt, int total) {
+    return 'Connecting over Bluetooth (attempt $attempt of $total)...';
+  }
+
+  @override
+  String get discoveringReaderServices => 'Discovering reader services...';
+
+  @override
+  String get settingUpBluetoothLink => 'Setting up the Bluetooth link...';
+
+  @override
+  String get authenticatingWithReader => 'Authenticating with the reader...';
+
+  @override
+  String get initializingReader => 'Initializing the reader...';
+
+  @override
+  String get switchingReaderToEuiccMode =>
+      'Switching the reader to eUICC mode...';
+
+  @override
+  String get waitingForReaderRestart => 'Waiting for the reader to restart...';
+
+  @override
   String get moreOptions => '更多选项';
 
   @override
@@ -530,7 +560,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deletingProfile => '正在删除配置...';
 
   @override
-  String get deleting => 'Deleting...';
+  String get deleting => '正在删除...';
 
   @override
   String get dataUsage => '流量消耗';
@@ -554,7 +584,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notificationProcessingError => '通知正在处理中，无法执行操作';
 
   @override
-  String get operationInProgressError => 'Operation in progress, please wait';
+  String get operationInProgressError => '操作进行中，请稍候';
 
   @override
   String iccidCopied(Object iccid) {
@@ -598,7 +628,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get selectFromGallery => '从相册选择';
 
   @override
-  String get nekokoOperatorIcon => '运营商图标';
+  String get nekokoOperatorIcon => 'Nekoko 运营商图标';
 
   @override
   String get iconFromEsim => '来自 eSIM 卡的图标';
@@ -803,6 +833,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cardStuckRefreshingMessage => '配置文件状态正在更改——如果卡住，请手动将SIM卡重新插入。';
+
+  @override
+  String get cardNeedsReplugTitle => '请重新插拔 SIM 卡';
+
+  @override
+  String get cardNeedsReplugMessage =>
+      '卡片未交出其 eUICC 小程序，因此当前无法管理。请取出 SIM 卡后重新插入，然后再试一次。';
 
   @override
   String get activationCodeTitle => '激活码';
@@ -1298,11 +1335,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aramHashInstruction =>
-      '为兼容不同 Android 版本，请将下方所有 SHA-1 证书哈希添加到卡片的 ARA-M 规则中。应用签名密钥升级后，不同 Android 版本可能会检查已验证签名历史中的不同证书。';
+      '为了向此应用授予访问权限，您可能需要将以下 SHA-1 证书哈希添加到卡片的 ARA-M 规则中。此哈希值对您当前应用构建的证书是唯一的。';
 
   @override
   String get aramSigningHistoryInstruction =>
-      'For compatibility across Android versions, add all SHA-1 certificate hashes below to your card\'s ARA-M rules. After an app signing key upgrade, different Android versions may check different certificates from the verified signing history.';
+      '为兼容不同的 Android 版本，请将下方所有 SHA-1 证书哈希添加到卡片的 ARA-M 规则中。应用签名密钥升级后，不同的 Android 版本可能会校验已验证签名历史中的不同证书。';
 
   @override
   String get certSha1Hash => '证书 SHA-1 哈希';
@@ -1368,8 +1405,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count profiles',
-      one: '1 profile',
+      other: '$count 个配置',
+      one: '1 个配置',
     );
     return '$_temp0';
   }
@@ -1394,11 +1431,11 @@ class AppLocalizationsZh extends AppLocalizations {
       '处理通知有助于您的 eUICC 与 SM-DP+ 服务器（运营商）之间的同步。删除已发送的通知可以保持卡存储清洁。';
 
   @override
-  String get notificationProcessingTimings => 'Processing timings';
+  String get notificationProcessingTimings => '处理时机';
 
   @override
   String get notificationProcessingTimingsHelp =>
-      'Choose when automatic notification processing runs. Some safety-critical timings can only be disabled while Developer Mode is enabled.';
+      '选择自动处理通知的时机。部分涉及安全的关键时机仅在启用开发者模式后才能关闭。';
 
   @override
   String get afterEnablingProfile => '启用配置后';
@@ -1413,40 +1450,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get afterProfileDeletion => '删除配置后';
 
   @override
-  String get initialLoad => 'Initial load';
+  String get initialLoad => '初次加载';
 
   @override
-  String get processNotificationsOnInitialLoad =>
-      'Process notifications after profiles finish loading';
+  String get processNotificationsOnInitialLoad => '配置加载完成后处理通知';
 
   @override
-  String get afterSwitchingProfile => 'After switching profile';
+  String get afterSwitchingProfile => '切换配置后';
 
   @override
-  String get processNotificationsAfterSwitchingProfile =>
-      'Process notifications after enabling or disabling a profile';
+  String get processNotificationsAfterSwitchingProfile => '启用或禁用配置后处理通知';
 
   @override
-  String get beforeProfileDownload => 'Before profile download';
+  String get beforeProfileDownload => '下载配置前';
 
   @override
-  String get processNotificationsBeforeProfileDownload =>
-      'Process notifications before starting a profile download';
+  String get processNotificationsBeforeProfileDownload => '开始下载配置前处理通知';
 
   @override
-  String get afterProfileInstalled => 'After profile installed';
+  String get afterProfileInstalled => '配置安装后';
 
   @override
-  String get processNotificationsAfterProfileInstalled =>
-      'Process notifications after a profile has been installed';
+  String get processNotificationsAfterProfileInstalled => '配置安装完成后处理通知';
 
   @override
-  String get processNotificationsAfterProfileDeletion =>
-      'Process notifications after deleting a profile';
+  String get processNotificationsAfterProfileDeletion => '删除配置后处理通知';
 
   @override
-  String get developerModeRequiredToDisableTiming =>
-      'Enable Developer Mode to disable this timing.';
+  String get developerModeRequiredToDisableTiming => '启用开发者模式后才能关闭此时机。';
 
   @override
   String get sendToServerAutomatically => '自动发送到服务器';
@@ -1540,17 +1571,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get firmwareVersion => '固件版本';
 
   @override
-  String get beeSimFirmwareAction => 'Update BeeSIM firmware';
+  String get beeSimFirmwareAction => '更新 BeeSIM 固件';
 
   @override
-  String get beeSimFirmwareTitle => 'BeeSIM firmware update';
+  String get beeSimFirmwareTitle => 'BeeSIM 固件更新';
 
   @override
   String get beeSimFirmwareWarning =>
-      'A BeeSIM firmware update is available. Keep the card powered, Bluetooth connected, and the app open until it finishes. Interrupting the update may leave the card temporarily unusable.';
+      'BeeSIM 有可用的固件更新。更新完成前请保持卡片供电、蓝牙连接以及应用处于打开状态。中断更新可能导致卡片暂时无法使用。';
 
   @override
-  String get beeSimFirmwareConfirm => 'Update firmware';
+  String get beeSimFirmwareConfirm => '更新固件';
 
   @override
   String get platformSupport => '平台支持';
@@ -1566,6 +1597,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get certInfrastructure => '证书基础结构';
+
+  @override
+  String get configuredAddresses => '已配置的地址';
+
+  @override
+  String get defaultSmdpAddress => '默认 SM-DP+';
+
+  @override
+  String get rootDsAddress => '根 SM-DS';
 
   @override
   String get euiccSignCi => 'eUICC 签名 CI';
@@ -1874,13 +1914,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get estimatedDownloadSize => '预估下载大小';
 
   @override
-  String get phoneFormatInternationalOnly => 'E.164 Int\'l Only';
+  String get phoneFormatInternationalOnly => '仅 E.164 国际格式';
 
   @override
-  String get phoneFormatInternationalAndMobile => 'Int\'l & Mobile';
+  String get phoneFormatInternationalAndMobile => '国际与移动格式';
 
   @override
-  String get phoneFormatInternationalAndAll => 'Int\'l & National';
+  String get phoneFormatInternationalAndAll => '国际与国内格式';
 
   @override
   String get phoneFormatOff => '关闭';
@@ -1889,16 +1929,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settings_item_unit_b => '字节';
 
   @override
-  String get settings_item_unit_kb => 'kB (1,000 Bytes)';
+  String get settings_item_unit_kb => 'kB（1,000 字节）';
 
   @override
-  String get settings_item_unit_kib => 'kiB (1,024 Bytes)';
+  String get settings_item_unit_kib => 'kiB（1,024 字节）';
 
   @override
-  String get settings_item_unit_adaptive_si => 'B / kB Adaptive';
+  String get settings_item_unit_adaptive_si => 'B / kB 自适应';
 
   @override
-  String get settings_item_unit_adaptive_bi => 'B / kiB Adaptive';
+  String get settings_item_unit_adaptive_bi => 'B / kiB 自适应';
 
   @override
   String get insufficientStorageWarning => '可用空间不足，安装可能会失败。';
@@ -1913,17 +1953,35 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customize => '自定义';
 
   @override
-  String get customizeDescription =>
-      'Specify a new 6-character hex name and password for your writer.';
+  String get customizeDescription => '为您的写卡器指定新的 6 位十六进制名称和密码。';
 
   @override
-  String get customizeSuccess =>
-      'Writer customized. Please re-pair the device.';
+  String get customizeSuccess => '写卡器已自定义。请重新配对设备。';
 
   @override
   String customizeFailed(String error) {
-    return 'Failed to customize writer: $error';
+    return '自定义写卡器失败：$error';
   }
+
+  @override
+  String get defaultPasswordWillChangeTitle => '默认密码将被更改';
+
+  @override
+  String defaultPasswordWillChangeMessage(String password) {
+    return '此设备正使用默认密码连接。重命名后密码将变为 $password。请在重新连接前保存该密码。';
+  }
+
+  @override
+  String get savedBleDevices => '曾连接的 BLE 设备';
+
+  @override
+  String get savedBleDevicesSubtitle => '查看保存在本设备上的设备名称和密码';
+
+  @override
+  String get savedBleDevicesDescription => '每条记录都是本地保存的 NBLESim 密码，默认密码也会被保存。';
+
+  @override
+  String get noSavedBleDevices => '没有曾连接的 BLE 设备。';
 
   @override
   String get deviceName => '设备名称';
@@ -1993,22 +2051,148 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deviceImei => '设备 TAC';
+  String get deviceImei => '设备 IMEI (TAC)';
 
   @override
   String get deviceImeiSubtitle => '用于配置下载';
 
   @override
-  String get editDeviceImei => '编辑设备 TAC';
+  String get editDeviceImei => '编辑设备 IMEI';
 
   @override
-  String get editDeviceImeiInfo => '输入 8 位 TAC，或 15 位 IMEI。默认 TAC：35383741。';
+  String get editDeviceImeiInfo => '输入 16 位数 (8 字节)。标准 IMEI 以 35 开始。';
 
   @override
-  String get imeiDigits => 'TAC 或 IMEI 数字';
+  String get imeiDigits => 'IMEI (Digits)';
 
   @override
   String get importAction => '导入';
+
+  @override
+  String get transferTitle => '转移 eSIM';
+
+  @override
+  String get transferAction => '转移到此设备';
+
+  @override
+  String get transferCheckingEligibility => '正在检查资格…';
+
+  @override
+  String get transferReadingSource => '正在读取源 SIM 卡…';
+
+  @override
+  String get transferContactingCarrier => '正在联系运营商…';
+
+  @override
+  String get transferIneligibleReader =>
+      '此配置无法在该读卡器上转移。此处无法访问源 SIM 卡的认证（EAP-AKA）。';
+
+  @override
+  String get transferNoEntitlement => '未找到该配置的运营商转移配置。您可以手动输入 entitlement 服务器。';
+
+  @override
+  String transferSourceCarrier(String carrier) {
+    return '源运营商：$carrier';
+  }
+
+  @override
+  String get transferConfirmTitle => '要转移此订阅吗？';
+
+  @override
+  String get transferConfirmBody =>
+      '运营商会将此订阅重新签发到此 eUICC 上。作为转移的一部分，源配置可能会被删除。';
+
+  @override
+  String get transferStart => '开始转移';
+
+  @override
+  String get transferDownloadingProfile => '正在下载已转移的配置…';
+
+  @override
+  String get transferDeleteSourceTitle => '删除源配置';
+
+  @override
+  String transferDeleteSourceBody(String iccid) {
+    return '运营商要求在激活前删除源配置 $iccid。现在删除吗？';
+  }
+
+  @override
+  String get transferDeleteSourceConfirm => '删除并继续';
+
+  @override
+  String get transferUserInputSubmit => '提交';
+
+  @override
+  String get transferAccept => '接受';
+
+  @override
+  String get transferReject => '拒绝';
+
+  @override
+  String get transferPendingActivation => '运营商仍在激活此订阅，稍后即可完成；您可以关闭此页面，稍后再查看。';
+
+  @override
+  String get transferDismissed => '运营商已拒绝此次转移。';
+
+  @override
+  String get transferDelayedDownload =>
+      '运营商将稍后下发该配置。安装完成后，请输入已安装的 ICCID 以结束流程。';
+
+  @override
+  String get transferInstalledIccid => '已安装的 ICCID';
+
+  @override
+  String get transferSuccess => '转移完成';
+
+  @override
+  String transferFailed(String error) {
+    return '转移失败：$error';
+  }
+
+  @override
+  String get transferManualServerTitle => 'Entitlement 服务器（高级）';
+
+  @override
+  String get transferManualServerHint => 'https://entitlement.example.com';
+
+  @override
+  String get transferEnablingSource => '正在准备源配置…';
+
+  @override
+  String get transferClose => '关闭';
+
+  @override
+  String get transferContinue => '继续';
+
+  @override
+  String get transferSmdsDiscovering => '正在通过 SM-DS 发现配置…';
+
+  @override
+  String get transferSmdsNoProfiles => '未通过 SM-DS 发现待处理的配置。';
+
+  @override
+  String get transferSelectProfile => '选择要下载的配置';
+
+  @override
+  String get discoverProfiles => '发现配置（SM-DS）';
+
+  @override
+  String get discoveringProfiles => '正在发现配置…';
+
+  @override
+  String get discoveryNoProfiles => '未通过 SM-DS 发现待处理的配置。';
+
+  @override
+  String get transferSmdsServerTitle => 'SM-DS 服务器';
+
+  @override
+  String transferProfileOnServer(String eventId, String address) {
+    return '$address 上的 $eventId';
+  }
+
+  @override
+  String get downloadBusyCannotLeave =>
+      'Please wait for the current operation to finish.';
 
   @override
   String get qrtrReaderTitle => 'Qualcomm modem (QRTR)';
@@ -2016,14 +2200,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get qrtrReaderSubtitle =>
       'Qualcomm\'s low-level modem protocol (requires Shizuku)';
-
-  @override
-  String defaultPasswordWillChangeMessage(String password) {
-    return 'This device is connected with its default password. Renaming it will set the password to $password. Save this password before reconnecting.';
-  }
-
-  @override
-  String get defaultPasswordWillChangeTitle => 'Default password will change';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2097,10 +2273,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get loadProfileIconsSubtitle => '從eUICC讀取圖示（較慢）';
 
   @override
-  String get useNekokoIcons => '使用電信商圖示';
+  String get useNekokoIcons => '使用 Nekoko Cloud 圖示';
 
   @override
-  String get useNekokoIconsSubtitle => '從 operator-icons 獲取電信商圖示';
+  String get useNekokoIconsSubtitle => '從 Nekoko 獲取電信商圖示';
 
   @override
   String get forceDeviceDropdown => '強制從下拉選單選擇裝置';
@@ -2271,17 +2447,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get apduMaxSegmentSizeSubtitle => '每個 APDU 資料塊的最大大小';
 
   @override
-  String get ensureSingleChannel => 'Ensure Single Channel';
+  String get ensureSingleChannel => '確保單通道';
 
   @override
-  String get ensureSingleChannelSubtitle =>
-      'Close other logical channels before opening a new one';
+  String get ensureSingleChannelSubtitle => '在開啟新邏輯通道前關閉其他通道';
 
   @override
   String get analytics => '分析與雲端服務';
 
   @override
-  String get nekokoCloud => 'Nekoko Cloud';
+  String get nekokoCloud => 'Nekoko 雲';
 
   @override
   String get nekokoCloudSubtitle => '分析安裝數據以改進預測';
@@ -2335,14 +2510,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get checkUpdatesSubtitle => '啟動時自動檢查新版本';
 
   @override
-  String get licenses => 'Open Source Licenses';
+  String get licenses => '開源許可';
 
   @override
-  String get licensesSubtitle =>
-      'License information for open source libraries used';
+  String get licensesSubtitle => '所使用的開源函式庫的許可資訊';
 
   @override
-  String get noUpdatesFound => 'No updates found';
+  String get noUpdatesFound => '找不到更新';
 
   @override
   String get profilesTitle => '設定檔列表';
@@ -2388,16 +2562,14 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
-  String get errorBluetoothTimeout =>
-      'Bluetooth operation timed out. Please try again.';
+  String get errorBluetoothTimeout => '藍牙操作超時。請再試一次。';
 
   @override
-  String get errorOmapiSecurity =>
-      'Security error: Access to the card was denied by the OS or ARA-M rules.';
+  String get errorOmapiSecurity => '安全錯誤：作業系統或 ARA-M 規則拒絕存取該卡片。';
 
   @override
   String get errorApplicationNotFound =>
-      'eUICC management application (ISD-R) not found. This card may not be a valid eUICC.';
+      '找不到 eUICC 管理應用程式 (ISD-R) 。此卡可能不是有效的 eUICC。';
 
   @override
   String get changeSettings => '更改設定';
@@ -2439,7 +2611,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get disconnect => '斷開連接';
 
   @override
-  String get disconnecting => 'Disconnecting...';
+  String get disconnecting => '正在中斷連接...';
 
   @override
   String get profilesEmpty => '卡內無設定檔';
@@ -2556,7 +2728,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get deletingProfile => '正在刪除設定檔...';
 
   @override
-  String get deleting => 'Deleting...';
+  String get deleting => '正在刪除...';
 
   @override
   String get dataUsage => '流量消耗';
@@ -2580,7 +2752,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get notificationProcessingError => '通知正在處理中，無法執行操作';
 
   @override
-  String get operationInProgressError => 'Operation in progress, please wait';
+  String get operationInProgressError => '操作進行中，請稍候';
 
   @override
   String iccidCopied(Object iccid) {
@@ -2624,7 +2796,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get selectFromGallery => '從相簿選擇';
 
   @override
-  String get nekokoOperatorIcon => '電信商圖示';
+  String get nekokoOperatorIcon => 'Nekoko 營運商圖示';
 
   @override
   String get iconFromEsim => '來自 eSIM 卡的圖示';
@@ -2814,25 +2986,29 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get noProfilesInstalledSubtitle => '此 eUICC 卡片是空的。';
 
   @override
-  String get cardRefreshingTitle => 'Card is Refreshing';
+  String get cardRefreshingTitle => '正在重新整理卡片';
 
   @override
-  String get cardRefreshingMessage =>
-      'The card is currently updating its state. Profile list cannot be retrieved at this moment. Please wait a few seconds and then try again.';
+  String get cardRefreshingMessage => '卡片正在更新狀態。此時無法檢索個人資料列表。請等待幾秒鐘，然後重試。';
 
   @override
   String get useRemoteIcon => '使用遠端圖示';
 
   @override
-  String get bleDisconnectedTitle => 'Bluetooth Connection Lost';
+  String get bleDisconnectedTitle => '藍牙連線中斷';
 
   @override
-  String get bleDisconnectedMessage =>
-      'The connection to the card reader was suddenly lost. Please ensure it is nearby and turned on.';
+  String get bleDisconnectedMessage => '與讀卡機的連線突然中斷。請確認它在附近並已開啟。';
 
   @override
-  String get cardStuckRefreshingMessage =>
-      'Profile state change ongoing - try manually re-plug the SIM card if it stucks.';
+  String get cardStuckRefreshingMessage => '設定檔狀態正在更改——如果卡住，請手動將SIM卡重新插入。';
+
+  @override
+  String get cardNeedsReplugTitle => '請重新插拔 SIM 卡';
+
+  @override
+  String get cardNeedsReplugMessage =>
+      '卡片未交出其 eUICC 小程式，因此目前無法管理。請取出 SIM 卡後重新插入，然後再試一次。';
 
   @override
   String get activationCodeTitle => '激活碼';
@@ -3328,7 +3504,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get aramHashInstruction =>
-      '為相容不同 Android 版本，請將下方所有 SHA-1 憑證雜湊新增到卡片的 ARA-M 規則中。應用程式簽署金鑰升級後，不同 Android 版本可能會檢查已驗證簽署記錄中的不同憑證。';
+      '為了向此應用程式授予存取權限，您可能需要將以下 SHA-1 證書哈希添加到卡片的 ARA-M 規則中。此哈希值對您當前應用程式組建的證書是唯一的。';
+
+  @override
+  String get aramSigningHistoryInstruction =>
+      '為相容不同的 Android 版本，請將下方所有 SHA-1 證書雜湊新增到卡片的 ARA-M 規則中。應用簽名金鑰升級後，不同的 Android 版本可能會校驗已驗證簽名歷史中的不同證書。';
 
   @override
   String get certSha1Hash => '證書 SHA-1 哈希';
@@ -3394,8 +3574,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count profiles',
-      one: '1 profile',
+      other: '$count 個設定檔',
+      one: '1 個設定檔',
     );
     return '$_temp0';
   }
@@ -3420,11 +3600,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
       '處理通知有助於您的 eUICC 與 SM-DP+ 服務器（運營商）之間的同步。刪除已發送的通知可以保持卡存儲清潔。';
 
   @override
-  String get notificationProcessingTimings => 'Processing timings';
+  String get notificationProcessingTimings => '處理時機';
 
   @override
   String get notificationProcessingTimingsHelp =>
-      'Choose when automatic notification processing runs. Some safety-critical timings can only be disabled while Developer Mode is enabled.';
+      '選擇自動處理通知的時機。部分涉及安全的關鍵時機僅在啟用開發者模式後才能關閉。';
 
   @override
   String get afterEnablingProfile => '啟用配置後';
@@ -3439,40 +3619,34 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get afterProfileDeletion => '刪除配置後';
 
   @override
-  String get initialLoad => 'Initial load';
+  String get initialLoad => '初次載入';
 
   @override
-  String get processNotificationsOnInitialLoad =>
-      'Process notifications after profiles finish loading';
+  String get processNotificationsOnInitialLoad => '設定檔載入完成後處理通知';
 
   @override
-  String get afterSwitchingProfile => 'After switching profile';
+  String get afterSwitchingProfile => '切換設定檔後';
 
   @override
-  String get processNotificationsAfterSwitchingProfile =>
-      'Process notifications after enabling or disabling a profile';
+  String get processNotificationsAfterSwitchingProfile => '啟用或停用設定檔後處理通知';
 
   @override
-  String get beforeProfileDownload => 'Before profile download';
+  String get beforeProfileDownload => '下載設定檔前';
 
   @override
-  String get processNotificationsBeforeProfileDownload =>
-      'Process notifications before starting a profile download';
+  String get processNotificationsBeforeProfileDownload => '開始下載設定檔前處理通知';
 
   @override
-  String get afterProfileInstalled => 'After profile installed';
+  String get afterProfileInstalled => '設定檔安裝後';
 
   @override
-  String get processNotificationsAfterProfileInstalled =>
-      'Process notifications after a profile has been installed';
+  String get processNotificationsAfterProfileInstalled => '設定檔安裝完成後處理通知';
 
   @override
-  String get processNotificationsAfterProfileDeletion =>
-      'Process notifications after deleting a profile';
+  String get processNotificationsAfterProfileDeletion => '刪除設定檔後處理通知';
 
   @override
-  String get developerModeRequiredToDisableTiming =>
-      'Enable Developer Mode to disable this timing.';
+  String get developerModeRequiredToDisableTiming => '啟用開發者模式後才能關閉此時機。';
 
   @override
   String get sendToServerAutomatically => '自動發送到服務器';
@@ -3566,6 +3740,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get firmwareVersion => '韌體版本';
 
   @override
+  String get beeSimFirmwareAction => '更新 BeeSIM 韌體';
+
+  @override
+  String get beeSimFirmwareTitle => 'BeeSIM 韌體更新';
+
+  @override
+  String get beeSimFirmwareWarning =>
+      'BeeSIM 有可用的韌體更新。更新完成前請保持卡片供電、藍牙連接以及應用處於開啟狀態。中斷更新可能導致卡片暫時無法使用。';
+
+  @override
+  String get beeSimFirmwareConfirm => '更新韌體';
+
+  @override
   String get platformSupport => '平台支持';
 
   @override
@@ -3579,6 +3766,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get certInfrastructure => '證書基礎結構';
+
+  @override
+  String get configuredAddresses => '已配置的地址';
+
+  @override
+  String get defaultSmdpAddress => '預設 SM-DP+';
+
+  @override
+  String get rootDsAddress => '根 SM-DS';
 
   @override
   String get euiccSignCi => 'eUICC 簽名 CI';
@@ -3631,135 +3827,133 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get pending => '待處理';
 
   @override
-  String get notifTypeInstall => 'Install';
+  String get notifTypeInstall => '安裝';
 
   @override
-  String get notifTypeDelete => 'Delete';
+  String get notifTypeDelete => '刪除';
 
   @override
-  String get notifTypeEnable => 'Enable';
+  String get notifTypeEnable => '啟用';
 
   @override
-  String get notifTypeDisable => 'Disable';
+  String get notifTypeDisable => '停用';
 
   @override
-  String get notifTypeRpmEnable => 'RPM Enable';
+  String get notifTypeRpmEnable => 'RPM 啟用';
 
   @override
-  String get notifTypeRpmDisable => 'RPM Disable';
+  String get notifTypeRpmDisable => 'RPM 停用';
 
   @override
-  String get notifTypeRpmDelete => 'RPM Delete';
+  String get notifTypeRpmDelete => 'RPM 刪除';
 
   @override
-  String get notifTypeLoadRpm => 'Load RPM';
+  String get notifTypeLoadRpm => '載入 RPM';
 
   @override
   String confirmDeleteNotification(int seq) {
-    return 'Are you sure you want to delete notification #$seq?';
+    return '您確定要刪除通知 #$seq 嗎？';
   }
 
   @override
-  String get notificationRemoved => 'Notification removed';
+  String get notificationRemoved => '通知已移除';
 
   @override
   String failedToRemove(String error) {
-    return 'Failed to remove: $error';
+    return '移除失敗: $error';
   }
 
   @override
-  String get curlCopied => 'cURL command extracted to clipboard';
+  String get curlCopied => '已將 cURL 命令複製到剪貼簿';
 
   @override
   String failedToGenerateCurl(String error) {
-    return 'Failed to generate cURL: $error';
+    return '生成 cURL 失敗: $error';
   }
 
   @override
-  String get noNotificationAddress => 'No notification address available';
+  String get noNotificationAddress => '無可用通知地址';
 
   @override
-  String get sendingNotification => 'Sending notification...';
+  String get sendingNotification => '正在傳送通知...';
 
   @override
-  String get notifSentSuccessfully => 'Notification sent successfully';
+  String get notifSentSuccessfully => '通知傳送成功';
 
   @override
-  String get failedToSendNotification => 'Failed to send notification';
+  String get failedToSendNotification => '傳送通知失敗';
 
   @override
   String errorSendingNotification(String error) {
-    return 'Error sending notification: $error';
+    return '傳送通知時出錯: $error';
   }
 
   @override
   String pendingCount(int count) {
-    return '$count pending';
+    return '$count 條待處理';
   }
 
   @override
-  String get currentReader => 'Current Reader';
+  String get currentReader => '目前讀卡機';
 
   @override
-  String get errorLoadingNotifications => 'Error loading notifications';
+  String get errorLoadingNotifications => '載入通知時出錯';
 
   @override
-  String get allCaughtUp => 'You\'re all caught up';
+  String get allCaughtUp => '您已處理完所有內容';
 
   @override
-  String get sequence => 'Sequence';
+  String get sequence => '序列號';
 
   @override
-  String get operation => 'Operation';
+  String get operation => '操作';
 
   @override
-  String get profileNameLabel => 'Profile Name';
+  String get profileNameLabel => '設定檔名稱';
 
   @override
-  String get failedToSend => 'Failed to send';
+  String get failedToSend => '傳送失敗';
 
   @override
-  String get onCard => 'On card';
+  String get onCard => '卡內';
 
   @override
-  String get sendNotification => 'Send notification';
+  String get sendNotification => '傳送通知';
 
   @override
-  String get deleteNotification => 'Delete notification';
+  String get deleteNotification => '刪除通知';
 
   @override
-  String get noNotifications => 'No notifications';
+  String get noNotifications => '無通知';
 
   @override
-  String get batchDownloadTitle => 'Batch Download';
+  String get batchDownloadTitle => '批次下載';
 
   @override
-  String get batchDownloadHint =>
-      'Paste multiple LPA codes here (one per line, max 20)';
+  String get batchDownloadHint => '在此貼上多個 LPA 代碼（每行一個，最多 20 個）';
 
   @override
   String foundLpaCodes(int count) {
-    return '$count LPA codes found';
+    return '找到 $count 個 LPA 程式碼';
   }
 
   @override
-  String get startBatch => 'Start Batch';
+  String get startBatch => '開始批次任務';
 
   @override
-  String get noLpaCodesFound => 'No valid LPA codes found';
+  String get noLpaCodesFound => '未找到有效的 LPA 程式碼';
 
   @override
-  String get insufficientSpaceStoppingBatch =>
-      'Insufficient space. Stopping batch download.';
+  String get insufficientSpaceStoppingBatch => '空間不足。正在停止批次下載。';
 
   @override
-  String get exportCsv => 'Export to CSV';
+  String get exportCsv => '匯出為 CSV';
 
   @override
-  String get exportedSuccessfully => 'Exported successfully';
+  String get exportedSuccessfully => '匯出成功';
 
   @override
-  String get exportResults => 'Export Results';
+  String get exportResults => '匯出結果';
 
   @override
   String get lpa => 'LPA';
@@ -3768,86 +3962,84 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get smdp => 'SM-DP+';
 
   @override
-  String get confirmationCode => 'Confirmation Code';
+  String get confirmationCode => '確認碼';
 
   @override
-  String get size => 'Size';
+  String get size => '大小';
 
   @override
-  String get message => 'Message';
+  String get message => '內容';
 
   @override
-  String get remainingSpace => 'Remaining Space';
+  String get remainingSpace => '剩餘空間';
 
   @override
-  String get stopBatch => 'Stop Batch';
+  String get stopBatch => '停止批次';
 
   @override
-  String get stopping => 'Stopping...';
+  String get stopping => '正在停止...';
 
   @override
-  String get remove => 'Remove';
+  String get remove => '移除';
 
   @override
-  String get updateAvailable => 'Update Available';
+  String get updateAvailable => '發現更新';
 
   @override
   String updateAvailableSubtitle(String appName, String version, String build) {
-    return 'A new version of $appName is available (v$version b$build). Would you like to update now?';
+    return '$appName 的新版本已釋出 (v$version b$build)。現在更新嗎？';
   }
 
   @override
-  String get updateAction => 'Update';
+  String get updateAction => '更新';
 
   @override
-  String get later => 'Later';
+  String get later => '稍後';
 
   @override
-  String get changelog => 'Changelog';
+  String get changelog => '更新日誌';
 
   @override
-  String get sortBy => 'Sort by';
+  String get sortBy => '排序方式';
 
   @override
   String get sortIccid => 'ICCID';
 
   @override
-  String get sortCountry => 'Country';
+  String get sortCountry => '國家/地區';
 
   @override
-  String get sortAscending => 'Ascending';
+  String get sortAscending => '升序';
 
   @override
-  String get sortDescending => 'Descending';
+  String get sortDescending => '降序';
 
   @override
-  String get searchProfiles => 'Search profiles...';
+  String get searchProfiles => '搜尋設定檔...';
 
   @override
-  String get noProfilesMatch => 'No profiles match your search.';
+  String get noProfilesMatch => '沒有符合搜尋條件的設定檔。';
 
   @override
-  String get sortDefault => 'Default';
+  String get sortDefault => '預設';
 
   @override
-  String get sortNickname => 'Nickname';
+  String get sortNickname => '暱稱';
 
   @override
-  String get showProfileSearch => 'Show Profile Search';
+  String get showProfileSearch => '顯示設定檔搜尋';
 
   @override
-  String get showProfileSearchSubtitle =>
-      'Show search and sort bar in profile list';
+  String get showProfileSearchSubtitle => '在設定檔列表中顯示搜尋和排序欄';
 
   @override
-  String get noReaderFound =>
-      'No reader found. Please connect your eUICC adapter.';
+  String get noReaderFound => '找不到讀卡機。請連接您的 eUICC 轉接器。';
 
   @override
-  String get readyToInstallProfile => 'Ready to install profile.';
+  String get readyToInstallProfile => '準備安裝設定檔。';
 
   @override
-  String get downloadHere => 'Download Here';
+  String get downloadHere => '在此下載';
 
   @override
   String get manage => '管理';
@@ -3859,31 +4051,30 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get buyData => '數據';
 
   @override
-  String get selectDevice => 'Select Device';
+  String get selectDevice => '選擇裝置';
 
   @override
-  String get selectReaderTitle => 'Select Card';
+  String get selectReaderTitle => '選擇卡片';
 
   @override
-  String get authorizeSigning => 'Authorize Signing';
+  String get authorizeSigning => '授權簽名';
 
   @override
-  String get signingDescription =>
-      'A website is requesting a secure signature from your eUICC.';
+  String get signingDescription => '網站正在請求您的 eUICC 進行安全簽名。';
 
   @override
-  String get smdpAddress => 'SM-DP+ Address';
+  String get smdpAddress => 'SM-DP+ 地址';
 
   @override
-  String get sign => 'Sign';
+  String get sign => '簽名';
 
   @override
   String profilesInstalled(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count profiles installed',
-      one: '1 profile installed',
+      other: '$count 設定檔已安裝',
+      one: '已安裝1個設定檔',
     );
     return '$_temp0';
   }
@@ -3892,31 +4083,31 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get estimatedDownloadSize => '預估下載大小';
 
   @override
-  String get phoneFormatInternationalOnly => 'E.164 Int\'l Only';
+  String get phoneFormatInternationalOnly => '僅 E.164 國際格式';
 
   @override
-  String get phoneFormatInternationalAndMobile => 'Int\'l & Mobile';
+  String get phoneFormatInternationalAndMobile => '國際與移動格式';
 
   @override
-  String get phoneFormatInternationalAndAll => 'Int\'l & National';
+  String get phoneFormatInternationalAndAll => '國際與國內格式';
 
   @override
-  String get phoneFormatOff => 'Off';
+  String get phoneFormatOff => '關閉';
 
   @override
-  String get settings_item_unit_b => 'Bytes';
+  String get settings_item_unit_b => '位元組';
 
   @override
-  String get settings_item_unit_kb => 'kB (1,000 Bytes)';
+  String get settings_item_unit_kb => 'kB（1,000 位元組）';
 
   @override
-  String get settings_item_unit_kib => 'kiB (1,024 Bytes)';
+  String get settings_item_unit_kib => 'kiB（1,024 位元組）';
 
   @override
-  String get settings_item_unit_adaptive_si => 'B / kB Adaptive';
+  String get settings_item_unit_adaptive_si => 'B / kB 自適應';
 
   @override
-  String get settings_item_unit_adaptive_bi => 'B / kiB Adaptive';
+  String get settings_item_unit_adaptive_bi => 'B / kiB 自適應';
 
   @override
   String get insufficientStorageWarning => '可用空間不足，安裝可能會失敗。';
@@ -3928,105 +4119,248 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get estimateProfileSizeSubtitle => '在下載前估計配置文件元數據的大小';
 
   @override
-  String get customize => 'Customize';
+  String get customize => '自訂';
 
   @override
-  String get customizeDescription =>
-      'Specify a new 6-character hex name and password for your writer.';
+  String get customizeDescription => '為您的寫卡機指定新的 6 位十六進位制名稱和密碼。';
 
   @override
-  String get customizeSuccess =>
-      'Writer customized. Please re-pair the device.';
+  String get customizeSuccess => '寫卡機已自訂。請重新配對裝置。';
 
   @override
   String customizeFailed(String error) {
-    return 'Failed to customize writer: $error';
+    return '自訂寫卡機失敗：$error';
   }
 
   @override
-  String get deviceName => 'Device Name';
+  String get defaultPasswordWillChangeTitle => '預設密碼將被更改';
 
   @override
-  String get success => 'Success';
+  String defaultPasswordWillChangeMessage(String password) {
+    return '此裝置正使用預設密碼連接。重新命名後密碼將變為 $password。請在重新連接前儲存該密碼。';
+  }
 
   @override
-  String get devicePasswordHint => '6 hex chars or password string';
+  String get savedBleDevices => '曾連接的 BLE 裝置';
 
   @override
-  String get sixHexChars => '6 hex chars';
+  String get savedBleDevicesSubtitle => '檢視儲存在本裝置上的裝置名稱和密碼';
 
   @override
-  String get database => 'Database';
+  String get savedBleDevicesDescription => '每條記錄都是本地儲存的 NBLESim 密碼，預設密碼也會被儲存。';
+
+  @override
+  String get noSavedBleDevices => '沒有曾連接的 BLE 裝置。';
+
+  @override
+  String get deviceName => '裝置名稱';
+
+  @override
+  String get success => '成功';
+
+  @override
+  String get devicePasswordHint => '6 個十六進位制字元或密碼字串';
+
+  @override
+  String get sixHexChars => '6 個十六進位制字元';
+
+  @override
+  String get database => '資料庫';
 
   @override
   String exportSuccess(String path) {
-    return 'Database exported to $path';
+    return '資料庫已匯出到: $path';
   }
 
   @override
-  String get importDatabase => 'Import Database';
+  String get importDatabase => '匯入資料庫';
 
   @override
-  String get importDatabaseSubtitle => 'Merge rows from another database file';
+  String get importDatabaseSubtitle => '從另一個資料庫檔案合併行';
 
   @override
-  String get importDatabaseDialogTitle => 'Select database file to import';
+  String get importDatabaseDialogTitle => '選擇要匯入的資料庫檔案';
 
   @override
-  String get importDatabaseTitle => 'Import Database';
+  String get importDatabaseTitle => '匯入資料庫';
 
   @override
   String get importDatabaseContent =>
-      'This will merge rows from the selected database into your current database. Existing rows with the same keys will be overwritten. Continue?';
+      '這將把所選資料庫中的行合併到您目前的資料庫。使用相同鍵的現有行將被覆蓋。是否繼續？';
 
   @override
-  String get import => 'Import';
+  String get import => '匯入';
 
   @override
-  String get importSuccess => 'Database imported successfully';
+  String get importSuccess => '資料庫匯入成功';
 
   @override
   String importFailed(String error) {
-    return 'Failed to import database: $error';
+    return '匯出資料庫失敗: $error';
   }
 
   @override
-  String get resetDatabase => 'Reset Database';
+  String get resetDatabase => '重置資料庫';
 
   @override
-  String get resetDatabaseSubtitle => 'Clear all application data and restart';
+  String get resetDatabaseSubtitle => '清除所有應用資料並重啟';
 
   @override
-  String get resetDatabaseTitle => 'Reset Application Database';
+  String get resetDatabaseTitle => '重置應用資料庫';
 
   @override
-  String get resetDatabaseContent =>
-      'This will completely delete all locally stored data, configurations, and logs. The application will close. Do you want to proceed?';
+  String get resetDatabaseContent => '這將完全刪除所有本地儲存的資料、設定檔和日誌。應用程式將關閉。您確定要繼續嗎？';
 
   @override
-  String get deleteDatabase => 'Delete Database';
+  String get deleteDatabase => '刪除資料庫';
 
   @override
   String resetFailed(String error) {
-    return 'Failed to reset database: $error';
+    return '重置資料庫失敗: $error';
   }
 
   @override
-  String get deviceImei => 'Device TAC';
+  String get deviceImei => '裝置 IMEI (TAC)';
 
   @override
-  String get deviceImeiSubtitle => 'Used for profile downloads';
+  String get deviceImeiSubtitle => '用於設定檔下載';
 
   @override
-  String get editDeviceImei => 'Edit Device TAC';
+  String get editDeviceImei => '編輯裝置 IMEI';
 
   @override
-  String get editDeviceImeiInfo =>
-      'Enter an 8-digit TAC, or a 15-digit IMEI. Default TAC: 35383741.';
+  String get editDeviceImeiInfo => '輸入 16 位數 (8 位元組)。標準 IMEI 以 35 開始。';
 
   @override
-  String get imeiDigits => 'TAC or IMEI digits';
+  String get imeiDigits => 'IMEI (Digits)';
 
   @override
-  String get importAction => 'Import';
+  String get importAction => '匯入';
+
+  @override
+  String get transferTitle => '轉移 eSIM';
+
+  @override
+  String get transferAction => '轉移到此裝置';
+
+  @override
+  String get transferCheckingEligibility => '正在檢查資格…';
+
+  @override
+  String get transferReadingSource => '正在讀取源 SIM 卡…';
+
+  @override
+  String get transferContactingCarrier => '正在聯絡電信商…';
+
+  @override
+  String get transferIneligibleReader =>
+      '此設定檔無法在該讀卡機上轉移。此處無法存取源 SIM 卡的認證（EAP-AKA）。';
+
+  @override
+  String get transferNoEntitlement =>
+      '未找到該設定檔的電信商轉移設定檔。您可以手動輸入 entitlement 伺服器。';
+
+  @override
+  String transferSourceCarrier(String carrier) {
+    return '源電信商：$carrier';
+  }
+
+  @override
+  String get transferConfirmTitle => '要轉移此訂閱嗎？';
+
+  @override
+  String get transferConfirmBody =>
+      '電信商會將此訂閱重新簽發到此 eUICC 上。作為轉移的一部分，源設定檔可能會被刪除。';
+
+  @override
+  String get transferStart => '開始轉移';
+
+  @override
+  String get transferDownloadingProfile => '正在下載已轉移的設定檔…';
+
+  @override
+  String get transferDeleteSourceTitle => '刪除源設定檔';
+
+  @override
+  String transferDeleteSourceBody(String iccid) {
+    return '電信商要求在啟用前刪除源設定檔 $iccid。現在刪除嗎？';
+  }
+
+  @override
+  String get transferDeleteSourceConfirm => '刪除並繼續';
+
+  @override
+  String get transferUserInputSubmit => '提交';
+
+  @override
+  String get transferAccept => '接受';
+
+  @override
+  String get transferReject => '拒絕';
+
+  @override
+  String get transferPendingActivation => '電信商仍在啟用此訂閱，稍後即可完成；您可以關閉此頁面，稍後再檢視。';
+
+  @override
+  String get transferDismissed => '電信商已拒絕此次轉移。';
+
+  @override
+  String get transferDelayedDownload =>
+      '電信商將稍後下發該設定檔。安裝完成後，請輸入已安裝的 ICCID 以結束流程。';
+
+  @override
+  String get transferInstalledIccid => '已安裝的 ICCID';
+
+  @override
+  String get transferSuccess => '轉移完成';
+
+  @override
+  String transferFailed(String error) {
+    return '轉移失敗：$error';
+  }
+
+  @override
+  String get transferManualServerTitle => 'Entitlement 伺服器（高階）';
+
+  @override
+  String get transferManualServerHint => 'https://entitlement.example.com';
+
+  @override
+  String get transferEnablingSource => '正在準備源設定檔…';
+
+  @override
+  String get transferClose => '關閉';
+
+  @override
+  String get transferContinue => '繼續';
+
+  @override
+  String get transferSmdsDiscovering => '正在透過 SM-DS 發現設定檔…';
+
+  @override
+  String get transferSmdsNoProfiles => '未透過 SM-DS 發現待處理的設定檔。';
+
+  @override
+  String get transferSelectProfile => '選擇要下載的設定檔';
+
+  @override
+  String get discoverProfiles => '發現設定檔（SM-DS）';
+
+  @override
+  String get discoveringProfiles => '正在發現設定檔…';
+
+  @override
+  String get discoveryNoProfiles => '未透過 SM-DS 發現待處理的設定檔。';
+
+  @override
+  String get transferSmdsServerTitle => 'SM-DS 伺服器';
+
+  @override
+  String transferProfileOnServer(String eventId, String address) {
+    return '$address 上的 $eventId';
+  }
+
+  @override
+  String get downloadBusyCannotLeave =>
+      'Please wait for the current operation to finish.';
 }

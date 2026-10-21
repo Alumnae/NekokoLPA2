@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import '../ts43/sim/identifier.dart';
+
 const String defaultDeviceTac = '35383741';
 
 /// Converts the app's ordinary digit-order IMEI bytes into the swapped BCD
@@ -14,7 +16,7 @@ Uint8List encodeDeviceInfoImei(List<int> imei) {
   if (digits == null) {
     return Uint8List.fromList(imei);
   }
-  return _encodeSwappedBcd(digits);
+  return encodeBcd(digits);
 }
 
 /// Signing callers supply an IMEI either as persisted BCD or as the big-endian
@@ -192,18 +194,4 @@ Uint8List _encodeStoredBytes(String digits) {
   }
   imei[7] = int.parse(digits[14]) << 4;
   return imei;
-}
-
-Uint8List _encodeSwappedBcd(String digits) {
-  if (digits.length.isOdd) {
-    digits += 'F';
-  }
-
-  final out = Uint8List(digits.length ~/ 2);
-  for (var index = 0; index < out.length; index++) {
-    final first = int.parse(digits[index * 2], radix: 16);
-    final second = int.parse(digits[index * 2 + 1], radix: 16);
-    out[index] = ((second << 4) & 0xf0) | (first & 0x0f);
-  }
-  return out;
 }

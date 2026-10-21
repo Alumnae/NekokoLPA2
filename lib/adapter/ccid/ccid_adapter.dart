@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:ccid/ccid.dart';
+import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import '../euicc_adapter.dart';
 import '../../utils/hex_utils.dart';
+import 'nine_esim_usb_management.dart';
 
 class CcidAdapter extends BaseAdapter {
   static final Logger _log = Logger('CcidAdapter');
@@ -25,6 +27,29 @@ class CcidAdapter extends BaseAdapter {
 
   @override
   String? get lastAtr => _lastAtr;
+
+  bool get _isNineEsimReader {
+    final normalized = connectedReader?.name.toLowerCase().replaceAll(
+      RegExp(r'[^a-z0-9]'),
+      '',
+    );
+    return normalized != null &&
+        (normalized.contains('9esim') ||
+            normalized.contains('esim9') ||
+            normalized.contains('nblesim'));
+  }
+
+  @override
+  List<AdapterAction> get extraActions => _isNineEsimReader
+      ? [
+          AdapterAction(
+            icon: Icons.settings_input_component_outlined,
+            label: '9eSIM USB settings',
+            onPressed: (context) => NineEsimUsbManagement.show(context, this),
+            key: 'nine_esim_usb_settings',
+          ),
+        ]
+      : const [];
 
   @override
   Future<List<Reader>> listReaders({bool force = false}) async {
@@ -84,5 +109,4 @@ class CcidAdapter extends BaseAdapter {
     }
     return HexUtils.hexToBytes(responseHex);
   }
-
 }

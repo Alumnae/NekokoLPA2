@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../models/asn1/rsp_definitions.g.dart';
 import '../logic/profile_manager.dart';
 import '../adapter/euicc_adapter.dart';
+import '../utils/foreground_card_session.dart';
 import '../utils/hex_utils.dart';
 import 'database_service.dart';
 import 'package:logging/logging.dart';
@@ -24,6 +25,7 @@ class NotificationService {
   NotificationService._internal();
 
   final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(false);
+
   final ValueNotifier<bool> isPaused = ValueNotifier<bool>(false);
   bool _pauseRequestedByUser = false;
   bool get pauseRequestedByUser => _pauseRequestedByUser;
@@ -92,6 +94,15 @@ class NotificationService {
     required bool autoRemoveDelete,
   }) async {
     if (isProcessing.value) return;
+    // Only callers that would open their own session are held off. One that
+    // supplies a channel already owns the card and is reusing it deliberately,
+    // which is how the post-install pass runs.
+    if (channel == null && ForegroundCardSession.isOpen) {
+      _log.info(
+        'Skipping notification processing: a download holds a card session',
+      );
+      return;
+    }
     isProcessing.value = true;
 
     try {
@@ -268,13 +279,13 @@ class NotificationService {
       final jobsByRsp = <String, List<PendingNotification>>{};
 
       for (var n in notifications) {
-        final metadata = ProfileManager.extractMetadata(n);
+        var metadata = ProfileManager.extractMetadata(n);
         if (metadata == null) continue;
 
-        String iccid = metadata.iccid != null
+        var iccid = metadata.iccid != null
             ? HexUtils.swapNibbles(HexUtils.bytesToHex(metadata.iccid!))
             : "Unknown";
-        int seq = metadata.seqNumber ?? -1;
+        var seq = metadata.seqNumber ?? -1;
 
         // Ensure resolution and backup
         final existing = await DatabaseService().getNotification(
@@ -290,6 +301,11 @@ class NotificationService {
             _log.info("Fetching full signed notification for backup: seq=$seq");
             n = await manager.resolveNotification(n, useChannel: channel);
           }
+          metadata = ProfileManager.extractMetadata(n) ?? metadata;
+          iccid = metadata.iccid != null
+              ? HexUtils.swapNibbles(HexUtils.bytesToHex(metadata.iccid!))
+              : iccid;
+          seq = metadata.seqNumber ?? seq;
           // Backup it now
           _log.info("Backing up notification: seq=$seq iccid=$iccid");
           await DatabaseService().saveNotification(
@@ -309,6 +325,11 @@ class NotificationService {
           // Skeleton from card but we HAVE backup in DB -> Resolve from DB
           _log.info("Restoring notification from local backup: seq=$seq");
           n = PendingNotification.decode(base64Decode(existing.content));
+          metadata = ProfileManager.extractMetadata(n) ?? metadata;
+          iccid = metadata.iccid != null
+              ? HexUtils.swapNibbles(HexUtils.bytesToHex(metadata.iccid!))
+              : iccid;
+          seq = metadata.seqNumber ?? seq;
         }
 
         final op = metadata.profileManagementOperation;

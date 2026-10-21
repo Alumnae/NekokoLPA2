@@ -5,6 +5,7 @@ import '../widgets/styled_header_scaffold.dart';
 import 'dart:io' as io;
 import 'package:path/path.dart' as path;
 import '../services/database_service.dart';
+import '../services/rsp_proxy_config.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -15,6 +16,7 @@ import 'settings/stats_settings_page.dart';
 import 'settings/display_settings_page.dart';
 import 'settings/redaction_settings_page.dart';
 import 'settings/reader_types_settings_page.dart';
+import 'settings/ble_devices_settings_page.dart';
 import 'app_logs_page.dart';
 import 'settings/tags_and_reminders_page.dart';
 
@@ -306,6 +308,7 @@ class SettingsPage extends StatelessWidget {
                   title: l10n.connectivity,
                   children: [
                     _buildReaderTypesLink(context, width),
+                    _buildBleDevicesLink(context, width),
                     if (PlatformX.isAndroid && AppSettings().rootDetected)
                       _buildOtBridgeHintTile(context, width),
                   ],
@@ -315,6 +318,7 @@ class SettingsPage extends StatelessWidget {
                   title: l10n.transport,
                   children: [
                     _buildLoadProfileIconsSwitcher(context, width),
+                    _buildRspProxyTile(context, width),
                     _buildManageAidsLink(context, width),
                     if (AppSettings().developerModeEnabled) ...[
                       _buildDisableRefreshFlagsSwitcher(context, width),
@@ -353,6 +357,7 @@ class SettingsPage extends StatelessWidget {
                     _buildDeveloperModeSwitcher(context, width),
                     if (AppSettings().developerModeEnabled) ...[
                       _buildDecodeAsn1Switcher(context, width),
+                      _buildLogConsoleSwitcher(context, width),
                       _buildLogsLink(context, width),
                     ],
                   ],
@@ -568,6 +573,7 @@ class SettingsPage extends StatelessWidget {
       {'code': 'it', 'name': 'Italiano'},
       {'code': 'ja', 'name': '日本語'},
       {'code': 'ko', 'name': '한국어'},
+      {'code': 'ru', 'name': 'Русский'},
       {'code': 'zh', 'name': '简体中文'},
       {'code': 'zh_TW', 'name': '繁體中文'},
     ];
@@ -760,6 +766,34 @@ class SettingsPage extends StatelessWidget {
         (v) => settings.setLoadProfileIcons(v),
       ),
       onTap: () => settings.setLoadProfileIcons(!settings.loadProfileIcons),
+    );
+  }
+
+  Widget _buildRspProxyTile(BuildContext context, double screenWidth) {
+    final settings = AppSettings();
+    final proxyConfig = settings.rspProxyConfig;
+
+    return _buildResponsiveTile(
+      context,
+      screenWidth: screenWidth,
+      icon: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.teal.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.hub_outlined, size: 20, color: Colors.teal),
+      ),
+      title: 'RSP proxy',
+      subtitle: proxyConfig.displayLabel,
+      child: Icon(
+        Icons.chevron_right,
+        color: AppTheme.onSurfaceVerySubtle(context),
+      ),
+      onTap: () => showDialog<void>(
+        context: context,
+        builder: (context) => const _RspProxyDialog(),
+      ),
     );
   }
 
@@ -1433,6 +1467,31 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  Widget _buildLogConsoleSwitcher(BuildContext context, double screenWidth) {
+    final settings = AppSettings();
+
+    return _buildResponsiveTile(
+      context,
+      screenWidth: screenWidth,
+      icon: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.blueGrey.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.terminal, size: 20, color: Colors.blueGrey),
+      ),
+      title: 'Log console',
+      subtitle: 'Show a live log tail under the profile list',
+      child: _buildCustomSwitch(
+        context,
+        settings.showLogConsole,
+        (v) => settings.setShowLogConsole(v),
+      ),
+      onTap: () => settings.setShowLogConsole(!settings.showLogConsole),
+    );
+  }
+
   Widget _buildLogsLink(BuildContext context, double screenWidth) {
     final l10n = AppLocalizations.of(context)!;
     return _buildResponsiveTile(
@@ -1490,6 +1549,37 @@ class SettingsPage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildBleDevicesLink(BuildContext context, double screenWidth) {
+    final l10n = AppLocalizations.of(context)!;
+    return _buildResponsiveTile(
+      context,
+      screenWidth: screenWidth,
+      icon: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.indigo.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.bluetooth_connected_rounded,
+          size: 20,
+          color: Colors.indigo,
+        ),
+      ),
+      title: l10n.savedBleDevices,
+      subtitle: l10n.savedBleDevicesSubtitle,
+      child: Icon(
+        Icons.chevron_right,
+        color: AppTheme.onSurfaceVerySubtle(context),
+      ),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const BleDevicesSettingsPage()),
+      ),
+    );
+  }
+
 
   Widget _buildUpdateCheckSwitcher(BuildContext context, double screenWidth) {
     final l10n = AppLocalizations.of(context)!;
@@ -1665,51 +1755,22 @@ class SettingsPage extends StatelessWidget {
         color: AppTheme.onSurfaceVerySubtle(context),
       ),
       onTap: () {
-        var tapCount = 0;
-
-        Future<void> handleVersionTap(BuildContext dialogContext) async {
-          final variant = AppSettings().variant;
-          if (variant == 'qitta') return;
-
-          tapCount++;
-
-          if (tapCount >= 20) {
-            return;
-          }
-
-          if (tapCount > 16 && dialogContext.mounted) {
-            final remaining = 20 - tapCount;
-            ScaffoldMessenger.of(dialogContext).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'You are $remaining steps away from becoming a pro',
-                ),
-                duration: const Duration(milliseconds: 500),
-              ),
-            );
-          }
-        }
-
         showDialog(
           context: context,
           builder: (dialogContext) => AlertDialog(
             title: const Text("Build Information"),
-            content: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => handleVersionTap(dialogContext),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Version: ${settings.version}"),
-                  Text("Build: ${settings.buildNumber}"),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Commit: ${settings.commitHash}",
-                    style: const TextStyle(fontFamily: 'monospace'),
-                  ),
-                ],
-              ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Version: ${settings.version}"),
+                Text("Build: ${settings.buildNumber}"),
+                const SizedBox(height: 8),
+                Text(
+                  "Commit: ${settings.commitHash}",
+                  style: const TextStyle(fontFamily: 'monospace'),
+                ),
+              ],
             ),
             actions: [
               TextButton(
@@ -1721,6 +1782,205 @@ class SettingsPage extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class _RspProxyDialog extends StatefulWidget {
+  const _RspProxyDialog();
+
+  @override
+  State<_RspProxyDialog> createState() => _RspProxyDialogState();
+}
+
+class _RspProxyDialogState extends State<_RspProxyDialog> {
+  late RspProxyMode _mode;
+  late String _forwardProtocol;
+  late final TextEditingController _forwardHostController;
+  late final TextEditingController _forwardPortController;
+  late final TextEditingController _reversePrefixController;
+  String? _errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    final config = AppSettings().rspProxyConfig;
+    _mode = config.mode;
+    _forwardProtocol = config.forwardProtocol;
+    _forwardHostController = TextEditingController(text: config.forwardHost);
+    _forwardPortController = TextEditingController(
+      text: config.forwardPort?.toString() ?? '',
+    );
+    _reversePrefixController = TextEditingController(
+      text: config.reverseUrlPrefix,
+    );
+  }
+
+  @override
+  void dispose() {
+    _forwardHostController.dispose();
+    _forwardPortController.dispose();
+    _reversePrefixController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return AlertDialog(
+      title: const Text('RSP proxy'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SegmentedButton<RspProxyMode>(
+              segments: const [
+                ButtonSegment(
+                  value: RspProxyMode.direct,
+                  icon: Icon(Icons.public),
+                  label: Text('Direct'),
+                ),
+                ButtonSegment(
+                  value: RspProxyMode.forward,
+                  icon: Icon(Icons.route_outlined),
+                  label: Text('Forward'),
+                ),
+                ButtonSegment(
+                  value: RspProxyMode.reverse,
+                  icon: Icon(Icons.alt_route),
+                  label: Text('Reverse'),
+                ),
+              ],
+              selected: {_mode},
+              onSelectionChanged: (selected) {
+                setState(() {
+                  _mode = selected.first;
+                  _errorText = null;
+                });
+              },
+            ),
+            const SizedBox(height: 20),
+            if (_mode == RspProxyMode.forward) ...[
+              DropdownButtonFormField<String>(
+                initialValue: _forwardProtocol,
+                decoration: const InputDecoration(
+                  labelText: 'Protocol',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'http', child: Text('HTTP')),
+                  DropdownMenuItem(value: 'socks', child: Text('SOCKS')),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _forwardProtocol = value);
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _forwardHostController,
+                decoration: const InputDecoration(
+                  labelText: 'Proxy host',
+                  hintText: '127.0.0.1',
+                  border: OutlineInputBorder(),
+                ),
+                textInputAction: TextInputAction.next,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _forwardPortController,
+                decoration: const InputDecoration(
+                  labelText: 'Proxy port',
+                  hintText: '8080',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ] else if (_mode == RspProxyMode.reverse) ...[
+              TextField(
+                controller: _reversePrefixController,
+                decoration: const InputDecoration(
+                  labelText: 'URL prefix',
+                  hintText: 'https://proxy.example/rsp',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.url,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Requests become: prefix / RSP host / gsma/rsp2/es9plus / endpoint',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.onSurfaceSubtle(context),
+                ),
+              ),
+            ] else
+              Text(
+                'RSP requests connect directly to the SM-DP+ or SM-DS host.',
+                style: TextStyle(color: AppTheme.onSurfaceSubtle(context)),
+              ),
+            if (_errorText != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                _errorText!,
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(onPressed: _save, child: const Text('Save')),
+      ],
+    );
+  }
+
+  Future<void> _save() async {
+    final forwardHost = _forwardHostController.text.trim();
+    final forwardPort = RspProxyConfig.parsePort(_forwardPortController.text);
+    final reversePrefix = _reversePrefixController.text.trim();
+
+    if (_mode == RspProxyMode.forward) {
+      if (forwardHost.isEmpty) {
+        setState(() => _errorText = 'Proxy host is required.');
+        return;
+      }
+      if (forwardPort == null) {
+        setState(() => _errorText = 'Proxy port must be 1-65535.');
+        return;
+      }
+    }
+
+    if (_mode == RspProxyMode.reverse) {
+      final uri = Uri.tryParse(reversePrefix);
+      final valid =
+          uri != null &&
+          uri.hasScheme &&
+          (uri.scheme == 'http' || uri.scheme == 'https') &&
+          uri.host.isNotEmpty;
+      if (!valid) {
+        setState(() => _errorText = 'Enter an absolute HTTP or HTTPS URL.');
+        return;
+      }
+    }
+
+    await AppSettings().setRspProxyConfig(
+      RspProxyConfig(
+        mode: _mode,
+        forwardProtocol: _forwardProtocol,
+        forwardHost: forwardHost,
+        forwardPort: forwardPort,
+        reverseUrlPrefix: reversePrefix,
+      ),
+    );
+
+    if (mounted) Navigator.of(context).pop();
   }
 }
 

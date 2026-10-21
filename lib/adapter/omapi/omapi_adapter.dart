@@ -137,7 +137,12 @@ class OmapiAdapter extends BaseAdapter {
     try {
       final List<dynamic> result = await _invoke('listReaders');
       final readers = result.map((nameStr) {
-        final name = nameStr as String;
+        final rawName = nameStr as String;
+        final nameParts = rawName.split('|');
+        final name = nameParts.first.trim();
+        final status = nameParts.length > 1
+            ? nameParts.sublist(1).join('|').trim()
+            : '';
         String displayName = name;
         if (name.startsWith("SIM")) {
           // "SIM1" -> "Slot 1-0"
@@ -146,6 +151,9 @@ class OmapiAdapter extends BaseAdapter {
             final index = int.parse(match.group(1)!);
             displayName = "SIM $index";
           }
+        }
+        if (status.isNotEmpty) {
+          displayName = '$displayName|$status';
         }
         return Reader(id: "omapi:$name", name: displayName, source: this);
       }).toList();
@@ -166,11 +174,7 @@ class OmapiAdapter extends BaseAdapter {
       await disconnect();
 
       final readerId = reader.id;
-      // Strip prefix and error information: "omapi:SIM1 (Error: reason)" -> "SIM1"
-      String realReaderName = readerId.split(' (').first;
-      if (realReaderName.startsWith('omapi:')) {
-        realReaderName = realReaderName.substring(6);
-      }
+      final realReaderName = _normalizeNativeReaderName(readerId);
       updateConnectedReader(reader);
       _internalReaderName = realReaderName;
       log.info('Connecting to OMAPI reader: $realReaderName');
@@ -200,6 +204,14 @@ class OmapiAdapter extends BaseAdapter {
         rethrow;
       }
     });
+  }
+
+  static String _normalizeNativeReaderName(String readerId) {
+    var realReaderName = readerId.trim();
+    if (realReaderName.startsWith('omapi:')) {
+      realReaderName = realReaderName.substring(6);
+    }
+    return realReaderName.split('|').first.split(' (').first.trim();
   }
 
   @override

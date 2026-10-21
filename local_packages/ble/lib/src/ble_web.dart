@@ -342,6 +342,9 @@ class BluetoothService {
       : uuid = Guid(service.uuid);
 }
 
+/// Mirrors the native enum so shared transport code type-checks on web too.
+enum ConnectionPriority { balanced, high, lowPower }
+
 class BluetoothDevice {
   final DeviceIdentifier remoteId;
   final _JSBluetoothDevice _device;
@@ -387,6 +390,12 @@ class BluetoothDevice {
 
   Future<void> requestMtu(int mtu) async {
     // Web Bluetooth does not expose MTU negotiation; noop.
+  }
+
+  Future<void> requestConnectionPriority(
+      {required ConnectionPriority connectionPriorityRequest}) async {
+    // Web Bluetooth does not expose connection parameters; noop. Transfers
+    // here run at whatever interval the writer asked the OS for.
   }
 
   Future<List<BluetoothService>> discoverServices() async {

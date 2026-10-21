@@ -18,28 +18,41 @@ class _AppLogsPageState extends State<AppLogsPage> {
   final List<LogRecord> _logs = [];
   final ScrollController _scrollController = ScrollController();
   StreamSubscription<LogRecord>? _subscription;
+  Timer? _flushTimer;
   bool _autoScroll = true;
+
+  /// How long new records are collected before the list repaints. See the note
+  /// in [_onRecord] -- this is what keeps setState() out of the build phase.
+  static const Duration _flushInterval = Duration(milliseconds: 100);
 
   @override
   void initState() {
     super.initState();
     _loadLogs();
-    _subscription = Logger.root.onRecord.listen((record) {
-      if (mounted) {
-        setState(() {
-          _logs.add(record);
-        });
-        if (_autoScroll) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_scrollController.hasClients) {
-              _scrollController.jumpTo(
-                _scrollController.position.maxScrollExtent,
-              );
-            }
-          });
+    _subscription = Logger.root.onRecord.listen(_onRecord);
+  }
+
+  void _onRecord(LogRecord record) {
+    if (!mounted) return;
+    // Logger.root.onRecord is a synchronous broadcast stream, so this runs on
+    // whatever stack emitted the log line -- including a widget's build method,
+    // where setState() is an error. Buffer the record and repaint on a timer,
+    // which also coalesces the bursts logged during card I/O.
+    _logs.add(record);
+    _flushTimer ??= Timer(_flushInterval, _flush);
+  }
+
+  void _flush() {
+    _flushTimer = null;
+    if (!mounted) return;
+    setState(() {});
+    if (_autoScroll) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         }
-      }
-    });
+      });
+    }
   }
 
   void _loadLogs() {
@@ -58,6 +71,7 @@ class _AppLogsPageState extends State<AppLogsPage> {
   @override
   void dispose() {
     _subscription?.cancel();
+    _flushTimer?.cancel();
     _scrollController.dispose();
     super.dispose();
   }

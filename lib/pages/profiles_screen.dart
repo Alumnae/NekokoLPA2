@@ -16,21 +16,21 @@ import '../plugins/build_plugin_registry.dart';
 import '../adapter/euicc_adapter.dart';
 import '../adapter/composite_adapter.dart';
 import '../adapter/remote/remocard_adapter.dart';
+import '../adapter/ble/ble_adapter.dart';
 import '../adapter/ble/ble_manager.dart';
-import '../adapter/ble/red_ble_adapter.dart';
-import '../adapter/ble/red_ble2_adapter.dart';
-import '../adapter/ble/sim_link_adapter.dart';
 import '../utils/error_codes.dart';
 import '../adapter/nbridge/nbridge_adapter.dart';
 import '../adapter/omapi/omapi_adapter.dart';
 import '../adapter/omapi/omapi_safety.dart';
 import '../adapter/telephony/telephony_adapter.dart';
 import '../logic/profile_manager.dart';
+import '../logic/profile_state_transition.dart';
 import '../utils/apdu_exception.dart';
 import '../utils/profile_tag_utils.dart';
 import '../utils/profile_redaction.dart';
 import '../services/profile_metadata_service.dart';
 import '../services/tag_notification_service.dart';
+import '../models/activation_code.dart';
 import '../theme/app_theme.dart';
 import '../settings/app_settings.dart';
 import 'notifications_screen.dart';
@@ -51,22 +51,27 @@ import '../services/profile_enhancer_service.dart';
 import '../services/card_status_cache.dart';
 import '../utils/iccid_formatter.dart';
 import '../services/operator_icon_service.dart';
+import '../services/smds_discovery_service.dart';
 import 'package:logging/logging.dart';
 
 import 'download_profile_page.dart';
 import 'batch_download_page.dart';
+import 'esim_transfer_page.dart';
 import 'aram_info_page.dart';
 import '../widgets/common/adaptive_context_menu.dart';
 import '../widgets/common/loading_spinner.dart';
+import '../widgets/profiles_screen/connect_step_message.dart';
 import '../widgets/profiles_screen/profile_loading_overlay.dart';
 import '../services/update_service.dart';
 import '../utils/update_utils.dart';
 import '../widgets/profiles_screen/profile_list_section.dart';
+import '../widgets/profiles_screen/reader_helper.dart';
 import '../widgets/profiles_screen/state_messages.dart' hide ColumnStateMessage;
 import '../widgets/profiles_screen/error_state.dart';
 import '../widgets/profiles_screen/profiles_header.dart';
 import '../services/deep_link_service.dart';
 import '../services/connectivity_service.dart';
+import '../widgets/log_console.dart';
 
 enum ReaderStatus {
   idle,
@@ -84,6 +89,9 @@ class ReaderState {
   List<EuiccProfile>? profiles;
   String? eid;
   EUICCInfo2? info2;
+
+  /// ES10a addresses. Null when the card did not answer, which is not an error.
+  EuiccConfiguredDataResponse? configuredData;
   Object? lastError;
   ReaderStatus status = ReaderStatus.idle;
 
@@ -139,10 +147,13 @@ class ReaderState {
 }
 
 class _UnsupportedCardProbe {
-  const _UnsupportedCardProbe();
+  const _UnsupportedCardProbe({
+    required this.operatorIconBase64,
+    required this.details,
+  });
 
-  String? get operatorIconBase64 => null;
-  String? get details => null;
+  final String? operatorIconBase64;
+  final String? details;
 }
 
 class ProfilesScreen extends StatefulWidget {
@@ -165,6 +176,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
   Reader? _selectedReader;
   String? _eid;
   EUICCInfo2? _info2;
+  EuiccConfiguredDataResponse? _configuredData;
   ReaderStatus _status = ReaderStatus.idle;
   String? _operationLoadingMessage;
   Object? _error;
@@ -220,9 +232,12 @@ class _ProfilesScreenState extends State<ProfilesScreen>
   final Set<String> _autoSwitchTriedReaders = {};
   final GlobalKey _remoteReaderButtonKey = GlobalKey();
   bool _isSwitching = false;
-  String? _pendingSwitchIccid;
-  bool? _pendingSwitchEnableState;
   Timer? _switchingTimer;
+
+  /// Height of the developer log console, adjustable by its drag handle.
+  double _consoleHeight = 260;
+  int _profileSwitchGeneration = 0;
+  Future<void> _profileMetadataPersistence = Future<void>.value();
   final GlobalKey _downloadButtonKey = GlobalKey();
   final GlobalKey _downloadButtonKey2 = GlobalKey();
 
@@ -236,13 +251,9 @@ class _ProfilesScreenState extends State<ProfilesScreen>
   Timer? _simChangeDebounce;
   StreamSubscription<String>? _deepLinkSub;
   StreamSubscription? _simChangeSub;
-  final Map<String, List<Widget>> _readerHeaderCache = {};
-  final Map<String, List<Widget>> _readerActionsCache = {};
 
   bool _isBle(Reader? reader) {
-    if (reader == null) return false;
-    final s = reader.source;
-    return s is RedBleAdapter || s is RedBle2Adapter || s is SimLinkAdapter;
+    return reader?.source is BleAdapter;
   }
 
   bool _isRemote(Reader? reader) {
@@ -275,12 +286,39 @@ class _ProfilesScreenState extends State<ProfilesScreen>
   }) {
     final errStr = e.toString();
 
+    // A refused card command leaves the session perfectly usable, so it does
+    // not warrant replacing the profile list with a full-page error. Report it
+    // over the list and let the reader carry on.
+    if (errStr.contains('DELETE_FAILED:') ||
+        errStr.contains('MEMORY_RESET_FAILED:')) {
+      if (reader != null) {
+        _updateReaderSession(reader.id, (s) {
+          s.loading = false;
+          s.operationLoadingMessage = null;
+          s.error = null;
+        });
+      }
+      if (mounted) {
+        final reason = errStr.substring(errStr.indexOf(':') + 1).trim();
+        _showPremiumConfirmDialog(
+          title: AppLocalizations.of(context)!.failed,
+          message: reason,
+          confirmLabel: AppLocalizations.of(context)!.retry,
+        ).then((retry) {
+          if (retry == true && onRetry != null) onRetry();
+        });
+      }
+      return;
+    }
+
     if (e is ConditionOfUseNotSatisfiedException) {
       _setErrorState(
         reader,
         AppException(
           AppErrorCode.ERROR_CONDITION_OF_USE_NOT_SATISFIED,
-          message: AppLocalizations.of(context)!.cardStuckRefreshingMessage,
+          // The card will not hand over the ISD-R and nothing here can change
+          // that, so ask for the re-plug rather than suggesting a wait.
+          message: AppLocalizations.of(context)!.cardNeedsReplugMessage,
           originalError: e,
         ),
         false,
@@ -314,6 +352,8 @@ class _ProfilesScreenState extends State<ProfilesScreen>
         return;
       }
       if (e.code == AppErrorCode.ERROR_REMOTE_WRONG_PASSWORD) {
+        // NBLESimAdapter handles its own password loop now.
+        // It prompts and retries, throwing only if user cancels.
         if (reader != null) {
           _updateReaderSession(reader.id, (s) {
             s.loading = false;
@@ -428,21 +468,24 @@ class _ProfilesScreenState extends State<ProfilesScreen>
   void _setSwitching(bool value) {
     ProfilesScreen.isSwitchingGlobal = value;
     _switchingTimer?.cancel();
-    if (!value) {
-      _pendingSwitchIccid = null;
-      _pendingSwitchEnableState = null;
-    }
     if (mounted) {
       setState(() => _isSwitching = value);
     }
-    if (value) {
-      _switchingTimer = Timer(const Duration(minutes: 1), () {
-        ProfilesScreen.isSwitchingGlobal = false;
-        _pendingSwitchIccid = null;
-        _pendingSwitchEnableState = null;
-        if (mounted) setState(() => _isSwitching = false);
-      });
-    }
+  }
+
+  void _armProfileSwitchDeadline(int generation) {
+    _switchingTimer?.cancel();
+    // A profile switch on a card that lives in a handset waits for the modem to
+    // reset it, which takes tens of seconds and drops the Bluetooth link on the
+    // way. 45s cut that short and reported a working switch as a timeout.
+    _switchingTimer = Timer(const Duration(seconds: 150), () {
+      if (generation != _profileSwitchGeneration) return;
+      _log.warning(
+        'Profile switch exceeded its deadline; interrupting pending transport.',
+      );
+      _profileSwitchGeneration++;
+      _adapter.interruptPendingOperation();
+    });
   }
 
   void _onBleManagerChanged() {
@@ -516,8 +559,6 @@ class _ProfilesScreenState extends State<ProfilesScreen>
               _log.info('SIM ABSENT detected, clearing all reader states');
               _readerStates.clear();
             }
-            _readerHeaderCache.clear(); // Clear cache on real SIM change
-            _readerActionsCache.clear(); // Clear cache on real SIM change
           });
           _loadReaders(skipLoading: true, force: true);
         });
@@ -541,7 +582,10 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       _onTriggerSelectionChanged,
     );
     _tabController?.dispose();
+    _profileSwitchGeneration++;
+    if (_isSwitching) _adapter.interruptPendingOperation();
     _switchingTimer?.cancel();
+    ProfilesScreen.isSwitchingGlobal = false;
     _simChangeDebounce?.cancel();
     _simChangeSub?.cancel();
     BleManager().removeListener(_onBleManagerChanged);
@@ -681,12 +725,12 @@ class _ProfilesScreenState extends State<ProfilesScreen>
 
                   return ListTile(
                     leading: Icon(
-                      _isBle(reader)
-                          ? Icons.bluetooth
-                          : _isRemote(reader)
-                          ? Icons.cloud_queue
-                          : Icons.usb,
-                      color: Theme.of(context).colorScheme.primary,
+                      ReaderHelper.getIconData(reader.id),
+                      color: ReaderHelper.getIconColor(
+                        reader.id,
+                        context,
+                        overrideColor: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                     title: Text(reader.name),
                     subtitle: Column(
@@ -739,15 +783,22 @@ class _ProfilesScreenState extends State<ProfilesScreen>
     }
   }
 
-  Future<void> _loadPendingNotificationCount() async {
+  /// Refreshes the badge from the database alone, without touching the card.
+  Future<void> _refreshPendingCountFromDb() async {
     final eid = _eid;
     if (eid == null) return;
 
     NotificationService().currentNotifications.value = const [];
-
-    // Update local count from DB first for speed
     final unsent = await DatabaseService().getUnsentCount(eid);
     NotificationService().pendingCount.value = unsent;
+  }
+
+  Future<void> _loadPendingNotificationCount() async {
+    final eid = _eid;
+    if (eid == null) return;
+
+    // Update local count from DB first for speed
+    await _refreshPendingCountFromDb();
 
     // Trigger background sync if card available
     if (_selectedReader != null) {
@@ -872,6 +923,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
             null; // Fix: Clear search/filter cache on data update
         _eid = state.eid;
         _info2 = state.info2;
+        _configuredData = state.configuredData;
         _error = state.lastError;
         _status = state.status;
         _unsupportedOperatorIcon = state.unsupportedOperatorIcon;
@@ -883,8 +935,15 @@ class _ProfilesScreenState extends State<ProfilesScreen>
   Future<_UnsupportedCardProbe?> _probeUnsupportedCardDetails(
     Reader reader,
   ) async {
-    return null;
+    if (_isOmapi(reader) || _isTmapi(reader)) {
+      return null;
+    }
+    // Reading the SIM's own files goes through the VoWiFi SIM service, which
+    // is private; without it an unsupported card shows no operator details.
+    _UnsupportedCardProbe? probe;
+    return probe;
   }
+
 
   Future<void> _loadReaders({
     bool skipLoading = false,
@@ -957,10 +1016,6 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       _autoSwitchTriedReaders.clear();
       _autoDiscoveryFinished = false;
 
-      // Clear caches when readers change
-      _readerHeaderCache.clear();
-      _readerActionsCache.clear();
-
       if (mounted) {
         bool shouldAutoLoad = false;
         setState(() {
@@ -1000,6 +1055,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
                   null; // Clear cache on selection change or update
               _eid = state?.eid;
               _info2 = state?.info2;
+              _configuredData = state?.configuredData;
               _error = state?.error;
               _isNoCard = state?.isNoCard ?? false;
               _isUnsupported = state?.isUnsupported ?? false;
@@ -1050,6 +1106,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
             _profiles = null;
             _eid = null;
             _info2 = null;
+            _configuredData = null;
             _error = null;
             _isNoCard = false;
             _isUnsupported = false;
@@ -1143,7 +1200,23 @@ class _ProfilesScreenState extends State<ProfilesScreen>
 
   Future<void> _selectReader(Reader reader) async {
     _restoredReaders.remove(reader.id);
-    if (_selectedReader?.id == reader.id) return;
+    if (_selectedReader?.id == reader.id) {
+      // Picking the reader that is already selected is how a user retries one
+      // that is showing as disconnected, so treat it as a connect request
+      // rather than as a no-op.
+      final state = _readerStates[reader.id];
+      final needsConnect =
+          (state?.profiles?.isEmpty ?? true) ||
+          state?.lastError != null ||
+          state?.status == ReaderStatus.bleError;
+      if (needsConnect && !_loading && !_isConnecting) {
+        _log.info(
+          'Reader ${reader.id} reselected while not ready; connecting.',
+        );
+        await _listProfiles();
+      }
+      return;
+    }
 
     if (!_readers.contains(reader)) {
       await _loadReaders(skipLoading: true);
@@ -1162,6 +1235,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       _filteredProfiles = null; // Clear cache when switching reader
       _eid = state.eid;
       _info2 = state.info2;
+      _configuredData = state.configuredData;
       _isNoCard = state.isNoCard;
       _isUnsupported = state.isUnsupported;
       _isAraMFailed = state.isAraMFailed;
@@ -1194,7 +1268,10 @@ class _ProfilesScreenState extends State<ProfilesScreen>
         !_isNoCard) {
       await _listProfiles();
     } else {
-      if (!_isBle(reader)) {
+      // Connect on an explicit selection, Bluetooth included. Skipping BLE here
+      // left a deliberately chosen card sitting at "Bluetooth Not Connected"
+      // until something else happened to connect it.
+      {
         _adapter.connect(reader).catchError((e) {
           _log.warning("Silent connect failed: $e");
 
@@ -1344,13 +1421,10 @@ class _ProfilesScreenState extends State<ProfilesScreen>
   Future<void> _listProfiles({
     int retryCount = 0,
     bool disableRetry = false,
-    String? expectSwitchedIccid,
-    bool? expectedEnableState,
   }) async {
     final reader = _selectedReader;
     if (reader == null) return;
-    expectSwitchedIccid ??= _pendingSwitchIccid;
-    expectedEnableState ??= _pendingSwitchEnableState;
+    final l10n = AppLocalizations.of(context)!;
 
     _updateReaderSession(reader.id, (s) {
       s.status = ReaderStatus.loading;
@@ -1358,9 +1432,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       s.isListingProfiles = true;
       s.isConnecting = true;
       s.isAraMFailed = false;
-      s.operationLoadingMessage = AppLocalizations.of(
-        context,
-      )!.connectingToReader;
+      s.operationLoadingMessage = l10n.connectingToReader;
       s.lastError = null;
     });
 
@@ -1371,9 +1443,30 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       _updateReaderSession(reader.id, (s) => s.isConnecting = true);
 
       await _adapter.runExclusive(() async {
-        // Ensure reader is still the selected one or at least the one we started with
-        await _adapter.connect(reader);
+        // A Bluetooth reader can spend tens of seconds connecting, which one
+        // static message makes look like a hang, so show each step it reports.
+        void showConnectStep() {
+          final progress = _adapter.connectProgress.value;
+          if (progress == null) return;
+          _updateReaderSession(
+            reader.id,
+            (s) =>
+                s.operationLoadingMessage = connectStepMessage(l10n, progress),
+          );
+        }
 
+        _adapter.connectProgress.addListener(showConnectStep);
+        try {
+          // Ensure reader is still the selected one or at least the one we started with
+          await _adapter.connect(reader);
+        } finally {
+          _adapter.connectProgress.removeListener(showConnectStep);
+        }
+
+        _updateReaderSession(
+          reader.id,
+          (s) => s.operationLoadingMessage = l10n.connectingToEuicc,
+        );
         if (mounted && _selectedReader?.id == reader.id) {
           _updateReaderSession(reader.id, (s) => s.isConnecting = false);
         }
@@ -1384,7 +1477,14 @@ class _ProfilesScreenState extends State<ProfilesScreen>
           _updateReaderState(updatedReader);
         }
         try {
+          // Both fetches show their own step, but only on screen; the session
+          // copy is what a mid-fetch session update puts back, so keep it in
+          // step or the message jumps back to connecting.
           // 1. Fetch Basic Info
+          _updateReaderSession(
+            reader.id,
+            (s) => s.operationLoadingMessage = l10n.retrievingEid,
+          );
           final (fetchedEid, fetchedInfo2) = await _fetchEuiccData(
             channel,
             reader,
@@ -1394,30 +1494,14 @@ class _ProfilesScreenState extends State<ProfilesScreen>
           info2 = fetchedInfo2;
 
           // 2. Fetch Profiles
+          _updateReaderSession(
+            reader.id,
+            (s) => s.operationLoadingMessage = l10n.retrievingProfiles,
+          );
           final profiles = await _fetchProfiles(channel, reader);
 
-          // 3. Apply Authoritative State Override
-          // If we are currently watching for a state change (from _toggleProfile),
-          // we MUST ensure the list reflects our intended state, even if the card returns stale data.
-          if (expectSwitchedIccid != null && expectedEnableState != null) {
-            for (int i = 0; i < profiles.length; i++) {
-              if (profiles[i].iccid == expectSwitchedIccid) {
-                if (profiles[i].enabled != expectedEnableState) {
-                  _log.info(
-                    "Enforcing authoritative state for $expectSwitchedIccid: $expectedEnableState (Card returned stale ${profiles[i].enabled})",
-                  );
-                  profiles[i] = profiles[i].copyWith(
-                    enabled: expectedEnableState,
-                  );
-                }
-              } else if (expectedEnableState == true && profiles[i].enabled) {
-                // If we enabled one profile, all others must be disabled in our model
-                profiles[i] = profiles[i].copyWith(enabled: false);
-              }
-            }
-          }
-
-          // 4. Save Metadata and Icons
+          // 3. Save the card-reported state without substituting an expected
+          // switch result. Profile toggles verify convergence separately.
           await _saveMetadataAndIcons(profiles, eid, info2, reader);
           if (eid != null && profiles.isNotEmpty) {
             unawaited(
@@ -1428,7 +1512,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
             );
           }
 
-          // 5. Update UI: Unfreeze immediately after profiles are ready
+          // 4. Update UI: Unfreeze immediately after profiles are ready
           _updateReaderSession(reader.id, (s) {
             s.profiles = profiles;
             s.eid = eid;
@@ -1448,7 +1532,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
           await channel.close();
         }
 
-        // 6. Update Notifications in background (non-blocking) AFTER closing the list channel
+        // 5. Update Notifications in background (non-blocking) AFTER closing the list channel
         _handleNotifications(null, eid, reader);
       });
       _autoDiscoveryFinished = true;
@@ -1493,7 +1577,9 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       }
 
       final bool canRetry = !disableRetry && connectivityError;
-      final int maxRetries = (e is CardBusyException) ? 5 : 60;
+      final int maxRetries = (e is CardBusyException)
+          ? 5
+          : ((_isSwitching || isNBridgeTransient) ? 12 : 0);
       final bool shouldWaitAndRetry =
           canRetry &&
           (_isSwitching ||
@@ -1510,11 +1596,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
         );
         await Future.delayed(retryDelay);
         if (mounted) {
-          await _listProfiles(
-            retryCount: retryCount + 1,
-            expectSwitchedIccid: expectSwitchedIccid,
-            expectedEnableState: expectedEnableState,
-          );
+          await _listProfiles(retryCount: retryCount + 1);
         }
         return;
       }
@@ -1696,6 +1778,24 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       eid = await _manager.getEid(useChannel: channel);
       _adapter.currentEid = eid;
       info2 = await _manager.getEuiccInfo2(useChannel: channel);
+
+      // ES10a addresses, for the info dialog. Optional: a card that will not
+      // answer must not fail the whole read, which is what the rest of this
+      // method exists to do.
+      try {
+        final configured = await _manager.getEuiccConfiguredData(
+          useChannel: channel,
+        );
+        _updateReaderSession(
+          reader.id,
+          (session) => session.configuredData = configured,
+        );
+        if (mounted && _selectedReader?.id == reader.id) {
+          _configuredData = configured;
+        }
+      } catch (e) {
+        _log.info('Configured addresses unavailable for ${reader.id}: $e');
+      }
 
       final aid = channel.aid;
 
@@ -1968,9 +2068,13 @@ class _ProfilesScreenState extends State<ProfilesScreen>
     List<EuiccProfile> profiles,
     String? eid,
     EUICCInfo2? info2,
-    Reader reader,
-  ) async {
-    if (!mounted) return;
+    Reader reader, {
+    bool showProgress = true,
+    bool allowInteractivePrompts = true,
+    bool refreshNotificationCount = true,
+    bool allowAfterDispose = false,
+  }) async {
+    if (!mounted && !allowAfterDispose) return;
 
     // Fire and forget enhancement
     for (final p in profiles) {
@@ -1994,7 +2098,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       info2: info2,
       clearError: true,
     );
-    if (mounted && _selectedReader?.id == reader.id) {
+    if (showProgress && mounted && _selectedReader?.id == reader.id) {
       setState(() {
         _operationLoadingMessage = AppLocalizations.of(
           context,
@@ -2014,6 +2118,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       }
 
       if (existing != null &&
+          allowInteractivePrompts &&
           AppSettings().enableScheduledNotifications &&
           mounted) {
         final cardTag = profile.tags
@@ -2083,7 +2188,9 @@ class _ProfilesScreenState extends State<ProfilesScreen>
     }
 
     // Update notification count now that we have _eid, but only if still current
-    if (mounted && _selectedReader?.id == reader.id) {
+    if (refreshNotificationCount &&
+        mounted &&
+        _selectedReader?.id == reader.id) {
       _loadPendingNotificationCount();
     }
   }
@@ -2112,7 +2219,10 @@ class _ProfilesScreenState extends State<ProfilesScreen>
         autoSendDelete: settings.notifAutoSendDelete,
         autoRemoveDelete: settings.notifAutoRemoveDelete,
       );
-      await _loadPendingNotificationCount();
+      // The card was just listed and processed above, so only the badge needs
+      // refreshing. Calling _loadPendingNotificationCount() here would open a
+      // second channel and re-read the same notifications off the card.
+      await _refreshPendingCountFromDb();
     } else {
       try {
         final notifs = channel != null
@@ -2126,34 +2236,19 @@ class _ProfilesScreenState extends State<ProfilesScreen>
     }
   }
 
-  bool _isSwitchConnectivityError(Object e) {
-    final errorStr = e.toString();
-    final lower = errorStr.toLowerCase();
-    final isRemoteConnectionFailure =
-        lower.contains('connection refused') ||
-        lower.contains('socketexception') ||
-        e is RemoCardConnectionException;
-
-    return !isRemoteConnectionFailure &&
-        (lower.contains('secure element') ||
-            lower.contains('not_connected') ||
-            lower.contains('connection_failed') ||
-            lower.contains('channel_failed') ||
-            lower.contains('no supported euicc') ||
-            lower.contains('application_not_found') ||
-            lower.contains('transmit_failed') ||
-            lower.contains('invocationtargetexception') ||
-            lower.contains('nbridge') && lower.contains('transient') ||
-            lower.contains('proactiverefreshexception') ||
-            errorStr.contains('6985') ||
-            e is CardBusyException ||
-            e is ProactiveRefreshException ||
-            e is ConditionOfUseNotSatisfiedException ||
-            (e is AppException &&
-                (e.code == AppErrorCode.ERROR_OMAPI_READER_NOT_AVAILABLE ||
-                    e.code == AppErrorCode.ERROR_CHANNEL_OPEN_FAILED ||
-                    e.code == AppErrorCode.ERROR_OMAPI_CHANNEL_OPEN_FAILED ||
-                    e.code == AppErrorCode.ERROR_APPLICATION_NOT_FOUND)));
+  bool _isProfileSwitchTransientError(Object error) {
+    if (error is CardBusyException) return true;
+    // Straight after a switch the card is being reset by the host: it refuses
+    // the ISD-R with 6985/6999 and raises proactive commands for tens of
+    // seconds. Verification has to ride that out -- treating it as fatal
+    // reports a switch that actually succeeded as a failure.
+    if (error is ConditionOfUseNotSatisfiedException) return true;
+    if (error is ProactiveRefreshException) return true;
+    if (error is! AppException) return false;
+    return error.code == AppErrorCode.ERROR_BLUETOOTH_TIMEOUT ||
+        error.code == AppErrorCode.ERROR_BLUETOOTH_NOT_CONNECTED ||
+        error.code == AppErrorCode.ERROR_BLUETOOTH_CONNECT_FAILED ||
+        error.code == AppErrorCode.ERROR_BLUETOOTH_DISABLED;
   }
 
   Future<void> _toggleProfile(EuiccProfile p, bool enable) async {
@@ -2187,206 +2282,523 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       _error = null;
     });
 
-    _pendingSwitchIccid = p.iccid;
-    _pendingSwitchEnableState = enable;
-    _setSwitching(true); // Start switching window (1 minute)
+    final switchGeneration = ++_profileSwitchGeneration;
+    _setSwitching(true);
+    _armProfileSwitchDeadline(switchGeneration);
 
     await Future.delayed(const Duration(milliseconds: 100));
 
-    int retryCount = 0;
-    const int maxRetries = 3;
-    bool commandSubmitted = false;
+    List<EuiccProfile>? verifiedProfiles;
+    var retryAfterPassword = false;
+    void ensureCurrentSwitch() {
+      if (switchGeneration != _profileSwitchGeneration) {
+        throw AppException(
+          AppErrorCode.ERROR_BLUETOOTH_TIMEOUT,
+          message: 'Profile switch deadline exceeded',
+        );
+      }
+    }
 
     try {
-      while (retryCount < maxRetries) {
-        try {
-          await _adapter.runExclusive(() async {
-            await _adapter.connect(reader);
-            var switchMarkerSet = false;
-            try {
-              await _adapter.setProfileSwitchInProgress(true);
-              switchMarkerSet = true;
-              final channel = await _manager.openSession();
-              bool isRefresh = false;
-              try {
-                // Perform toggle operation
-                commandSubmitted = true;
-                isRefresh = enable
-                    ? await _manager.enableProfile(p.iccid, useChannel: channel)
-                    : await _manager.disableProfile(
-                        p.iccid,
-                        useChannel: channel,
-                      );
-              } finally {
-                try {
-                  await channel.close();
-                } catch (closeError) {
-                  _log.warning(
-                    "Failed to close switch channel after command submission: $closeError",
-                  );
-                  if (!commandSubmitted ||
-                      isOmapiSessionCorruptedError(closeError)) {
-                    rethrow;
-                  }
-                }
-              }
-
-              // 1. change the app status by setting enable and disable flags on corresponding profiles;
-              if (mounted) {
+      final result =
+          await ProfileStateTransition(
+            maxCommandAttempts: 2,
+            // The host's reset takes ~30s and the card is unreadable for most
+            // of it, so verification needs to outlast that rather than give up
+            // in the first few seconds.
+            maxVerificationAttempts: 14,
+            verificationDelay: const Duration(seconds: 4),
+            maxTransientVerificationFailuresWithoutRead: 10,
+          ).run(
+            targetEnabled: enable,
+            submit: (attempt) async {
+              ensureCurrentSwitch();
+              if (mounted && _selectedReader?.id == reader.id) {
                 setState(() {
-                  _filteredProfiles = null; // Clear cache for optimistic update
-                  if (_profiles != null) {
-                    for (var i = 0; i < _profiles!.length; i++) {
-                      if (_profiles![i].iccid == p.iccid) {
-                        _profiles![i] = _profiles![i].copyWith(enabled: enable);
-                      } else if (enable && _profiles![i].enabled) {
-                        // If we enabled a profile, others should be disabled (usually)
-                        _profiles![i] = _profiles![i].copyWith(enabled: false);
-                      }
-                    }
-                  }
+                  _operationLoadingMessage = enable
+                      ? AppLocalizations.of(context)!.enablingProfile
+                      : AppLocalizations.of(context)!.disablingProfile;
                 });
               }
 
-              if (isRefresh) {
-                _log.info(
-                  "Refresh detected, giving the card a moment before UI sync.",
-                );
-                await Future.delayed(const Duration(seconds: 1));
-              }
-            } finally {
-              if (switchMarkerSet) {
-                await _adapter.setProfileSwitchInProgress(false);
-              }
-            }
-
-            if (mounted && _selectedReader?.id == reader.id) {
-              setState(() {
-                _operationLoadingMessage = AppLocalizations.of(
-                  context,
-                )!.refreshingProfiles;
+              var refreshRequested = false;
+              await _adapter.runExclusive(() async {
+                await _adapter.connect(reader);
+                var switchMarkerSet = false;
+                try {
+                  await _adapter.setProfileSwitchInProgress(true);
+                  switchMarkerSet = true;
+                  final channel = await _manager.openSession();
+                  var commandCompleted = false;
+                  try {
+                    final isRefresh = enable
+                        ? await _manager.enableProfile(
+                            p.rawIccid,
+                            useChannel: channel,
+                          )
+                        : await _manager.disableProfile(
+                            p.rawIccid,
+                            useChannel: channel,
+                          );
+                    commandCompleted = true;
+                    if (isRefresh) {
+                      refreshRequested = true;
+                      _log.info(
+                        'Profile switch requested a refresh; going off the air '
+                        'until the host has reset the card.',
+                      );
+                    }
+                  } finally {
+                    if (commandCompleted &&
+                        switchGeneration == _profileSwitchGeneration) {
+                      try {
+                        await channel.close();
+                      } catch (closeError) {
+                        _log.warning(
+                          'Failed to close profile switch channel: $closeError',
+                        );
+                        if (isOmapiSessionCorruptedError(closeError)) rethrow;
+                      }
+                    } else {
+                      _log.info(
+                        'Skipping stale profile switch channel close; the next '
+                        'fresh session will clean it up.',
+                      );
+                    }
+                  }
+                } finally {
+                  if (switchMarkerSet) {
+                    await _adapter.setProfileSwitchInProgress(false);
+                  }
+                }
               });
-            }
 
-            // Some cards need a moment before the state change is reflected in the list.
-            // The switch channel is already closed, so the follow-up list opens a fresh session.
-            await Future.delayed(const Duration(milliseconds: 700));
-
-            _log.info("Refreshing profile list after switch.");
-            await _listProfiles(
-              expectSwitchedIccid: p.iccid,
-              expectedEnableState: enable,
-            );
-
-            // Process notifications after the profile list has recovered. A notification
-            // failure should not turn a completed switch into a broken reader state.
-            final isOnline = await ConnectivityService().checkConnectivity();
-            final settings = AppSettings();
-            if (isOnline &&
-                settings.notifProcessAfterSwitch &&
-                settings.isAnyNotificationProcessingEnabled) {
-              _log.info("Processing notifications after toggle...");
-              try {
-                await NotificationService().processPendingNotifications(
-                  _manager,
-                  null,
-                  readerName: reader.id,
-                  autoSendInstall: settings.notifAutoSendInstall,
-                  autoRemoveInstall: settings.notifAutoRemoveInstall,
-                  autoSendEnable: settings.notifAutoSendEnable,
-                  autoRemoveEnable: settings.notifAutoRemoveEnable,
-                  deleteWithoutSendingEnable:
-                      settings.notifDeleteWithoutSendingEnable,
-                  autoSendDisable: settings.notifAutoSendDisable,
-                  autoRemoveDisable: settings.notifAutoRemoveDisable,
-                  deleteWithoutSendingDisable:
-                      settings.notifDeleteWithoutSendingDisable,
-                  autoSendDelete: settings.notifAutoSendDelete,
-                  autoRemoveDelete: settings.notifAutoRemoveDelete,
-                );
-              } catch (notificationError) {
-                _log.warning(
-                  "Notification processing after switch failed: $notificationError",
-                );
+              if (refreshRequested) {
+                // The enable succeeded and the card is now holding a REFRESH
+                // for the handset's modem, which owns it. Anything sent from
+                // here -- even just opening a channel to verify the switch --
+                // is answered 6985, and from that point the eUICC refuses its
+                // ISD-R until the SIM is physically re-seated.
+                //
+                // Measured from an APDU trace of both clients switching the
+                // same card: the command-line tool closes its channel and
+                // sends nothing at all, and the card is back in ~30s. The app
+                // used to re-open a session 60ms later (channel cleanup,
+                // TERMINAL CAPABILITY, MANAGE CHANNEL, SELECT AID) and the
+                // SELECT came back 6985 every time.
+                ensureCurrentSwitch();
+                await _adapter.proactiveRefresh();
               }
-            }
-          });
-          break; // Exit loop on success
-        } catch (e) {
-          final isConnectivity = _isSwitchConnectivityError(e);
-          if (isConnectivity &&
-              canAutomaticallyRetryProfileSwitch(
-                e,
-                commandSubmitted: commandSubmitted,
-              ) &&
-              retryCount < maxRetries - 1) {
-            retryCount++;
-            _log.warning(
-              "Connectivity error before switch command ($e), retrying $retryCount/$maxRetries after reconnect...",
-            );
-            try {
-              await _adapter.disconnect();
-            } catch (_) {}
-            await Future.delayed(const Duration(seconds: 2));
-            continue;
-          }
-          if (e is CardBusyException &&
-              canAutomaticallyRetryProfileSwitch(
-                e,
-                commandSubmitted: commandSubmitted,
-              ) &&
-              retryCount < maxRetries - 1) {
-            retryCount++;
-            _log.warning(
-              "Card busy (6881) during toggle, retrying $retryCount/$maxRetries after delay...",
-            );
-            await Future.delayed(const Duration(seconds: 3));
-            continue;
-          }
-          rethrow;
-        }
+            },
+            reconnect: () async {
+              ensureCurrentSwitch();
+              _log.info(
+                'Reconnecting Bluetooth transport before profile verification.',
+              );
+              await _adapter.reconnect();
+            },
+            readActualState: () async {
+              ensureCurrentSwitch();
+              if (mounted && _selectedReader?.id == reader.id) {
+                setState(() {
+                  _operationLoadingMessage = AppLocalizations.of(
+                    context,
+                  )!.refreshingProfiles;
+                });
+              }
+
+              final listedProfiles = await _adapter.runExclusive(() async {
+                await _adapter.connect(reader);
+                final channel = await _manager.openSession();
+                var readCompleted = false;
+                try {
+                  final profiles = await _fetchProfiles(channel, reader);
+                  readCompleted = true;
+                  return profiles;
+                } finally {
+                  if (readCompleted &&
+                      switchGeneration == _profileSwitchGeneration) {
+                    try {
+                      await channel.close();
+                    } catch (closeError) {
+                      _log.warning(
+                        'Failed to close profile verification channel: $closeError',
+                      );
+                      if (isOmapiSessionCorruptedError(closeError)) rethrow;
+                    }
+                  } else {
+                    _log.info(
+                      'Skipping stale profile verification channel close; '
+                      'the next fresh session will clean it up.',
+                    );
+                  }
+                }
+              });
+              ensureCurrentSwitch();
+
+              final seenIccids = <String>{};
+              verifiedProfiles = listedProfiles
+                  .where((profile) => seenIccids.add(profile.iccid))
+                  .toList();
+              return verifiedProfiles
+                  ?.where((profile) => profile.iccid == p.iccid)
+                  .firstOrNull
+                  ?.enabled;
+            },
+            isTransient: (error) =>
+                switchGeneration == _profileSwitchGeneration &&
+                !isOmapiSessionCorruptedError(error) &&
+                _isProfileSwitchTransientError(error),
+          );
+      ensureCurrentSwitch();
+
+      final profiles = verifiedProfiles;
+      if (profiles == null) {
+        throw StateError('Verified profile list was not retained');
       }
+
+      _log.info(
+        'Profile state verified after ${result.commandAttempts} command '
+        'attempt(s) and ${result.verificationAttempts} fresh list attempt(s).',
+      );
+
+      _updateReaderSession(reader.id, (state) {
+        state.profiles = profiles;
+        state.status = ReaderStatus.ready;
+        state.loading = false;
+        state.isListingProfiles = false;
+        state.isConnecting = false;
+        state.operationLoadingMessage = null;
+        state.lastError = null;
+        state.hasBeenLoaded = true;
+      });
+      final verifiedEid = _eid;
+      final verifiedInfo2 = _info2;
+      if (verifiedEid != null) {
+        PluginManager().notifyProfilesLoaded(verifiedEid, profiles);
+      }
+      _queueVerifiedProfilePersistence(
+        profiles,
+        verifiedEid,
+        verifiedInfo2,
+        reader,
+      );
+      unawaited(_processNotificationsAfterVerifiedSwitch(reader));
     } catch (e) {
       if (isOmapiSessionCorruptedError(e)) {
-        _setSwitching(false);
+        // OMAPI is unusable until the device reboots, so offer no retry.
         _handleOperationError(reader, e);
-        return;
-      }
-      if (await _handleInvalidPassword(e)) {
-        _setSwitching(false);
-        await _toggleProfile(p, enable);
-        return;
-      }
-      final errorStr = e.toString();
-      final isConnectivity = _isSwitchConnectivityError(e);
-
-      if (errorStr.contains('ENABLE_FAILED:') ||
-          errorStr.contains('DISABLE_FAILED:')) {
-        _setSwitching(false); // Known failure from card
-        _showFailureModal(enable ? 'enable' : 'disable', errorStr);
-      } else if ((_isSwitching || commandSubmitted) && isConnectivity) {
-        // Card is likely refreshing/resetting. _listProfiles will handle the retries.
-        _log.info(
-          "Connectivity error during toggle ($errorStr). Delegating to _listProfiles retry loop...",
-        );
-        await _listProfiles(
-          expectSwitchedIccid: p.iccid,
-          expectedEnableState: enable,
-        );
+      } else if (await _handleInvalidPassword(e)) {
+        retryAfterPassword = true;
       } else {
-        _setSwitching(false);
-        _handleOperationError(
-          reader,
-          e,
-          onRetry: () => _toggleProfile(p, enable),
-        );
+        final errorStr = e.toString();
+        if (errorStr.contains('ENABLE_FAILED:') ||
+            errorStr.contains('DISABLE_FAILED:') ||
+            e is ProfileStateVerificationException) {
+          _showFailureModal(enable ? 'enable' : 'disable', errorStr);
+        } else {
+          _handleOperationError(
+            reader,
+            e,
+            onRetry: () => _toggleProfile(p, enable),
+          );
+        }
       }
     } finally {
+      _setSwitching(false);
+      if (switchGeneration == _profileSwitchGeneration) {
+        _profileSwitchGeneration++;
+      }
       if (mounted) {
+        _updateReaderSession(reader.id, (state) {
+          state.loading = false;
+          state.isListingProfiles = false;
+          state.isConnecting = false;
+          state.operationLoadingMessage = null;
+          state.togglingIccid = null;
+        });
         setState(() {
           _loading = false;
           _togglingIccid = null;
+          _operationLoadingMessage = null;
         });
+      }
+    }
+
+    if (retryAfterPassword && mounted) {
+      await _toggleProfile(p, enable);
+    }
+  }
+
+  Future<void> _persistVerifiedProfileState(
+    List<EuiccProfile> profiles,
+    String? eid,
+    EUICCInfo2? info2,
+    Reader reader,
+  ) async {
+    try {
+      await _saveMetadataAndIcons(
+        profiles,
+        eid,
+        info2,
+        reader,
+        showProgress: false,
+        allowInteractivePrompts: false,
+        refreshNotificationCount: false,
+        allowAfterDispose: true,
+      );
+    } catch (metadataError) {
+      _log.warning(
+        'Profile state was verified, but metadata persistence failed: '
+        '$metadataError',
+      );
+    }
+  }
+
+  void _queueVerifiedProfilePersistence(
+    List<EuiccProfile> profiles,
+    String? eid,
+    EUICCInfo2? info2,
+    Reader reader,
+  ) {
+    final previous = _profileMetadataPersistence;
+    _profileMetadataPersistence = () async {
+      try {
+        await previous;
+      } catch (error) {
+        _log.warning('Earlier profile metadata persistence failed: $error');
+      }
+      await _persistVerifiedProfileState(profiles, eid, info2, reader);
+    }();
+  }
+
+  Future<void> _processNotificationsAfterVerifiedSwitch(Reader reader) async {
+    try {
+      final settings = AppSettings();
+      if (!settings.notifProcessAfterSwitch ||
+          !settings.isAnyNotificationProcessingEnabled ||
+          !await ConnectivityService().checkConnectivity()) {
+        return;
+      }
+      if (!mounted || _selectedReader?.id != reader.id) return;
+
+      await _adapter.runExclusive(() async {
+        if (!mounted || _selectedReader?.id != reader.id) return;
+        await _adapter.connect(reader);
+        final channel = await _manager.openSession();
+        try {
+          await NotificationService().processPendingNotifications(
+            _manager,
+            channel,
+            readerName: reader.id,
+            autoSendInstall: settings.notifAutoSendInstall,
+            autoRemoveInstall: settings.notifAutoRemoveInstall,
+            autoSendEnable: settings.notifAutoSendEnable,
+            autoRemoveEnable: settings.notifAutoRemoveEnable,
+            deleteWithoutSendingEnable:
+                settings.notifDeleteWithoutSendingEnable,
+            autoSendDisable: settings.notifAutoSendDisable,
+            autoRemoveDisable: settings.notifAutoRemoveDisable,
+            deleteWithoutSendingDisable:
+                settings.notifDeleteWithoutSendingDisable,
+            autoSendDelete: settings.notifAutoSendDelete,
+            autoRemoveDelete: settings.notifAutoRemoveDelete,
+          );
+        } finally {
+          await channel.close();
+        }
+      });
+    } catch (error) {
+      _log.warning(
+        'Notification processing after verified switch failed: $error',
+      );
+    }
+  }
+
+  /// The reset bits offered by the purge dialog.
+  ///
+  /// Defaults mirror what a purge is normally expected to do: take everything
+  /// the card is willing to give up. lpac's fixed set leaves the provisioning
+  /// and pre-loaded test profiles behind, which on some cards is every profile
+  /// they have, so those are on by default here too.
+  static const List<({String key, String label, String detail})>
+  _purgeOptionRows = [
+    (
+      key: 'operational',
+      label: 'Operational profiles',
+      detail: 'Downloaded carrier profiles',
+    ),
+    (
+      key: 'fieldLoadedTest',
+      label: 'Field-loaded test profiles',
+      detail: 'Test profiles downloaded after issue',
+    ),
+    (
+      key: 'preLoadedTest',
+      label: 'Pre-loaded test profiles',
+      detail: 'Test profiles shipped on the card',
+    ),
+    (
+      key: 'provisioning',
+      label: 'Provisioning profiles',
+      detail: 'Bootstrap profiles shipped on the card',
+    ),
+    (
+      key: 'resetDefaultSmdp',
+      label: 'Reset default SM-DP+',
+      detail: 'Clears the configured default server',
+    ),
+  ];
+
+  /// Lets the operator choose which reset bits the purge asks for.
+  ///
+  /// Returns null when cancelled. Continue stays disabled while nothing is
+  /// ticked, because an empty BIT STRING is not a request the card can act on.
+  Future<Map<String, bool>?> _showPurgeOptionsDialog() {
+    final selected = {for (final o in _purgeOptionRows) o.key: true};
+    return showDialog<Map<String, bool>>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) {
+          final anySelected = selected.values.any((v) => v);
+          return AlertDialog(
+            title: const Text('Purge eUICC'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Text('Choose what the card should erase.'),
+                  ),
+                  for (final option in _purgeOptionRows)
+                    CheckboxListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      value: selected[option.key],
+                      title: Text(option.label),
+                      subtitle: Text(
+                        option.detail,
+                        style: Theme.of(ctx).textTheme.bodySmall,
+                      ),
+                      onChanged: (v) =>
+                          setLocal(() => selected[option.key] = v ?? false),
+                    ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text(AppLocalizations.of(ctx)!.cancel),
+              ),
+              TextButton(
+                onPressed: anySelected
+                    ? () => Navigator.of(ctx).pop(Map.of(selected))
+                    : null,
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(ctx).colorScheme.error,
+                ),
+                child: const Text('Purge'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// Developer-mode only: ES10c EuiccMemoryReset.
+  ///
+  /// Two confirmations, the second with its buttons swapped so the destructive
+  /// choice is not under the finger that just tapped confirm. Every profile on
+  /// the card goes, so the second dialog spells out the count and the EID.
+  Future<void> _purgeEuicc() async {
+    final reader = _selectedReader;
+    if (reader == null) return;
+    final profileCount = _profiles?.length ?? 0;
+
+    final options = await _showPurgeOptionsDialog();
+    if (options == null) return;
+    if (!mounted) return;
+
+    final chosen = _purgeOptionRows
+        .where((o) => options[o.key] ?? false)
+        .map((o) => o.label.toLowerCase())
+        .join('\n• ');
+    final secondConfirmed = await _showPremiumConfirmDialog(
+      title: "Purge eUICC — are you sure?",
+      message:
+          "Last chance. On ${_eid ?? reader.name} this erases "
+          "permanently:\n\n• $chosen\n\n"
+          "$profileCount profile(s) are currently installed. There is no way "
+          "to recover them.",
+      confirmLabel: "Erase everything",
+      isDestructive: true,
+      swapButtons: true,
+    );
+    if (secondConfirmed != true) return;
+    if (!mounted) return;
+
+    setState(() {
+      _operationLoadingMessage = "Purging eUICC...";
+      _error = null;
+    });
+
+    try {
+      await _adapter.runExclusive(() async {
+        await _adapter.connect(reader);
+        final channel = await _manager.openSession();
+        try {
+          final result = await _manager.resetEuiccMemory(
+            deleteOperationalProfiles: options['operational'] ?? false,
+            deleteFieldLoadedTestProfiles: options['fieldLoadedTest'] ?? false,
+            resetDefaultSmdpAddress: options['resetDefaultSmdp'] ?? false,
+            deletePreLoadedTestProfiles: options['preLoadedTest'] ?? false,
+            deleteProvisioningProfiles: options['provisioning'] ?? false,
+            useChannel: channel,
+          );
+          _log.warning("eUICC memory reset returned ${result.name}");
+
+          final profiles = await _fetchProfiles(channel, reader);
+          final (eid, info2) = await _fetchEuiccData(
+            channel,
+            reader,
+            force: true,
+          );
+          if (mounted && _selectedReader?.id == reader.id) {
+            await _saveMetadataAndIcons(profiles, eid, info2, reader);
+            _updateReaderState(
+              reader,
+              profiles: profiles,
+              eid: eid,
+              info2: info2,
+            );
+          }
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  result == EuiccMemoryResetResponse_resetResult.nothingToDelete
+                      ? "eUICC was already empty"
+                      : "eUICC purged",
+                ),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        } finally {
+          await channel.close();
+        }
+      });
+    } catch (e) {
+      _handleOperationError(reader, e, onRetry: _purgeEuicc);
+    } finally {
+      if (mounted) {
+        setState(() => _operationLoadingMessage = null);
       }
     }
   }
@@ -2430,7 +2842,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
         await _adapter.connect(reader);
         final channel = await _manager.openSession();
         try {
-          await _manager.deleteProfile(p.iccid, useChannel: channel);
+          await _manager.deleteProfile(p.rawIccid, useChannel: channel);
 
           if (mounted && _selectedReader?.id == reader.id) {
             setState(() {
@@ -2525,7 +2937,16 @@ class _ProfilesScreenState extends State<ProfilesScreen>
 
     if (!mounted) return;
 
-    final pluginActions = PluginManager().getProfileActions(context, profile);
+    final pluginActions = PluginManager().getProfileActions(
+      context,
+      profile,
+      actionContext: ReaderActionContext(
+        adapter: _adapter,
+        reader: _selectedReader,
+        profiles: _profiles,
+        manager: _manager,
+      ),
+    );
 
     final result = await AdaptiveContextMenu.show<String>(
       context: context,
@@ -2570,6 +2991,12 @@ class _ProfilesScreenState extends State<ProfilesScreen>
           icon: Icons.copy_outlined,
           value: 'copy_iccid',
         ),
+        if (profile.profileClass == 2)
+          AdaptiveContextMenuItem(
+            label: AppLocalizations.of(context)!.transferTitle,
+            icon: Icons.swap_horiz_rounded,
+            value: 'transfer',
+          ),
         AdaptiveContextMenuItem(
           label: AppLocalizations.of(context)!.delete,
           icon: Icons.delete_outline_rounded,
@@ -2592,7 +3019,37 @@ class _ProfilesScreenState extends State<ProfilesScreen>
     if (result == 'change_icon') _changeProfileIcon(profile);
     if (result == 'tags') _openTagManager(profile);
     if (result == 'copy_iccid') _copyIccid(profile);
+    if (result == 'transfer') await _handleTransfer(profile);
     if (result == 'delete') _deleteProfile(profile);
+  }
+
+  /// Launches the TS.43 carrier-managed transfer wizard for [profile] and
+  /// refreshes the profile list afterwards.
+  Future<void> _handleTransfer(EuiccProfile profile) async {
+    final reader = _selectedReader;
+    if (reader == null) return;
+    if (NotificationService().isProcessing.value) {
+      _showPremiumInfoDialog(
+        title: AppLocalizations.of(context)!.operationRestricted,
+        message: AppLocalizations.of(
+          context,
+        )!.notificationProcessingDownloadError,
+        isError: true,
+      );
+      return;
+    }
+    await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EsimTransferPage(
+          manager: _manager,
+          adapter: _adapter,
+          reader: reader,
+          profile: profile,
+        ),
+      ),
+    );
+    if (mounted) await _listProfiles();
   }
 
   void _copyIccid(EuiccProfile profile) {
@@ -2684,124 +3141,120 @@ class _ProfilesScreenState extends State<ProfilesScreen>
 
     if (!hasLpa && !hasSigning) return const SizedBox.shrink();
 
-    String title = hasLpa ? l10n.readyToInstallProfile : l10n.authorizeSigning;
-    IconData icon = hasLpa
-        ? Icons.auto_fix_high_rounded
+    final String title = hasLpa
+        ? l10n.readyToInstallProfile
+        : l10n.authorizeSigning;
+    final IconData icon = hasLpa
+        ? Icons.sim_card_download_rounded
         : Icons.security_rounded;
+
+    // Show where the request came from rather than the raw link. The SM-DP+
+    // address is what the user is being asked to trust; the matching ID is
+    // noise, and the full code only ever rendered as truncated mono text.
+    final String source = hasLpa
+        ? (ActivationCode.parse(_pendingDeepLinkCode!)?.smdpAddress ??
+              _pendingDeepLinkCode!)
+        : (_pendingSigningUri!.queryParameters['smdp'] ??
+              _pendingSigningUri!.host);
+
+    void dismiss() {
+      setState(() {
+        if (hasLpa) {
+          _pendingDeepLinkCode = null;
+          DeepLinkService().consumeCode();
+        }
+        if (hasSigning) {
+          _pendingSigningUri = null;
+          DeepLinkService().clearPendingSigning();
+        }
+      });
+    }
 
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
       decoration: AppTheme.bannerDecoration(context),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Icon(icon, color: theme.colorScheme.primary, size: 18),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: theme.colorScheme.primary, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                icon: Icon(
-                  Icons.close,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                  size: 14,
-                ),
-                onPressed: () {
-                  setState(() {
-                    if (hasLpa) {
-                      _pendingDeepLinkCode = null;
-                      DeepLinkService().consumeCode();
-                    }
-                    if (hasSigning) {
-                      _pendingSigningUri = null;
-                      DeepLinkService().clearPendingSigning();
-                    }
-                  });
-                },
-              ),
-            ],
-          ),
-          if (hasLpa)
-            Padding(
-              padding: const EdgeInsets.only(left: 26, right: 8, bottom: 4),
-              child: Text(
-                _pendingDeepLinkCode!,
-                style: AppTheme.mono(
-                  TextStyle(
-                    fontSize: 10,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          if (hasSigning)
-            Padding(
-              padding: const EdgeInsets.only(left: 26, right: 8, bottom: 4),
-              child: Text(
-                _pendingSigningUri!.queryParameters['smdp'] ??
-                    _pendingSigningUri!.host,
-                style: AppTheme.mono(
-                  TextStyle(
-                    fontSize: 10,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (_readers.isEmpty)
-                TextButton(
-                  onPressed: _refreshDeviceList,
-                  style: TextButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                  child: Text(
-                    l10n.refreshDevices,
-                    style: const TextStyle(fontSize: 11),
-                  ),
-                )
-              else
-                FilledButton(
-                  onPressed: hasLpa
-                      ? _handleDeepLinkDownload
-                      : _handlePendingSigning,
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    minimumSize: const Size(0, 28),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    hasLpa ? l10n.downloadHere : l10n.sign,
-                    style: const TextStyle(
+                const SizedBox(height: 2),
+                Text(
+                  source,
+                  style: AppTheme.mono(
+                    TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-            ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          if (_readers.isEmpty)
+            TextButton(
+              onPressed: _refreshDeviceList,
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                minimumSize: const Size(0, 34),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+              ),
+              child: Text(
+                l10n.refreshDevices,
+                style: const TextStyle(fontSize: 12),
+              ),
+            )
+          else
+            FilledButton(
+              onPressed: hasLpa
+                  ? _handleDeepLinkDownload
+                  : _handlePendingSigning,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                minimumSize: const Size(0, 34),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                hasLpa ? l10n.downloadHere : l10n.sign,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            iconSize: 18,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+            icon: const Icon(Icons.close_rounded),
+            onPressed: dismiss,
           ),
         ],
       ),
@@ -2996,6 +3449,11 @@ class _ProfilesScreenState extends State<ProfilesScreen>
           icon: Icons.layers_outlined,
           value: 'batch',
         ),
+        AdaptiveContextMenuItem(
+          label: AppLocalizations.of(context)!.discoverProfiles,
+          icon: Icons.travel_explore_rounded,
+          value: 'discovery',
+        ),
       ],
     );
 
@@ -3013,7 +3471,107 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       );
 
       await _listProfiles();
+    } else if (result == 'discovery') {
+      await _handleDiscovery();
     }
+  }
+
+  /// Runs SM-DS (ES11) discovery on the selected reader, lets the user pick a
+  /// pending profile, then downloads it through the normal download flow.
+  Future<void> _handleDiscovery() async {
+    final reader = _selectedReader;
+    if (reader == null) return;
+
+    final l10n = AppLocalizations.of(context)!;
+    // Progress dialog while we talk to the card + SM-DS.
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        content: Row(
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(width: 20),
+            Expanded(child: Text(l10n.discoveringProfiles)),
+          ],
+        ),
+      ),
+    );
+
+    List<DiscoveredEvent> events;
+    try {
+      final imei = await AppSettings().getImei();
+      final service = SmdsDiscoveryService(
+        manager: _manager,
+        adapter: _adapter,
+        reader: reader,
+      );
+      events = await service.discover(
+        smdsAddress: kRootSmdsAddress,
+        imei: imei,
+      );
+    } catch (e) {
+      if (mounted) Navigator.pop(context); // dismiss progress
+      if (mounted) {
+        _showPremiumInfoDialog(
+          title: l10n.transferTitle,
+          message: l10n.transferFailed(e.toString()),
+          isError: true,
+        );
+      }
+      return;
+    }
+    if (mounted) Navigator.pop(context); // dismiss progress
+    if (!mounted) return;
+
+    if (events.isEmpty) {
+      _showPremiumInfoDialog(
+        title: l10n.discoverProfiles,
+        message: l10n.discoveryNoProfiles,
+        isError: false,
+      );
+      return;
+    }
+
+    final chosen = events.length == 1
+        ? events.first
+        : await _selectDiscoveredEvent(events);
+    if (chosen == null || !mounted) return;
+
+    final success = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DownloadProfilePage(
+          profileManager: _manager,
+          adapter: _adapter,
+          reader: reader,
+          initialCode: chosen.activationCode,
+          autoStart: true,
+        ),
+      ),
+    );
+    if (success == true) {
+      await _listProfiles();
+    }
+  }
+
+  Future<DiscoveredEvent?> _selectDiscoveredEvent(
+    List<DiscoveredEvent> events,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    return showDialog<DiscoveredEvent>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(l10n.transferSelectProfile),
+        children: [
+          for (final e in events)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, e),
+              child: Text(l10n.transferProfileOnServer(e.eventId, e.address)),
+            ),
+        ],
+      ),
+    );
   }
 
   void _showProfileDetails(EuiccProfile profile) {
@@ -3860,6 +4418,16 @@ class _ProfilesScreenState extends State<ProfilesScreen>
         icon: Icons.copy,
         value: 'copy',
       ),
+      // Developer-mode only: this erases every profile on the card. Kept out
+      // of the localised strings for the same reason as "NXP memory Info" --
+      // it is a debugging affordance, not a shipped feature.
+      if (AppSettings().developerModeEnabled)
+        AdaptiveContextMenuItem(
+          label: "Purge eUICC",
+          icon: Icons.delete_forever,
+          value: 'purge',
+          isDestructive: true,
+        ),
       ...PluginManager()
           .getEidActions(context, _eid, aid: _selectedReader?.aid)
           .map(
@@ -3895,6 +4463,13 @@ class _ProfilesScreenState extends State<ProfilesScreen>
       }
     }
 
+    // Exclusive with the plugin/extra dispatch below, and returning here keeps
+    // the awaited purge from putting an async gap in front of their context use.
+    if (result == 'purge') {
+      await _purgeEuicc();
+      return;
+    }
+
     if (result?.startsWith('plugin_') ?? false) {
       final label = result!.substring(7);
       final actions = PluginManager().getEidActions(
@@ -3916,7 +4491,7 @@ class _ProfilesScreenState extends State<ProfilesScreen>
 
   void _showEuiccInfoDialog() {
     if (_info2 == null) return;
-    EuiccInfoDialog.show(context, _info2!);
+    EuiccInfoDialog.show(context, _info2!, configured: _configuredData);
   }
 
   void _showNxpInfoDialog() {
@@ -4521,12 +5096,9 @@ class _ProfilesScreenState extends State<ProfilesScreen>
                         : null,
                     extraActions: _selectedReader == null
                         ? []
-                        : _readerActionsCache.putIfAbsent(
-                            _selectedReader!.id,
-                            () => PluginManager().buildReaderActions(
-                              context,
-                              actionContext,
-                            ),
+                        : PluginManager().buildReaderActions(
+                            context,
+                            actionContext,
                           ),
                     onRefreshNotifications: _loadPendingNotificationCount,
                   ),
@@ -4661,6 +5233,35 @@ class _ProfilesScreenState extends State<ProfilesScreen>
                           ],
                         ),
                       ),
+                    ),
+                  // Developer-only: leaving developer mode hides the console
+                  // again even if it was switched on while in it.
+                  if (AppSettings().developerModeEnabled &&
+                      AppSettings().showLogConsole)
+                    Builder(
+                      builder: (context) {
+                        final maxConsole = (constraints.maxHeight - 140).clamp(
+                          120.0,
+                          double.infinity,
+                        );
+                        final height = _consoleHeight.clamp(120.0, maxConsole);
+                        return SizedBox(
+                          height: height,
+                          child: LogConsole(
+                            onClose: () async {
+                              await AppSettings().setShowLogConsole(false);
+                              if (mounted) setState(() {});
+                            },
+                            onResize: (dy) => setState(() {
+                              // Dragging the handle up grows the console.
+                              _consoleHeight = (height - dy).clamp(
+                                120.0,
+                                maxConsole,
+                              );
+                            }),
+                          ),
+                        );
+                      },
                     ),
                 ],
               ),

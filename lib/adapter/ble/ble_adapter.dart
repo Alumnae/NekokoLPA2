@@ -1,3 +1,4 @@
+
 /// Marker shared by every adapter that communicates over Bluetooth LE.
 abstract interface class BleAdapter {}
 

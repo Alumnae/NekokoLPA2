@@ -9,879 +9,919 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get settingsTitle => 'Settings';
+  String get settingsTitle => 'Настройки';
 
   @override
-  String get displaySettings => 'Display Settings';
+  String get displaySettings => 'Настройки отображения';
 
   @override
-  String get appearance => 'Appearance';
+  String get appearance => 'Оформление';
 
   @override
-  String get appearanceSubtitle =>
-      'Customize theme, layout, and display preferences';
+  String get appearanceSubtitle => 'Настройка темы, макета и отображения';
 
   @override
-  String get darkMode => 'Dark Mode';
+  String get darkMode => 'Тёмный режим';
 
   @override
-  String get themeStyle => 'Theme Style';
+  String get themeStyle => 'Стиль темы';
 
   @override
-  String get themeStyleSubtitle => 'Choose between Custom and MD3 style';
+  String get themeStyleSubtitle =>
+      'Выберите между пользовательским и MD3 стилем';
 
   @override
-  String get customDesign => 'Nekoko Style';
+  String get customDesign => 'Стиль Nekoko';
 
   @override
-  String get stockMD3 => 'Stock MD3';
+  String get stockMD3 => 'Стоковый MD3';
 
   @override
-  String get waterfallLayout => 'Waterfall Layout';
+  String get waterfallLayout => 'Макет Водопад';
 
   @override
   String get waterfallLayoutSubtitle =>
-      'Use Masonry style layout on wide screens';
+      'Использовать стиль макета Masonry на широких экранах';
 
   @override
-  String get system => 'System';
+  String get system => 'Система';
 
   @override
-  String get light => 'Light';
+  String get light => 'Светлый';
 
   @override
-  String get dark => 'Dark';
+  String get dark => 'Тёмный';
 
   @override
-  String get language => 'Language';
+  String get language => 'Язык';
 
   @override
-  String get systemLanguage => 'System Language';
+  String get systemLanguage => 'Системный язык';
 
   @override
-  String get general => 'General';
+  String get general => 'Общее';
 
   @override
-  String get ui => 'UI';
+  String get ui => 'Интерфейс';
 
   @override
-  String get autoLoadProfiles => 'Auto-load Profiles';
+  String get autoLoadProfiles => 'Автозагрузка профилей';
 
   @override
   String get autoLoadProfilesSubtitle =>
-      'Load profiles when reader is selected';
+      'Загружать профили автоматически при выборе считывателя';
 
   @override
-  String get loadProfileIcons => 'Load Profile Icons';
+  String get loadProfileIcons => 'Загружать иконки профилей';
 
   @override
   String get loadProfileIconsSubtitle =>
-      'Fetch profile icons from eUICC (slower)';
+      'Получать значки профилей из eUICC (медленнее)';
 
   @override
-  String get useNekokoIcons => 'Use Operator Icons';
+  String get useNekokoIcons => 'Использовать иконки операторов';
 
   @override
-  String get useNekokoIconsSubtitle =>
-      'Fetch carrier icons from operator-icons';
+  String get useNekokoIconsSubtitle => 'Загрузить иконки операторов';
 
   @override
-  String get forceDeviceDropdown => 'Force Device Dropdown';
+  String get forceDeviceDropdown => 'Принудительный выпадающий список';
 
   @override
   String get forceDeviceDropdownSubtitle =>
-      'Always use dropdown for device selection';
+      'Всегда использовать выпадающий список для выбора устройства';
 
   @override
-  String get sizeDisplayUnit => 'Size Display Unit';
+  String get sizeDisplayUnit => 'Единицы измерения размера';
 
   @override
-  String get sizeDisplayUnitSubtitle => 'Unit format for storage size display';
+  String get sizeDisplayUnitSubtitle => 'Единицы измерения размера хранилища';
 
   @override
-  String get phoneFormat => 'Phone Number Format';
+  String get phoneFormat => 'Формат номера телефона';
 
   @override
-  String get phoneFormatSubtitle => 'Format for displaying phone numbers';
+  String get phoneFormatSubtitle => 'Формат отображения телефонных номеров';
 
   @override
-  String get notifications => 'Notifications';
+  String get notifications => 'Уведомления';
 
   @override
-  String get notificationSettings => 'Notification Settings';
+  String get notificationSettings => 'Параметры уведомлений';
 
   @override
   String get notificationSettingsSubtitle =>
-      'Configure automatic processing and removal';
+      'Настройка автоматической обработки и удаления';
 
   @override
-  String get notificationHistory => 'Notification History';
+  String get notificationHistory => 'История уведомлений';
 
   @override
   String get notificationHistorySubtitle =>
-      'Find, manage and resend sent notifications';
+      'Найти, управлять и повторно отправить отправленные уведомления';
 
   @override
-  String get tagsAndReminders => 'Tags & Reminders';
+  String get tagsAndReminders => 'Теги и напоминания';
 
   @override
-  String get tagManager => 'Tag Manager';
+  String get tagManager => 'Менеджер тегов';
 
   @override
-  String get tagManagerSubtitle => 'Create and edit profile tags';
+  String get tagManagerSubtitle => 'Создать и редактировать теги профиля';
 
   @override
-  String get tagReminders => 'Tag Reminders';
+  String get tagReminders => 'Напоминания о тегах';
 
   @override
   String get tagRemindersSubtitle =>
-      'Scheduled notifications based on date tags';
+      'Запланированные уведомления, основанные на тегах даты';
 
   @override
-  String get manageTagsAndReminders => 'Manage Tags & Reminders';
+  String get manageTagsAndReminders => 'Управление тегами и напоминаниями';
 
   @override
   String get manageTagsAndRemindersSubtitle =>
-      'Configure tags, permissions, and test alerts';
+      'Настройка меток, прав доступа и оповещений';
 
   @override
-  String get viewScheduledReminders => 'View Scheduled Reminders';
+  String get viewScheduledReminders => 'Просмотр запланированных напоминаний';
 
   @override
   String get viewScheduledRemindersSubtitle =>
-      'Manage your upcoming tag-based notifications';
+      'Управление предстоящими уведомлениями на основе тегов';
 
   @override
-  String get connectivity => 'Connectivity';
+  String get connectivity => 'Соединение';
 
   @override
-  String get remoteReaders => 'Remote Readers';
+  String get remoteReaders => 'Удаленные ридеры';
 
   @override
-  String get remoteReadersSubtitle => 'Configure RemoCard companion apps';
+  String get remoteReadersSubtitle => 'Приложение RemoCard';
 
   @override
-  String get enableBle => 'Bluetooth Connector';
+  String get enableBle => 'Bluetooth-ридер';
 
   @override
   String get enableBleSubtitle =>
-      'Enable scanning and connecting to Bluetooth readers';
+      'Включить сканирование и подключение к Bluetooth-ридерам';
 
   @override
-  String get enableCcid => 'USB CCID Connector';
+  String get enableCcid => 'USB CCID ридер';
 
   @override
-  String get enableCcidSubtitle => 'Enable USB smart card readers (CCID)';
+  String get enableCcidSubtitle => 'Включить USB кард ридер (CCID)';
 
   @override
-  String get enableOmapi => 'OMAPI Connector';
+  String get enableOmapi => 'OMAPI считыватель';
 
   @override
-  String get enableOmapiSubtitle =>
-      'Enable Open Mobile API functionality for OMAPI-based eUICC management.';
+  String get enableOmapiSubtitle => 'Включить Open Mobile API.';
 
   @override
-  String get enableTmapi => 'Telephony API Connector';
+  String get enableTmapi => 'Tmapi считыватель';
 
   @override
   String get enableTmapiSubtitle =>
-      'Enable Telephony API functionality for SIM-based eUICC management.';
+      'Включить Telephony API для управления eUICC.';
 
   @override
-  String get readerTypes => 'Reader Types';
+  String get readerTypes => 'Типы считывателей';
 
   @override
   String get readerTypesSubtitle =>
-      'Manage enabled reader types (CCID, Bluetooth, Remote, etc.)';
+      'Управление включенными типами считывателя (CCID, Bluetooth, Remote, и т. д.)';
 
   @override
-  String get enabledReaderTypes => 'Enabled Reader Types';
+  String get enabledReaderTypes => 'Разрешенные типы считывателей';
 
   @override
   String get enabledReaderTypesSubtitle =>
-      'Control which types of readers are available in the app';
+      'Управление доступными в приложении типами считывателей';
 
   @override
-  String get remoteReaderSettings => 'Remote Reader Settings';
+  String get remoteReaderSettings => 'Настройки удаленных кард ридеров';
 
   @override
   String get remoteReaderSettingsSubtitle =>
-      'Configure remote reader servers and connections';
+      'Настройка удаленных серверов и подключений';
 
   @override
   String get ccidReaderTitle => 'CCID (USB/PC/SC)';
 
   @override
-  String get ccidReaderSubtitle => 'USB smart card readers and PC/SC devices';
+  String get ccidReaderSubtitle =>
+      'USB смарт-карты считыватели и PC/SC устройства';
 
   @override
   String get bluetoothReaderTitle => 'Bluetooth';
 
   @override
-  String get bluetoothReaderSubtitle =>
-      'Bluetooth LE smart card readers and writers';
+  String get bluetoothReaderSubtitle => 'Bluetooth LE кард ридеры';
 
   @override
-  String get remoteReadersTitle => 'Remote Readers';
+  String get remoteReadersTitle => 'Удаленные считыватели';
 
   @override
-  String get remoteReadersConnectorSubtitle =>
-      'Network-connected remote smart card readers';
+  String get remoteReadersConnectorSubtitle => 'Удаленные считыватели по сети';
 
   @override
   String get omapiReaderTitle => 'OMAPI';
 
   @override
   String get omapiReaderSubtitle =>
-      'Built-in SIM card slots via Open Mobile API';
+      'Встроенные слоты SIM-карты через Open Mobile API';
 
   @override
   String get tmapiReaderTitle => 'Telephony API';
 
   @override
-  String get tmapiReaderSubtitle => 'Built-in SIM card slots via Telephony API';
+  String get tmapiReaderSubtitle =>
+      'Встроенные слоты SIM-карт через Telephony API';
 
   @override
-  String get remoteServerConfiguration => 'Remote Server Configuration';
+  String get remoteServerConfiguration => 'Настройка удалённого сервера';
 
   @override
   String get remoteServerConfigurationSubtitle =>
-      'Manage remote reader servers and connection settings';
+      'Управление удалёнными серверами считывателей и параметрами подключения';
 
   @override
-  String get enableBrowser => 'Enable Browser';
+  String get enableBrowser => 'Включить браузер';
 
   @override
   String get enableBrowserSubtitle =>
-      'Show additional browser tabs like Store, Buy, or Help';
+      'Показывать дополнительные вкладки: Магазин, Покупка, Помощь';
 
   @override
-  String get transport => 'Transport';
+  String get transport => 'Передача данных';
 
   @override
-  String get disableRefreshFlags => 'Disable Refresh Flags';
+  String get disableRefreshFlags => 'Отключить флаги обновления';
 
   @override
   String get disableRefreshFlagsSubtitle =>
-      'This will not apply to external readers';
+      'Не применяется к внешним считывателям';
 
   @override
-  String get apduMaxSegmentSize => 'APDU Max Segment Size';
+  String get apduMaxSegmentSize => 'Максимальный размер сегмента APDU';
 
   @override
-  String get apduMaxSegmentSizeSubtitle => 'Maximum data size per APDU chunk';
+  String get apduMaxSegmentSizeSubtitle =>
+      'Максимальный объём данных в одном фрагменте APDU';
 
   @override
-  String get ensureSingleChannel => 'Ensure Single Channel';
+  String get ensureSingleChannel => 'Только один логический канал';
 
   @override
   String get ensureSingleChannelSubtitle =>
-      'Close other logical channels before opening a new one';
+      'Закрывать другие логические каналы перед открытием нового';
 
   @override
-  String get analytics => 'Analytics & Cloud Services';
+  String get analytics => 'Аналитика и облачные сервисы';
 
   @override
   String get nekokoCloud => 'Nekoko Cloud';
 
   @override
   String get nekokoCloudSubtitle =>
-      'Analyze installation data for better prediction';
+      'Анализ данных об установке для более точного прогноза';
 
   @override
-  String get developer => 'Developer';
+  String get developer => 'Разработчик';
 
   @override
-  String get developerMode => 'Developer Mode';
+  String get developerMode => 'Режим разработчика';
 
   @override
-  String get developerModeSubtitle => 'Enable advanced debugging features';
+  String get developerModeSubtitle => 'Включить расширенные средства отладки';
 
   @override
-  String get exportDatabase => 'Export Database';
+  String get exportDatabase => 'Экспорт базы данных';
 
   @override
   String get exportDatabaseSubtitle =>
-      'Save a copy of your application database to external storage.';
+      'Сохранить копию базы данных приложения во внешнее хранилище.';
 
   @override
-  String get openDatabaseFolder => 'Open Database Folder';
+  String get openDatabaseFolder => 'Открыть папку базы данных';
 
   @override
   String get openDatabaseFolderSubtitle =>
-      'Reveal local storage folder in explorer';
+      'Показать папку локального хранилища в проводнике';
 
   @override
-  String get decodeAsn1 => 'Decode ASN.1 Logs (Slow)';
+  String get decodeAsn1 => 'Декодировать журналы ASN.1 (медленно)';
 
   @override
-  String get decodeAsn1Subtitle => 'Heavily impacts performance';
+  String get decodeAsn1Subtitle => 'Существенно снижает производительность';
 
   @override
-  String get viewAppLogs => 'View App Logs';
+  String get viewAppLogs => 'Просмотр журналов приложения';
 
   @override
-  String get viewAppLogsSubtitle => 'View collected application logs';
+  String get viewAppLogsSubtitle => 'Просмотр собранных журналов приложения';
 
   @override
-  String get about => 'About';
+  String get about => 'О приложении';
 
   @override
-  String get version => 'Version';
+  String get version => 'Версия';
 
   @override
-  String get build => 'Build';
+  String get build => 'Сборка';
 
   @override
-  String get checkUpdates => 'Check for Updates';
+  String get checkUpdates => 'Проверять обновления';
 
   @override
   String get checkUpdatesSubtitle =>
-      'Automatically check for new versions on startup';
+      'Автоматически проверять новые версии при запуске';
 
   @override
-  String get licenses => 'Open Source Licenses';
+  String get licenses => 'Лицензии открытого ПО';
 
   @override
   String get licensesSubtitle =>
-      'License information for open source libraries used';
+      'Сведения о лицензиях используемых библиотек с открытым исходным кодом';
 
   @override
-  String get noUpdatesFound => 'No updates found';
+  String get noUpdatesFound => 'Обновлений не найдено';
 
   @override
-  String get profilesTitle => 'Profiles';
+  String get profilesTitle => 'Профили';
 
   @override
-  String get switchEstkSlot => 'Switch eSTK Slot';
+  String get switchEstkSlot => 'Переключить слот eSTK';
 
   @override
-  String get notificationsButton => 'Notifications';
+  String get notificationsButton => 'Уведомления';
 
   @override
-  String get downloadProfile => 'Download Profile';
+  String get downloadProfile => 'Загрузить профиль';
 
   @override
-  String get reconnect => 'Reconnect';
+  String get reconnect => 'Переподключить';
 
   @override
-  String get bluetoothNotConnected => 'Bluetooth Not Connected';
+  String get bluetoothNotConnected => 'Bluetooth не подключён';
 
   @override
   String get bluetoothNotConnectedSubtitle =>
-      'Ensure Bluetooth is enabled and the device is nearby. Tap Connect to start using this device.';
+      'Убедитесь, что Bluetooth включён и устройство находится рядом. Нажмите «Подключить», чтобы начать работу с этим устройством.';
 
   @override
-  String get bluetoothConnectionFailed => 'Bluetooth Connection Failed';
+  String get bluetoothConnectionFailed =>
+      'Не удалось подключиться по Bluetooth';
 
   @override
   String bluetoothConnectionFailedSubtitle(Object error) {
-    return 'Failed to connect to Bluetooth device.\n\n$error';
+    return 'Не удалось подключиться к устройству Bluetooth.\n\n$error';
   }
 
   @override
-  String get removeDevice => 'Remove Device';
+  String get removeDevice => 'Удалить устройство';
 
   @override
-  String get retryConnection => 'Connect';
+  String get retryConnection => 'Подключить';
 
   @override
-  String get remoteConnectionFailed => 'Remote Reader Connection Failed';
+  String get remoteConnectionFailed =>
+      'Не удалось подключиться к удалённому считывателю';
 
   @override
   String remoteConnectionFailedMessage(Object error) {
-    return 'Ensure the remote server is running and accessible.\n\n$error';
+    return 'Убедитесь, что удалённый сервер запущен и доступен.\n\n$error';
   }
 
   @override
   String get errorBluetoothTimeout =>
-      'Bluetooth operation timed out. Please try again.';
+      'Истекло время ожидания операции Bluetooth. Повторите попытку.';
 
   @override
   String get errorOmapiSecurity =>
-      'Security error: Access to the card was denied by the OS or ARA-M rules.';
+      'Ошибка безопасности: доступ к карте запрещён операционной системой или правилами ARA-M.';
 
   @override
   String get errorApplicationNotFound =>
-      'eUICC management application (ISD-R) not found. This card may not be a valid eUICC.';
+      'Управляющее приложение eUICC (ISD-R) не найдено. Возможно, эта карта не является eUICC.';
 
   @override
-  String get changeSettings => 'Change Settings';
+  String get changeSettings => 'Изменить настройки';
 
   @override
-  String get connectCompatibleReader => 'Connect a compatible reader to start.';
+  String get connectCompatibleReader =>
+      'Подключите совместимый считыватель, чтобы начать.';
 
   @override
   String get connectReaderMessageBle =>
-      'You can also scan for compatible Bluetooth devices if you have a Bluetooth-enabled eUICC.';
+      'Также можно выполнить поиск совместимых устройств Bluetooth, если у вас есть eUICC с поддержкой Bluetooth.';
 
   @override
   String get connectReaderMessageNoBle =>
-      'Ensure your CCID reader is connected to your computer.';
+      'Убедитесь, что считыватель CCID подключён к компьютеру.';
 
   @override
-  String get downloadSmartCardExtension => 'Download Smart Card Extension';
+  String get downloadSmartCardExtension =>
+      'Загрузить расширение для смарт-карт';
 
   @override
   String get smartCardExtensionMessage =>
-      'The extension is required to access USB CCID readers in this browser.';
+      'Расширение необходимо для доступа к USB-считывателям CCID в этом браузере.';
 
   @override
-  String get scanForBluetooth => 'Scan for Bluetooth';
+  String get scanForBluetooth => 'Искать по Bluetooth';
 
   @override
-  String get connectRemote => 'Connect Remote';
+  String get connectRemote => 'Подключить удалённый';
 
   @override
-  String get noCardDetected => 'No Card Detected';
+  String get noCardDetected => 'Карта не обнаружена';
 
   @override
   String get noCardDetectedMessage =>
-      'No unsupported or active eUICC found in this slot.';
+      'В этом слоте не найдено активной или поддерживаемой eUICC.';
 
   @override
-  String get noDataLoaded => 'Not connected';
+  String get noDataLoaded => 'Не подключено';
 
   @override
-  String get loadProfiles => 'Connect';
+  String get loadProfiles => 'Подключить';
 
   @override
-  String get disconnect => 'Disconnect';
+  String get disconnect => 'Отключить';
 
   @override
-  String get disconnecting => 'Disconnecting...';
+  String get disconnecting => 'Отключение…';
 
   @override
-  String get profilesEmpty => 'No Profiles on Card';
+  String get profilesEmpty => 'На карте нет профилей';
 
   @override
-  String get profilesEmptyMessage => 'This eUICC card is empty.';
+  String get profilesEmptyMessage => 'Эта карта eUICC пуста.';
 
   @override
-  String get renameProfile => 'Rename Profile';
+  String get renameProfile => 'Переименовать профиль';
 
   @override
-  String get nickname => 'Nickname';
+  String get nickname => 'Имя';
 
   @override
-  String get enterProfileNickname => 'Enter profile nickname';
+  String get enterProfileNickname => 'Введите имя профиля';
 
   @override
   String get profileNicknameNote =>
-      'Note: Tags are managed separately via the \'Manage Tags\' menu.';
+      'Примечание: метки настраиваются отдельно в меню «Управление метками».';
 
   @override
-  String get useProfileIcon => 'Use Profile Icon';
+  String get useProfileIcon => 'Использовать значок профиля';
 
   @override
-  String get useProfileIconSubtitle => 'Icon from eSIM card';
+  String get useProfileIconSubtitle => 'Значок с карты eSIM';
 
   @override
-  String get removeCustomIcon => 'Remove Custom Icon';
+  String get removeCustomIcon => 'Удалить свой значок';
 
   @override
-  String get noRemoteIcon => 'No remote icon available for this operator';
+  String get noRemoteIcon => 'Для этого оператора нет доступного значка';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'Отмена';
 
   @override
-  String get ok => 'OK';
+  String get ok => 'ОК';
 
   @override
-  String get save => 'Save';
+  String get save => 'Сохранить';
 
   @override
-  String get delete => 'Delete';
+  String get delete => 'Удалить';
 
   @override
-  String get refresh => 'Refresh';
+  String get refresh => 'Обновить';
 
   @override
-  String get initializing => 'Initializing...';
+  String get initializing => 'Инициализация…';
 
   @override
-  String get refreshingProfiles => 'Refreshing profiles...';
+  String get refreshingProfiles => 'Обновление профилей…';
 
   @override
-  String get retrievingEid => 'Retrieving EID and Info...';
+  String get retrievingEid => 'Получение EID и сведений…';
 
   @override
-  String get updatingProfile => 'Updating profile...';
+  String get updatingProfile => 'Обновление профиля…';
 
   @override
-  String get manageIsdR => 'Manage ISD-R AIDs';
+  String get manageIsdR => 'Управление AID для ISD-R';
 
   @override
   String get manageIsdRSubtitle =>
-      'Configure default Application IDs for eUICC';
+      'Настройка идентификаторов приложений по умолчанию для eUICC';
 
   @override
-  String get transportFailed => 'Transport Failed';
+  String get transportFailed => 'Сбой передачи данных';
 
   @override
   String get remoteTransportFailedMessage =>
-      'Connected to remote server, but the command failed. This usually means the remote device is momentarily busy or disconnected from the card. Would you like to retry?';
+      'Подключение к удалённому серверу установлено, но команда не выполнена. Обычно это означает, что удалённое устройство временно занято или потеряло связь с картой. Повторить попытку?';
 
   @override
-  String get retry => 'Retry';
+  String get retry => 'Повторить';
 
   @override
-  String get scanningForReaders => 'Scanning for readers...';
+  String get scanningForReaders => 'Поиск считывателей…';
 
   @override
-  String get switchedEstkSlot => 'Switched eSTK Slot';
+  String get switchedEstkSlot => 'Слот eSTK переключён';
 
   @override
-  String get scanningForUnresponsiveDevices =>
-      'Scanning for unresponsive devices...';
+  String get scanningForUnresponsiveDevices => 'Поиск не отвечающих устройств…';
 
   @override
-  String get resettingConnection => 'Resetting connection...';
+  String get resettingConnection => 'Сброс подключения…';
 
   @override
-  String get connectingToReader => 'Connecting to reader...';
+  String get connectingToReader => 'Подключение к считывателю…';
 
   @override
-  String get moreOptions => 'More options';
+  String get waitingForBluetooth => 'Waiting for Bluetooth to turn on...';
 
   @override
-  String get retrievingProfiles => 'Retrieving profiles...';
+  String get connectingOverBluetooth => 'Connecting over Bluetooth...';
 
   @override
-  String get savingProfileMetadata => 'Saving profile metadata...';
+  String connectingOverBluetoothAttempt(int attempt, int total) {
+    return 'Connecting over Bluetooth (attempt $attempt of $total)...';
+  }
 
   @override
-  String get enablingProfile => 'Enabling profile...';
+  String get discoveringReaderServices => 'Discovering reader services...';
 
   @override
-  String get disablingProfile => 'Disabling profile...';
+  String get settingUpBluetoothLink => 'Setting up the Bluetooth link...';
 
   @override
-  String get deleteProfile => 'Delete Profile';
+  String get authenticatingWithReader => 'Authenticating with the reader...';
+
+  @override
+  String get initializingReader => 'Initializing the reader...';
+
+  @override
+  String get switchingReaderToEuiccMode =>
+      'Switching the reader to eUICC mode...';
+
+  @override
+  String get waitingForReaderRestart => 'Waiting for the reader to restart...';
+
+  @override
+  String get moreOptions => 'Дополнительно';
+
+  @override
+  String get retrievingProfiles => 'Получение профилей…';
+
+  @override
+  String get savingProfileMetadata => 'Сохранение метаданных профиля…';
+
+  @override
+  String get enablingProfile => 'Включение профиля…';
+
+  @override
+  String get disablingProfile => 'Отключение профиля…';
+
+  @override
+  String get deleteProfile => 'Удалить профиль';
 
   @override
   String deleteProfileConfirmation(Object profileName) {
-    return 'Are you sure you want to delete profile $profileName?\nThis action cannot be undone.';
+    return 'Удалить профиль $profileName?\nЭто действие нельзя отменить.';
   }
 
   @override
-  String get deletingProfile => 'Deleting profile...';
+  String get deletingProfile => 'Удаление профиля…';
 
   @override
-  String get deleting => 'Deleting...';
+  String get deleting => 'Удаление…';
 
   @override
-  String get dataUsage => 'Data Usage';
+  String get dataUsage => 'Использование трафика';
 
   @override
-  String get details => 'Details';
+  String get details => 'Подробности';
 
   @override
-  String get rename => 'Rename';
+  String get rename => 'Переименовать';
 
   @override
-  String get changeIcon => 'Change Icon';
+  String get changeIcon => 'Изменить значок';
 
   @override
-  String get manageTags => 'Manage Tags';
+  String get manageTags => 'Управление метками';
 
   @override
-  String get copyIccid => 'Copy ICCID';
+  String get copyIccid => 'Копировать ICCID';
 
   @override
   String get notificationProcessingError =>
-      'Cannot perform operations while notifications are processing';
+      'Операции недоступны, пока обрабатываются уведомления';
 
   @override
-  String get operationInProgressError => 'Operation in progress, please wait';
+  String get operationInProgressError => 'Операция выполняется, подождите';
 
   @override
   String iccidCopied(Object iccid) {
-    return 'ICCID copied: $iccid';
+    return 'ICCID скопирован: $iccid';
   }
 
   @override
-  String get operationRestricted => 'Operation Restricted';
+  String get operationRestricted => 'Операция недоступна';
 
   @override
   String get notificationProcessingDownloadError =>
-      'Notifications are still being processed. Please wait until completion before downloading new profiles.';
+      'Уведомления ещё обрабатываются. Дождитесь завершения, прежде чем загружать новые профили.';
 
   @override
-  String get operational => 'Operational';
+  String get operational => 'Рабочий';
 
   @override
-  String get test => 'Test';
+  String get test => 'Тестовый';
 
   @override
-  String get provisioning => 'Provisioning';
+  String get provisioning => 'Инициализационный';
 
   @override
-  String get profileDetails => 'Profile Details';
+  String get profileDetails => 'Сведения о профиле';
 
   @override
-  String get profileDetailsSubtitle =>
-      'Information from the eUICC for this profile slot.';
+  String get profileDetailsSubtitle => 'Данные eUICC для этого слота профиля.';
 
   @override
-  String get enabled => 'Enabled';
+  String get enabled => 'Включён';
 
   @override
-  String get disabled => 'Disabled';
+  String get disabled => 'Отключён';
 
   @override
   String get tagsManagedSeparately =>
-      'Note: Tags are managed separately via the \'Manage Tags\' menu.';
+      'Примечание: метки настраиваются отдельно в меню «Управление метками».';
 
   @override
-  String get changeProfileIcon => 'Change Profile Icon';
+  String get changeProfileIcon => 'Изменить значок профиля';
 
   @override
-  String get selectFromGallery => 'Select from Gallery';
+  String get selectFromGallery => 'Выбрать из галереи';
 
   @override
-  String get nekokoOperatorIcon => 'Operator icon';
+  String get nekokoOperatorIcon => 'Значок оператора';
 
   @override
-  String get iconFromEsim => 'Icon from eSIM card';
+  String get iconFromEsim => 'Значок с карты eSIM';
 
   @override
   String updateIconFailed(Object error) {
-    return 'Failed to update icon: $error';
+    return 'Не удалось обновить значок: $error';
   }
 
   @override
-  String get failedToReadImage => 'Failed to read image file';
+  String get failedToReadImage => 'Не удалось прочитать файл изображения';
 
   @override
-  String get failedToProcessImage => 'Failed to process image';
+  String get failedToProcessImage => 'Не удалось обработать изображение';
 
   @override
-  String get customIconSet => 'Custom icon set successfully';
+  String get customIconSet => 'Свой значок установлен';
 
   @override
-  String get noMccMnc => 'No MCC/MNC available for this profile';
+  String get noMccMnc => 'Для этого профиля нет данных MCC/MNC';
 
   @override
-  String get fetchingRemoteIcon => 'Fetching remote icon...';
+  String get fetchingRemoteIcon => 'Загрузка значка…';
 
   @override
-  String get remoteIconSaved => 'Remote icon saved as custom icon';
+  String get remoteIconSaved => 'Значок сохранён как пользовательский';
 
   @override
   String fetchRemoteIconFailed(Object error) {
-    return 'Failed to fetch remote icon: $error';
+    return 'Не удалось загрузить значок: $error';
   }
 
   @override
-  String get noProfileIcon => 'No profile icon available';
+  String get noProfileIcon => 'У профиля нет значка';
 
   @override
-  String get profileIconSaved => 'Profile icon saved as custom icon';
+  String get profileIconSaved => 'Значок профиля сохранён как пользовательский';
 
   @override
-  String get customIconRemoved => 'Custom icon removed';
+  String get customIconRemoved => 'Пользовательский значок удалён';
 
   @override
-  String get failed => 'Failed';
+  String get failed => 'Ошибка';
 
   @override
   String euiccError(Object action) {
-    return 'The eUICC returned an error while attempting to $action the profile.';
+    return 'eUICC вернула ошибку при попытке выполнить действие «$action» с профилем.';
   }
 
   @override
-  String get dismiss => 'Dismiss';
+  String get dismiss => 'Закрыть';
 
   @override
-  String get dataPlan => 'Data Plan';
+  String get dataPlan => 'Тарифный план';
 
   @override
-  String get used => 'used';
+  String get used => 'использовано';
 
   @override
-  String get total => 'total';
+  String get total => 'всего';
 
   @override
   String expires(Object date) {
-    return 'Expires: $date';
+    return 'Истекает: $date';
   }
 
   @override
-  String get close => 'Close';
+  String get close => 'Закрыть';
 
   @override
-  String get server => 'Server';
+  String get server => 'Сервер';
 
   @override
-  String get switchFailed => 'Switch failed';
+  String get switchFailed => 'Не удалось переключить';
 
   @override
-  String get deviceRefreshFailed => 'Device refresh failed';
+  String get deviceRefreshFailed => 'Не удалось обновить устройство';
 
   @override
-  String get euiccOptions => 'eUICC Options';
+  String get euiccOptions => 'Параметры eUICC';
 
   @override
-  String get euiccInfo => 'eUICC Info';
+  String get euiccInfo => 'Сведения об eUICC';
 
   @override
-  String get hideEid => 'Hide EID';
+  String get hideEid => 'Скрыть EID';
 
   @override
-  String get showEid => 'Show EID';
+  String get showEid => 'Показать EID';
 
   @override
-  String get copyEid => 'Copy EID';
+  String get copyEid => 'Копировать EID';
 
   @override
-  String get eidCopied => 'EID copied to clipboard';
+  String get eidCopied => 'EID скопирован в буфер обмена';
 
   @override
-  String get connectRemotes => 'Connect Remotes';
+  String get connectRemotes => 'Подключить удалённые';
 
   @override
-  String get configureRemotes => 'Configure Remotes';
+  String get configureRemotes => 'Настроить удалённые';
 
   @override
   String get connectingToRemoteReaders =>
-      'Connecting to remote readers in background...';
+      'Фоновое подключение к удалённым считывателям…';
 
   @override
-  String get noRemoteReadersFound => 'No remote readers found';
+  String get noRemoteReadersFound => 'Удалённые считыватели не найдены';
 
   @override
   String connectedRemoteReaders(Object count) {
-    return 'Connected $count remote reader(s)';
+    return 'Подключено удалённых считывателей: $count';
   }
 
   @override
   String failedToConnectRemoteReaders(Object error) {
-    return 'Failed to connect remote readers: $error';
+    return 'Не удалось подключить удалённые считыватели: $error';
   }
 
   @override
-  String get remoteReaderPassword => 'Remote Reader Password';
+  String get remoteReaderPassword => 'Пароль удалённого считывателя';
 
   @override
   String get remoteReaderPasswordSubtitle =>
-      'This remote reader requires a password.';
+      'Этот удалённый считыватель требует пароль.';
 
   @override
-  String get password => 'Password';
+  String get password => 'Пароль';
 
   @override
-  String get deleteConnection => 'Delete Connection';
+  String get deleteConnection => 'Удалить подключение';
 
   @override
-  String get connect => 'Connect';
+  String get connect => 'Подключить';
 
   @override
-  String get remoteReaderConnectionFailed => 'Remote Reader Connection Failed';
+  String get remoteReaderConnectionFailed =>
+      'Не удалось подключиться к удалённому считывателю';
 
   @override
   String remoteReaderConnectionFailedSubtitle(Object error) {
-    return 'Ensure the remote server is running and accessible.\n\n$error';
+    return 'Убедитесь, что удалённый сервер запущен и доступен.\n\n$error';
   }
 
   @override
-  String get connectReader => 'Connect a compatible reader to start.';
+  String get connectReader =>
+      'Подключите совместимый считыватель, чтобы начать.';
 
   @override
   String get connectReaderSubtitleBle =>
-      'You can also scan for compatible Bluetooth devices if you have a Bluetooth-enabled eUICC.';
+      'Также можно выполнить поиск совместимых устройств Bluetooth, если у вас есть eUICC с поддержкой Bluetooth.';
 
   @override
   String get connectReaderSubtitleCcid =>
-      'Ensure your CCID reader is connected to your computer.';
+      'Убедитесь, что считыватель CCID подключён к компьютеру.';
 
   @override
-  String get downloadExtension => 'Download Smart Card Extension';
+  String get downloadExtension => 'Загрузить расширение для смарт-карт';
 
   @override
   String get downloadExtensionSubtitle =>
-      'The extension is required to access USB CCID readers in this browser.';
+      'Расширение необходимо для доступа к USB-считывателям CCID в этом браузере.';
 
   @override
-  String get cardUnsupported => 'Card Unsupported';
+  String get cardUnsupported => 'Карта не поддерживается';
 
   @override
   String get cardUnsupportedSubtitle =>
-      'This card is likely not an eUICC, or it is not supported by this reader, or being used by others.';
+      'Скорее всего, это не eUICC, либо она не поддерживается этим считывателем, либо занята другим приложением.';
 
   @override
   String get omapiWelcome =>
-      'One good thing — your device does have OMAPI support and is highly likely to be compatible with removable cards!';
+      'Хорошая новость: ваше устройство поддерживает OMAPI и, скорее всего, совместимо со съёмными картами!';
 
   @override
-  String get supportedDevices => 'Supported Devices';
+  String get supportedDevices => 'Поддерживаемые устройства';
 
   @override
-  String get aboutAram => 'About ARA-M';
+  String get aboutAram => 'Об ARA-M';
 
   @override
-  String get accessDenied => 'Access Denied';
+  String get accessDenied => 'Доступ запрещён';
 
   @override
   String get accessDeniedSubtitle =>
-      'Carrier privileges are required to access this eUICC. The card\'s ARA-M allowlist does not match the app\'s signature.';
+      'Для доступа к этой eUICC нужны привилегии оператора. Список разрешений ARA-M на карте не соответствует подписи приложения.';
 
   @override
   String get noCardDetectedSubtitle =>
-      'No unsupported or active eUICC found in this slot.';
+      'В этом слоте не найдено активной или поддерживаемой eUICC.';
 
   @override
-  String get noProfilesInstalled => 'No profiles installed';
+  String get noProfilesInstalled => 'Профили не установлены';
 
   @override
-  String get noProfilesInstalledSubtitle => 'This eUICC card is empty.';
+  String get noProfilesInstalledSubtitle => 'Эта карта eUICC пуста.';
 
   @override
-  String get cardRefreshingTitle => 'Card is Refreshing';
+  String get cardRefreshingTitle => 'Карта обновляется';
 
   @override
   String get cardRefreshingMessage =>
-      'The card is currently updating its state. Profile list cannot be retrieved at this moment. Please wait a few seconds and then try again.';
+      'Карта сейчас обновляет своё состояние. Получить список профилей пока невозможно. Подождите несколько секунд и повторите попытку.';
 
   @override
-  String get useRemoteIcon => 'Use Remote Icon';
+  String get useRemoteIcon => 'Использовать значок из сети';
 
   @override
-  String get bleDisconnectedTitle => 'Bluetooth Connection Lost';
+  String get bleDisconnectedTitle => 'Соединение Bluetooth потеряно';
 
   @override
   String get bleDisconnectedMessage =>
-      'The connection to the card reader was suddenly lost. Please ensure it is nearby and turned on.';
+      'Связь со считывателем неожиданно прервалась. Убедитесь, что он находится рядом и включён.';
 
   @override
   String get cardStuckRefreshingMessage =>
-      'Profile state change ongoing - try manually re-plug the SIM card if it stucks.';
+      'Идёт смена состояния профиля — если процесс завис, попробуйте вручную переустановить SIM-карту.';
 
   @override
-  String get activationCodeTitle => 'Activation Code';
+  String get cardNeedsReplugTitle => 'Переустановите SIM-карту';
+
+  @override
+  String get cardNeedsReplugMessage =>
+      'Карта не передаёт свой апплет eUICC, поэтому управлять ею сейчас нельзя. Извлеките SIM-карту, вставьте её снова и повторите попытку.';
+
+  @override
+  String get activationCodeTitle => 'Код активации';
 
   @override
   String get activationCodeSubtitle =>
-      'Scan a QR code, drop an image, or enter the LPA string manually.';
+      'Отсканируйте QR-код, перетащите изображение или введите строку LPA вручную.';
 
   @override
-  String get fullActivationCodeLabel => 'Full Activation Code';
+  String get fullActivationCodeLabel => 'Полный код активации';
 
   @override
   String get fullActivationCodeHint => 'LPA:1\$smdp.io\$MATCHING-ID';
 
   @override
-  String get pasteFromClipboardTooltip => 'Paste from Clipboard';
+  String get pasteFromClipboardTooltip => 'Вставить из буфера обмена';
 
   @override
-  String get selectFromGalleryTooltip => 'Select from Gallery';
+  String get selectFromGalleryTooltip => 'Выбрать из галереи';
 
   @override
-  String get scanQrCodeTooltip => 'Scan QR Code';
+  String get scanQrCodeTooltip => 'Сканировать QR-код';
 
   @override
-  String get smdpAddressLabel => 'SM-DP+ Address';
+  String get smdpAddressLabel => 'Адрес SM-DP+';
 
   @override
   String get smdpAddressHint => 'smdp.io';
@@ -893,98 +933,99 @@ class AppLocalizationsRu extends AppLocalizations {
   String get matchingIdHint => 'ABC-123';
 
   @override
-  String get smdpOidLabel => 'SM-DP+ OID';
+  String get smdpOidLabel => 'OID SM-DP+';
 
   @override
-  String get confirmationCodeLabel => 'Confirmation Code';
+  String get confirmationCodeLabel => 'Код подтверждения';
 
   @override
-  String get confirmationCodeHint => 'Enter secret code';
+  String get confirmationCodeHint => 'Введите секретный код';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'Продолжить';
 
   @override
   String get invalidLpaClipboard =>
-      'Clipboard does not contain a valid LPA string.';
+      'В буфере обмена нет корректной строки LPA.';
 
   @override
-  String get invalidFqdnFormat => 'Invalid FQDN format';
+  String get invalidFqdnFormat => 'Неверный формат FQDN';
 
   @override
-  String get invalidMatchingIdChars => 'Invalid characters in Matching ID';
+  String get invalidMatchingIdChars => 'Недопустимые символы в Matching ID';
 
   @override
-  String get invalidOidFormat => 'Invalid OID format (e.g. 1.2.840...)';
+  String get invalidOidFormat => 'Неверный формат OID (например, 1.2.840…)';
 
   @override
-  String get activationCodeRequired => 'Activation code is required';
+  String get activationCodeRequired => 'Требуется код активации';
 
   @override
-  String get invalidLpaFormatGeneric => 'Invalid LPA format';
+  String get invalidLpaFormatGeneric => 'Неверный формат LPA';
 
   @override
-  String get smdpAddressRequired => 'SM-DP+ address is required';
+  String get smdpAddressRequired => 'Требуется адрес SM-DP+';
 
   @override
-  String get loadingNotifications => 'Loading notifications...';
+  String get loadingNotifications => 'Загрузка уведомлений…';
 
   @override
-  String get processing => 'Processing...';
+  String get processing => 'Обработка…';
 
   @override
-  String get analyzingImage => 'Analyzing image...';
+  String get analyzingImage => 'Анализ изображения…';
 
   @override
-  String get noQrFoundInImage => 'No QR code found in image';
+  String get noQrFoundInImage => 'На изображении не найден QR-код';
 
   @override
-  String get invalidAcInImage => 'Invalid activation code found in image';
+  String get invalidAcInImage =>
+      'На изображении найден недействительный код активации';
 
   @override
   String get invalidAcFormatDetailed =>
-      'Invalid Activation Code format. Must start with LPA:1\$...';
+      'Неверный формат кода активации. Он должен начинаться с LPA:1\$…';
 
   @override
-  String get downloadProfileTitle => 'Download Profile';
+  String get downloadProfileTitle => 'Загрузка профиля';
 
   @override
-  String get connectingToEuicc => 'Connecting to eUICC...';
+  String get connectingToEuicc => 'Подключение к eUICC…';
 
   @override
-  String get gettingChallenge => 'Getting eUICC Challenge...';
+  String get gettingChallenge => 'Получение запроса eUICC…';
 
   @override
-  String get authenticatingWithSmdp => 'Authenticating with SM-DP+...';
+  String get authenticatingWithSmdp => 'Аутентификация на SM-DP+…';
 
   @override
-  String get verifyingSignatures => 'Verifying SM-DP+ Signatures...';
+  String get verifyingSignatures => 'Проверка подписей SM-DP+…';
 
   @override
-  String get retrievingMetadata => 'Retrieving Profile Metadata...';
+  String get retrievingMetadata => 'Получение метаданных профиля…';
 
   @override
-  String get preparingDownload => 'Preparing download...';
+  String get preparingDownload => 'Подготовка к загрузке…';
 
   @override
-  String get preparingEuicc => 'Preparing eUICC...';
+  String get preparingEuicc => 'Подготовка eUICC…';
 
   @override
-  String get fetchingProfilePackage => 'Fetching Profile Package...';
+  String get fetchingProfilePackage => 'Получение пакета профиля…';
 
   @override
   String installing(Object sent, Object total) {
-    return 'Installing ($sent / $total bytes)...';
+    return 'Установка ($sent из $total байт)…';
   }
 
   @override
-  String get finalizing => 'Finalizing (Updating storage info)...';
+  String get finalizing => 'Завершение (обновление сведений о памяти)…';
 
   @override
-  String get profileInstalledSuccessfully => 'Profile installed successfully!';
+  String get profileInstalledSuccessfully => 'Профиль успешно установлен!';
 
   @override
-  String get provider => 'Provider';
+  String get provider => 'Оператор';
 
   @override
   String get iccid => 'ICCID';
@@ -993,835 +1034,856 @@ class AppLocalizationsRu extends AppLocalizations {
   String get plmn => 'PLMN';
 
   @override
-  String get storage => 'Storage';
+  String get storage => 'Память';
 
   @override
-  String get free => 'Free';
+  String get free => 'Свободно';
 
   @override
   String get nvram => 'NVRAM';
 
   @override
-  String get exportCertificates => 'Export Certificates';
+  String get exportCertificates => 'Экспорт сертификатов';
 
   @override
-  String get euiccCert => 'eUICC Cert';
+  String get euiccCert => 'Сертификат eUICC';
 
   @override
-  String get eumCert => 'EUM Cert';
+  String get eumCert => 'Сертификат EUM';
 
   @override
-  String get enterConfirmationCode => 'Enter the code required by your carrier';
+  String get enterConfirmationCode =>
+      'Введите код, который требует ваш оператор';
 
   @override
-  String get confirmationCodeRequired => 'Confirmation code is required';
+  String get confirmationCodeRequired => 'Требуется код подтверждения';
 
   @override
-  String get download => 'Download';
+  String get download => 'Загрузить';
 
   @override
-  String get installationSuccessful => 'Installation Successful';
+  String get installationSuccessful => 'Установка завершена';
 
   @override
   String get installationSuccessMessage =>
-      'The profile has been successfully installed on your eUICC.';
+      'Профиль успешно установлен на вашу eUICC.';
 
   @override
-  String get consumed => 'Consumed';
+  String get consumed => 'Занято';
 
   @override
-  String get enableProfileNow => 'Enable Profile Now';
+  String get enableProfileNow => 'Включить профиль';
 
   @override
-  String get done => 'Done';
+  String get done => 'Готово';
 
   @override
-  String get profileEnabledSuccessfully => 'Profile enabled successfully';
+  String get profileEnabledSuccessfully => 'Профиль успешно включён';
 
   @override
   String get enterNewProfileName =>
-      'Enter a new name for this profile to help you identify it easier.';
+      'Введите новое имя для этого профиля, чтобы легче его различать.';
 
   @override
-  String get profileName => 'Profile Name';
+  String get profileName => 'Имя профиля';
 
   @override
-  String get profileNameHint => 'e.g. Work Travel';
+  String get profileNameHint => 'например, Рабочие поездки';
 
   @override
-  String get profileRenamedSuccessfully => 'Profile renamed successfully';
+  String get profileRenamedSuccessfully => 'Профиль переименован';
 
   @override
-  String get downloadFailed => 'Download Failed';
+  String get downloadFailed => 'Не удалось загрузить';
 
   @override
-  String get tryAgain => 'Try Again';
+  String get tryAgain => 'Повторить';
 
   @override
-  String get savedSuccessfully => 'Saved successfully';
+  String get savedSuccessfully => 'Сохранено';
 
   @override
-  String get saveCertificate => 'Save Certificate';
+  String get saveCertificate => 'Сохранить сертификат';
 
   @override
-  String get searchingForReaders => 'Searching for readers...';
+  String get searchingForReaders => 'Поиск считывателей…';
 
   @override
-  String get initializationError => 'Initialization Error';
+  String get initializationError => 'Ошибка инициализации';
 
   @override
-  String get noReadersFound => 'No Readers Found';
+  String get noReadersFound => 'Считыватели не найдены';
 
   @override
   String get noReadersFoundMessage =>
-      'Insert a compatible reader or scan for BLE devices to manage your eSIM profiles.';
+      'Подключите совместимый считыватель или выполните поиск BLE-устройств, чтобы управлять профилями eSIM.';
 
   @override
-  String get scanBle => 'Scan BLE';
+  String get scanBle => 'Искать BLE';
 
   @override
-  String get reminderDetails => 'Reminder Details';
+  String get reminderDetails => 'Сведения о напоминании';
 
   @override
-  String get profileNotFound => 'Profile not found';
+  String get profileNotFound => 'Профиль не найден';
 
   @override
-  String get resending => 'Resending...';
+  String get resending => 'Повторная отправка…';
 
   @override
-  String get noAddressInNotification => 'No address in notification data';
+  String get noAddressInNotification => 'В данных уведомления нет адреса';
 
   @override
-  String get sentSuccessfully => 'Sent successfully';
+  String get sentSuccessfully => 'Отправлено';
 
   @override
-  String get sendFailed => 'Send failed';
+  String get sendFailed => 'Не удалось отправить';
 
   @override
-  String get copiedCurl => 'Copied cURL command to clipboard';
+  String get copiedCurl => 'Команда cURL скопирована в буфер обмена';
 
   @override
-  String get noAddressToExport => 'No address to export';
+  String get noAddressToExport => 'Нет адреса для экспорта';
 
   @override
-  String get noHistoryAvailable => 'No history available';
+  String get noHistoryAvailable => 'История недоступна';
 
   @override
-  String get searchByIccid => 'Search by ICCID...';
+  String get searchByIccid => 'Поиск по ICCID…';
 
   @override
-  String get resendNotification => 'Resend notification';
+  String get resendNotification => 'Отправить уведомление повторно';
 
   @override
-  String get exportAsCurl => 'Export as cURL';
+  String get exportAsCurl => 'Экспортировать как cURL';
 
   @override
-  String get viewDetails => 'View details';
+  String get viewDetails => 'Показать подробности';
 
   @override
-  String get deleteEntry => 'Delete entry';
+  String get deleteEntry => 'Удалить запись';
 
   @override
   String activeReminders(int count) {
-    return '$count active reminders';
+    return 'Активных напоминаний: $count';
   }
 
   @override
-  String get noScheduledReminders => 'No scheduled reminders';
+  String get noScheduledReminders => 'Нет запланированных напоминаний';
 
   @override
   String get remindersAppearWhen =>
-      'Reminders appear when you add date tags to profiles.';
+      'Напоминания появляются, когда вы добавляете к профилям метки с датой.';
 
   @override
   String activeTagsCount(int count) {
-    return '$count active tags across all profiles';
+    return 'Активных меток по всем профилям: $count';
   }
 
   @override
-  String get searchTagsOrProfiles => 'Search tags or profiles...';
+  String get searchTagsOrProfiles => 'Поиск меток или профилей…';
 
   @override
-  String get noTagsFound => 'No tags found';
+  String get noTagsFound => 'Метки не найдены';
 
   @override
   String get addTagsFromProfileMenu =>
-      'Add tags to your profiles from the profile edit menu to see them here.';
+      'Добавьте метки к профилям в меню редактирования профиля, чтобы увидеть их здесь.';
 
   @override
-  String get expired => 'Expired';
+  String get expired => 'Истёк';
 
   @override
   String daysLeft(int count) {
-    return '${count}d left';
+    return 'осталось $count дн.';
   }
 
   @override
   String hoursLeft(int count) {
-    return '${count}h left';
+    return 'осталось $count ч.';
   }
 
   @override
-  String get expiresSoon => 'Expires soon';
+  String get expiresSoon => 'Скоро истекает';
 
   @override
-  String get soon => 'soon';
+  String get soon => 'скоро';
 
   @override
-  String get activeTags => 'Active Tags';
+  String get activeTags => 'Активные метки';
 
   @override
-  String get addNewTag => 'Add New Tag';
+  String get addNewTag => 'Добавить метку';
 
   @override
-  String get noTagsAssigned => 'No tags assigned to this profile';
+  String get noTagsAssigned => 'Этому профилю не назначены метки';
 
   @override
-  String get textTagHint => 'Text tag (e.g. Work, Travel)';
+  String get textTagHint => 'Текстовая метка (например, Работа, Поездка)';
 
   @override
-  String get addDateExpiryTag => 'Add Date/Expiry Tag';
+  String get addDateExpiryTag => 'Добавить метку с датой или сроком';
 
   @override
-  String get addNoteOptional => 'Add Note (Optional)';
+  String get addNoteOptional => 'Добавить заметку (необязательно)';
 
   @override
-  String get add => 'Add';
+  String get add => 'Добавить';
 
   @override
-  String get noteHint => 'e.g. Expiry, 10GB, etc.';
+  String get noteHint => 'например, Срок, 10 ГБ и т. п.';
 
   @override
-  String get invalidHexString => 'Invalid Hex String';
+  String get invalidHexString => 'Неверная шестнадцатеричная строка';
 
   @override
-  String get resetToDefaults => 'Reset to Defaults';
+  String get resetToDefaults => 'Сбросить по умолчанию';
 
   @override
-  String get resetToDefaultsSuccess => 'Reset to defaults';
+  String get resetToDefaultsSuccess => 'Сброшено к значениям по умолчанию';
 
   @override
-  String get addAidHex => 'Add AID (Hex)';
+  String get addAidHex => 'Добавить AID (hex)';
 
   @override
-  String get manageAutoNotif => 'Manage automatic notification processing';
+  String get manageAutoNotif =>
+      'Управление автоматической обработкой уведомлений';
 
   @override
-  String get automaticProcessing => 'AUTOMATIC PROCESSING';
+  String get automaticProcessing => 'АВТОМАТИЧЕСКАЯ ОБРАБОТКА';
 
   @override
   String get notifProcessingInfo =>
-      'Processing notifications helps synchronization between your eUICC and the SM-DP+ server (carrier). Removing sent notifications keeps your card storage clean.';
+      'Обработка уведомлений помогает синхронизировать вашу eUICC с сервером SM-DP+ (оператором). Удаление отправленных уведомлений освобождает память карты.';
 
   @override
-  String get enabling => 'Enabling';
+  String get enabling => 'Включение';
 
   @override
-  String get afterEnabling => 'After enabling profile';
+  String get afterEnabling => 'После включения профиля';
 
   @override
-  String get disabling => 'Disabling';
+  String get disabling => 'Отключение';
 
   @override
-  String get afterDisabling => 'After disabling profile';
+  String get afterDisabling => 'После отключения профиля';
 
   @override
-  String get installation => 'Installation';
+  String get installation => 'Установка';
 
   @override
-  String get afterDownload => 'After profile download';
+  String get afterDownload => 'После загрузки профиля';
 
   @override
-  String get deletion => 'Deletion';
+  String get deletion => 'Удаление';
 
   @override
-  String get afterDeletion => 'After deleting profile';
+  String get afterDeletion => 'После удаления профиля';
 
   @override
-  String get autoSend => 'Auto-Send';
+  String get autoSend => 'Автоотправка';
 
   @override
-  String get autoSendSubtitle => 'Send to server automatically';
+  String get autoSendSubtitle => 'Отправлять на сервер автоматически';
 
   @override
-  String get autoRemove => 'Auto-Remove';
+  String get autoRemove => 'Автоудаление';
 
   @override
-  String get autoRemoveSubtitle => 'Delete from card after sending';
+  String get autoRemoveSubtitle => 'Удалять с карты после отправки';
 
   @override
-  String get removeWithoutSending => 'Remove Without Sending';
+  String get removeWithoutSending => 'Удалять без отправки';
 
   @override
   String get removeWithoutSendingSubtitle =>
-      'Use with caution: server won\'t be notified';
+      'Используйте с осторожностью: сервер не будет уведомлён';
 
   @override
-  String get permissionsActive => 'Permissions Active';
+  String get permissionsActive => 'Разрешения предоставлены';
 
   @override
-  String get permissionsRequired => 'Permissions Required';
+  String get permissionsRequired => 'Требуются разрешения';
 
   @override
-  String get appCanSendNotif => 'App can send system notifications';
+  String get appCanSendNotif =>
+      'Приложение может отправлять системные уведомления';
 
   @override
-  String get requiredForReminders => 'Required for reminder alerts';
+  String get requiredForReminders => 'Необходимо для оповещений о напоминаниях';
 
   @override
   String get unsupportedPlatformCheck =>
-      'Permission checking is not supported on this platform. Please do manual testing.';
+      'Проверка разрешений не поддерживается на этой платформе. Проверьте вручную.';
 
   @override
   String get couldNotVerifyStatus =>
-      'Could not verify status. Please check Settings manually.';
+      'Не удалось проверить состояние. Проверьте настройки вручную.';
 
   @override
-  String get testNotificationTitle => 'Test Notification';
+  String get testNotificationTitle => 'Тестовое уведомление';
 
   @override
-  String get seconds => 'seconds';
+  String get seconds => 'сек.';
 
   @override
-  String get startTest => 'Start Test';
+  String get startTest => 'Начать проверку';
 
   @override
-  String get sendingNotif => 'Sending...';
+  String get sendingNotif => 'Отправка…';
 
   @override
-  String get hostIpLabel => 'Hostname / IP';
+  String get hostIpLabel => 'Имя узла или IP';
 
   @override
-  String get portLabel => 'Port';
+  String get portLabel => 'Порт';
 
   @override
-  String get passwordOptionalLabel => 'Password (Optional)';
+  String get passwordOptionalLabel => 'Пароль (необязательно)';
 
   @override
-  String get configuredServers => 'Configured Servers';
+  String get configuredServers => 'Настроенные серверы';
 
   @override
-  String get secureHttps => 'Secure (HTTPS)';
+  String get secureHttps => 'Защищённое (HTTPS)';
 
   @override
-  String get insecureHttp => 'Insecure (HTTP)';
+  String get insecureHttp => 'Незащищённое (HTTP)';
 
   @override
-  String get urlCopied => 'URL copied';
+  String get urlCopied => 'URL скопирован';
 
   @override
-  String get serverAddedSuccessfully => 'Server added successfully';
+  String get serverAddedSuccessfully => 'Сервер добавлен';
 
   @override
   String get authFailedCheckPassword =>
-      'Authentication failed. Check password.';
+      'Ошибка аутентификации. Проверьте пароль.';
 
   @override
-  String get addNewServer => 'Add New Server';
+  String get addNewServer => 'Добавить сервер';
 
   @override
-  String get autoLoadRemotes => 'Auto-load Remote Devices';
+  String get autoLoadRemotes => 'Автоподключение удалённых устройств';
 
   @override
   String get autoLoadRemotesSubtitle =>
-      'Automatically connect to configured servers on app startup';
+      'Автоматически подключаться к настроенным серверам при запуске приложения';
 
   @override
-  String get getRemoCardGitHub => 'Get RemoCard from GitHub';
+  String get getRemoCardGitHub => 'Скачать RemoCard на GitHub';
 
   @override
-  String get instructions => 'Instructions:';
+  String get instructions => 'Инструкция:';
 
   @override
-  String get instruction1 => '1. Install RemoCard app on your Android devices.';
+  String get instruction1 =>
+      '1. Установите приложение RemoCard на свои Android-устройства.';
 
   @override
-  String get instruction2 => '2. Start the server in each RemoCard app.';
+  String get instruction2 =>
+      '2. Запустите сервер в каждом приложении RemoCard.';
 
   @override
-  String get instruction3 => '3. Enter the IP addresses here.';
+  String get instruction3 => '3. Введите здесь их IP-адреса.';
 
   @override
   String get instruction4 =>
-      '4. All remote SIM slots will appear in the device list.';
+      '4. Все удалённые слоты SIM появятся в списке устройств.';
 
   @override
-  String get appLogsCopied => 'Logs copied to clipboard';
+  String get appLogsCopied => 'Журналы скопированы в буфер обмена';
 
   @override
-  String get aramInfoTitle => 'ARA-M Information';
+  String get aramInfoTitle => 'Сведения об ARA-M';
 
   @override
-  String get aramInfoSubtitle => 'Access Rule Applet details';
+  String get aramInfoSubtitle => 'Подробности апплета правил доступа';
 
   @override
-  String get whatIsAram => 'What is ARA-M?';
+  String get whatIsAram => 'Что такое ARA-M?';
 
   @override
   String get aramDescription =>
-      'Access Rule Applet (ARA-M) is a mechanism on eUICCs (eSIMs) and SIM cards that defines which applications are allowed to manage profiles or perform low-level operations. If the app\'s hash is not present in the card\'s ARA-M allowlist, the Android system will block access, resulting in an \'Access Denied\' error.';
+      'Access Rule Applet (ARA-M) — механизм в eUICC (eSIM) и SIM-картах, определяющий, каким приложениям разрешено управлять профилями или выполнять низкоуровневые операции. Если хеш приложения отсутствует в списке разрешений ARA-M на карте, система Android заблокирует доступ и выдаст ошибку «Доступ запрещён».';
 
   @override
-  String get appCertHashes => 'App Certificate Hashes';
+  String get appCertHashes => 'Хеши сертификатов приложения';
 
   @override
   String get aramHashInstruction =>
-      'Для совместимости с разными версиями Android добавьте все указанные ниже SHA-1 хеши сертификатов в правила ARA-M карты. После обновления ключа подписи приложения разные версии Android могут проверять разные сертификаты из подтвержденной истории подписей.';
+      'Чтобы предоставить приложению доступ, может потребоваться добавить следующий хеш сертификата SHA-1 в правила ARA-M вашей карты. Этот хеш уникален для сертификата текущей сборки приложения.';
 
   @override
   String get aramSigningHistoryInstruction =>
-      'For compatibility across Android versions, add all SHA-1 certificate hashes below to your card\'s ARA-M rules. After an app signing key upgrade, different Android versions may check different certificates from the verified signing history.';
+      'Для совместимости с разными версиями Android добавьте в правила ARA-M карты все приведённые ниже хеши SHA-1. После смены ключа подписи разные версии Android могут проверять разные сертификаты из истории подписи.';
 
   @override
-  String get certSha1Hash => 'Certificate SHA-1 Hash';
+  String get certSha1Hash => 'Хеш сертификата SHA-1';
 
   @override
-  String get unavailable => 'Unavailable';
+  String get unavailable => 'Недоступно';
 
   @override
-  String get troubleshooting => 'Troubleshooting';
+  String get troubleshooting => 'Устранение неполадок';
 
   @override
-  String get troubleStep1 => 'Ensure you are using the correct Card Reader.';
+  String get troubleStep1 =>
+      'Убедитесь, что используете правильный считыватель карт.';
 
   @override
   String get troubleStep2 =>
-      'If using a physical card, check if it\'s a test card or a production card (production cards often lock ARA-M).';
+      'Если используется физическая карта, проверьте, тестовая она или промышленная (на промышленных ARA-M часто заблокирован).';
 
   @override
   String get troubleStep3 =>
-      'The hashes above depend on whether you use the Debug, Regular, or Privileged (Magisk) version of the app.';
+      'Приведённые хеши зависят от того, какую сборку вы используете: отладочную, обычную или привилегированную (Magisk).';
 
   @override
   String get troubleStep4 =>
-      'Consider using the Privileged (Magisk) build which can bypass some Android API restrictions.';
+      'Попробуйте привилегированную сборку (Magisk) — она обходит некоторые ограничения Android API.';
 
   @override
-  String get hashCopied => 'Hash copied to clipboard';
+  String get hashCopied => 'Хеш скопирован в буфер обмена';
 
   @override
-  String get aidCopied => 'AID copied to clipboard';
+  String get aidCopied => 'AID скопирован в буфер обмена';
 
   @override
-  String get lastSeen => 'Last Seen';
+  String get lastSeen => 'Последняя активность';
 
   @override
-  String get unknownProvider => 'Unknown Provider';
+  String get unknownProvider => 'Неизвестный оператор';
 
   @override
-  String get unknownProfile => 'Unknown Profile';
+  String get unknownProfile => 'Неизвестный профиль';
 
   @override
-  String get tags => 'Tags';
+  String get tags => 'Метки';
 
   @override
-  String get noTags => 'No tags';
+  String get noTags => 'Нет меток';
 
   @override
   String records(int count) {
-    return '$count records';
+    return 'Записей: $count';
   }
 
   @override
-  String get bytes => 'bytes';
+  String get bytes => 'байт';
 
   @override
-  String get responseCode => 'Response Code';
+  String get responseCode => 'Код ответа';
 
   @override
-  String get responseBody => 'Response Body';
+  String get responseBody => 'Тело ответа';
 
   @override
-  String get type => 'Type';
+  String get type => 'Тип';
 
   @override
   String profileCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count profiles',
-      one: '1 profile',
+      other: '$count профиля',
+      many: '$count профилей',
+      few: '$count профиля',
+      one: '$count профиль',
     );
     return '$_temp0';
   }
 
   @override
-  String get isdrAids => 'ISD-R AIDs';
+  String get isdrAids => 'AID для ISD-R';
 
   @override
-  String get configureDefaultAids => 'Configure default Application IDs';
+  String get configureDefaultAids =>
+      'Настройка идентификаторов приложений по умолчанию';
 
   @override
-  String get addAidHexHint => 'Add AID (Hex)';
+  String get addAidHexHint => 'Добавить AID (hex)';
 
   @override
-  String get notificationProcessing => 'Notifications';
+  String get notificationProcessing => 'Уведомления';
 
   @override
   String get manageAutoNotification =>
-      'Manage automatic notification processing';
+      'Управление автоматической обработкой уведомлений';
 
   @override
   String get notificationProcessingHelp =>
-      'Processing notifications helps synchronization between your eUICC and the SM-DP+ server (carrier). Removing sent notifications keeps your card storage clean.';
+      'Обработка уведомлений помогает синхронизировать вашу eUICC с сервером SM-DP+ (оператором). Удаление отправленных уведомлений освобождает память карты.';
 
   @override
-  String get notificationProcessingTimings => 'Processing timings';
+  String get notificationProcessingTimings => 'Моменты обработки';
 
   @override
   String get notificationProcessingTimingsHelp =>
-      'Choose when automatic notification processing runs. Some safety-critical timings can only be disabled while Developer Mode is enabled.';
+      'Выберите, когда выполняется автоматическая обработка уведомлений. Некоторые критически важные моменты можно отключить только в режиме разработчика.';
 
   @override
-  String get afterEnablingProfile => 'After enabling profile';
+  String get afterEnablingProfile => 'После включения профиля';
 
   @override
-  String get afterDisablingProfile => 'After disabling profile';
+  String get afterDisablingProfile => 'После отключения профиля';
 
   @override
-  String get afterProfileDownload => 'After profile download';
+  String get afterProfileDownload => 'После загрузки профиля';
 
   @override
-  String get afterProfileDeletion => 'After deleting profile';
+  String get afterProfileDeletion => 'После удаления профиля';
 
   @override
-  String get initialLoad => 'Initial load';
+  String get initialLoad => 'Первая загрузка';
 
   @override
   String get processNotificationsOnInitialLoad =>
-      'Process notifications after profiles finish loading';
+      'Обрабатывать уведомления после завершения загрузки профилей';
 
   @override
-  String get afterSwitchingProfile => 'After switching profile';
+  String get afterSwitchingProfile => 'После переключения профиля';
 
   @override
   String get processNotificationsAfterSwitchingProfile =>
-      'Process notifications after enabling or disabling a profile';
+      'Обрабатывать уведомления после включения или отключения профиля';
 
   @override
-  String get beforeProfileDownload => 'Before profile download';
+  String get beforeProfileDownload => 'Перед загрузкой профиля';
 
   @override
   String get processNotificationsBeforeProfileDownload =>
-      'Process notifications before starting a profile download';
+      'Обрабатывать уведомления перед началом загрузки профиля';
 
   @override
-  String get afterProfileInstalled => 'After profile installed';
+  String get afterProfileInstalled => 'После установки профиля';
 
   @override
   String get processNotificationsAfterProfileInstalled =>
-      'Process notifications after a profile has been installed';
+      'Обрабатывать уведомления после установки профиля';
 
   @override
   String get processNotificationsAfterProfileDeletion =>
-      'Process notifications after deleting a profile';
+      'Обрабатывать уведомления после удаления профиля';
 
   @override
   String get developerModeRequiredToDisableTiming =>
-      'Enable Developer Mode to disable this timing.';
+      'Чтобы отключить этот момент, включите режим разработчика.';
 
   @override
-  String get sendToServerAutomatically => 'Send to server automatically';
+  String get sendToServerAutomatically => 'Отправлять на сервер автоматически';
 
   @override
-  String get removeFromCardAfterSending => 'Delete from card after sending';
+  String get removeFromCardAfterSending => 'Удалять с карты после отправки';
 
   @override
   String get removeWithoutSendingCaution =>
-      'Use with caution: server won\'t be notified';
+      'Используйте с осторожностью: сервер не будет уведомлён';
 
   @override
-  String get reminderSettings => 'Reminder Settings';
+  String get reminderSettings => 'Настройки напоминаний';
 
   @override
-  String get appCanSendNotifications => 'App can send system notifications';
+  String get appCanSendNotifications =>
+      'Приложение может отправлять системные уведомления';
 
   @override
-  String get requiredForReminderAlerts => 'Required for reminder alerts';
+  String get requiredForReminderAlerts =>
+      'Необходимо для оповещений о напоминаниях';
 
   @override
-  String get enable => 'Enable';
+  String get enable => 'Включить';
 
   @override
   String get permissionCheckNotSupported =>
-      'Permission checking is not supported on this platform. Please do manual testing.';
+      'Проверка разрешений не поддерживается на этой платформе. Проверьте вручную.';
 
   @override
-  String get testNotification => 'Test Notification';
+  String get testNotification => 'Тестовое уведомление';
 
   @override
   String get notificationsDisabledMessage =>
-      'Notifications are disabled. Please enable them in system settings to receive reminders.';
+      'Уведомления отключены. Включите их в системных настройках, чтобы получать напоминания.';
 
   @override
-  String get openSettings => 'Open Settings';
+  String get openSettings => 'Открыть настройки';
 
   @override
-  String get applicationLogs => 'Application Logs';
+  String get applicationLogs => 'Журналы приложения';
 
   @override
-  String get refreshReload => 'Refresh/Reload';
+  String get refreshReload => 'Обновить';
 
   @override
-  String get toggleAutoScroll => 'Toggle Auto-scroll';
+  String get toggleAutoScroll => 'Автопрокрутка';
 
   @override
-  String get refreshDevices => 'Refresh devices';
+  String get refreshDevices => 'Обновить список устройств';
 
   @override
-  String get scanBluetooth => 'Scan Bluetooth';
+  String get scanBluetooth => 'Искать по Bluetooth';
 
   @override
-  String get lessThan1Kb => '< 1 KB';
+  String get lessThan1Kb => '< 1 КБ';
 
   @override
-  String get connectionFailed => 'Connection failed';
+  String get connectionFailed => 'Не удалось подключиться';
 
   @override
-  String get downloadRemoCard => 'Download RemoCard';
+  String get downloadRemoCard => 'Скачать RemoCard';
 
   @override
-  String get remoCardAndroidApp => 'Android app for Remote Controllers';
+  String get remoCardAndroidApp =>
+      'Android-приложение для удалённых считывателей';
 
   @override
-  String get resentSuccessfully => 'Resent successfully';
+  String get resentSuccessfully => 'Отправлено повторно';
 
   @override
-  String get resendFailed => 'Resend failed';
+  String get resendFailed => 'Не удалось отправить повторно';
 
   @override
   String get eid => 'EID';
 
   @override
-  String get seq => 'Seq';
+  String get seq => '№';
 
   @override
-  String get date => 'Date';
+  String get date => 'Дата';
 
   @override
   String errorWithDetails(String error) {
-    return 'Error: $error';
+    return 'Ошибка: $error';
   }
 
   @override
   String exportFailed(String error) {
-    return 'Failed to export database: $error';
+    return 'Не удалось экспортировать базу данных: $error';
   }
 
   @override
-  String get sasAccreditation => 'SAS Accreditation';
+  String get sasAccreditation => 'Аккредитация SAS';
 
   @override
-  String get firmwareVersion => 'Firmware Version';
+  String get firmwareVersion => 'Версия прошивки';
 
   @override
-  String get beeSimFirmwareAction => 'Update BeeSIM firmware';
+  String get beeSimFirmwareAction => 'Обновить прошивку BeeSIM';
 
   @override
-  String get beeSimFirmwareTitle => 'BeeSIM firmware update';
+  String get beeSimFirmwareTitle => 'Обновление прошивки BeeSIM';
 
   @override
   String get beeSimFirmwareWarning =>
-      'A BeeSIM firmware update is available. Keep the card powered, Bluetooth connected, and the app open until it finishes. Interrupting the update may leave the card temporarily unusable.';
+      'Доступно обновление прошивки BeeSIM. До завершения не отключайте питание карты, не разрывайте соединение Bluetooth и не закрывайте приложение. Прерывание обновления может временно вывести карту из строя.';
 
   @override
-  String get beeSimFirmwareConfirm => 'Update firmware';
+  String get beeSimFirmwareConfirm => 'Обновить прошивку';
 
   @override
-  String get platformSupport => 'PLATFORM SUPPORT';
+  String get platformSupport => 'ПОДДЕРЖКА ПЛАТФОРМЫ';
 
   @override
-  String get rspVersion => 'RSP Version';
+  String get rspVersion => 'Версия RSP';
 
   @override
-  String get bppVersion => 'BPP Version';
+  String get bppVersion => 'Версия BPP';
 
   @override
-  String get gpVersion => 'GlobalPlatform Version';
+  String get gpVersion => 'Версия GlobalPlatform';
 
   @override
-  String get certInfrastructure => 'CERTIFICATE INFRASTRUCTURE';
+  String get certInfrastructure => 'ИНФРАСТРУКТУРА СЕРТИФИКАТОВ';
 
   @override
-  String get euiccSignCi => 'eUICC Sign CI';
+  String get configuredAddresses => 'НАСТРОЕННЫЕ АДРЕСА';
 
   @override
-  String get euiccVerifyCi => 'eUICC Verify CI';
+  String get defaultSmdpAddress => 'SM-DP+ по умолчанию';
 
   @override
-  String get none => 'None';
+  String get rootDsAddress => 'Корневой SM-DS';
+
+  @override
+  String get euiccSignCi => 'CI подписи eUICC';
+
+  @override
+  String get euiccVerifyCi => 'CI проверки eUICC';
+
+  @override
+  String get none => 'Нет';
 
   @override
   String keysCount(int count) {
-    return '$count key(s)';
+    return 'Ключей: $count';
   }
 
   @override
-  String get state => 'State';
+  String get state => 'Состояние';
 
   @override
-  String get profileClass => 'Class';
+  String get profileClass => 'Класс';
 
   @override
   String get aid => 'AID';
 
   @override
-  String get euiccSpecifications => 'EUICC SPECIFICATIONS';
+  String get euiccSpecifications => 'СПЕЦИФИКАЦИИ EUICC';
 
   @override
-  String get sending => 'Sending...';
+  String get sending => 'Отправка…';
 
   @override
-  String get failedToSaveTags => 'Failed to save tags';
+  String get failedToSaveTags => 'Не удалось сохранить метки';
 
   @override
-  String get note => 'Note';
+  String get note => 'Заметка';
 
   @override
-  String get notificationDetails => 'Notification Details';
+  String get notificationDetails => 'Сведения об уведомлении';
 
   @override
-  String get unknown => 'Unknown';
+  String get unknown => 'Неизвестно';
 
   @override
-  String get status => 'Status';
+  String get status => 'Статус';
 
   @override
-  String get sent => 'Sent';
+  String get sent => 'Отправлено';
 
   @override
-  String get pending => 'Pending';
+  String get pending => 'Ожидает';
 
   @override
-  String get notifTypeInstall => 'Install';
+  String get notifTypeInstall => 'Установка';
 
   @override
-  String get notifTypeDelete => 'Delete';
+  String get notifTypeDelete => 'Удаление';
 
   @override
-  String get notifTypeEnable => 'Enable';
+  String get notifTypeEnable => 'Включение';
 
   @override
-  String get notifTypeDisable => 'Disable';
+  String get notifTypeDisable => 'Отключение';
 
   @override
-  String get notifTypeRpmEnable => 'RPM Enable';
+  String get notifTypeRpmEnable => 'RPM: включение';
 
   @override
-  String get notifTypeRpmDisable => 'RPM Disable';
+  String get notifTypeRpmDisable => 'RPM: отключение';
 
   @override
-  String get notifTypeRpmDelete => 'RPM Delete';
+  String get notifTypeRpmDelete => 'RPM: удаление';
 
   @override
-  String get notifTypeLoadRpm => 'Load RPM';
+  String get notifTypeLoadRpm => 'Загрузка RPM';
 
   @override
   String confirmDeleteNotification(int seq) {
-    return 'Are you sure you want to delete notification #$seq?';
+    return 'Удалить уведомление №$seq?';
   }
 
   @override
-  String get notificationRemoved => 'Notification removed';
+  String get notificationRemoved => 'Уведомление удалено';
 
   @override
   String failedToRemove(String error) {
-    return 'Failed to remove: $error';
+    return 'Не удалось удалить: $error';
   }
 
   @override
-  String get curlCopied => 'cURL command extracted to clipboard';
+  String get curlCopied => 'Команда cURL скопирована в буфер обмена';
 
   @override
   String failedToGenerateCurl(String error) {
-    return 'Failed to generate cURL: $error';
+    return 'Не удалось сформировать cURL: $error';
   }
 
   @override
-  String get noNotificationAddress => 'No notification address available';
+  String get noNotificationAddress => 'Адрес для уведомления недоступен';
 
   @override
-  String get sendingNotification => 'Sending notification...';
+  String get sendingNotification => 'Отправка уведомления…';
 
   @override
-  String get notifSentSuccessfully => 'Notification sent successfully';
+  String get notifSentSuccessfully => 'Уведомление отправлено';
 
   @override
-  String get failedToSendNotification => 'Failed to send notification';
+  String get failedToSendNotification => 'Не удалось отправить уведомление';
 
   @override
   String errorSendingNotification(String error) {
-    return 'Error sending notification: $error';
+    return 'Ошибка при отправке уведомления: $error';
   }
 
   @override
   String pendingCount(int count) {
-    return '$count pending';
+    return 'Ожидает: $count';
   }
 
   @override
-  String get currentReader => 'Current Reader';
+  String get currentReader => 'Текущий считыватель';
 
   @override
-  String get errorLoadingNotifications => 'Error loading notifications';
+  String get errorLoadingNotifications => 'Ошибка загрузки уведомлений';
 
   @override
-  String get allCaughtUp => 'You\'re all caught up';
+  String get allCaughtUp => 'Всё обработано';
 
   @override
-  String get sequence => 'Sequence';
+  String get sequence => 'Последовательность';
 
   @override
-  String get operation => 'Operation';
+  String get operation => 'Операция';
 
   @override
-  String get profileNameLabel => 'Profile Name';
+  String get profileNameLabel => 'Имя профиля';
 
   @override
-  String get failedToSend => 'Failed to send';
+  String get failedToSend => 'Не удалось отправить';
 
   @override
-  String get onCard => 'On card';
+  String get onCard => 'На карте';
 
   @override
-  String get sendNotification => 'Send notification';
+  String get sendNotification => 'Отправить уведомление';
 
   @override
-  String get deleteNotification => 'Delete notification';
+  String get deleteNotification => 'Удалить уведомление';
 
   @override
-  String get noNotifications => 'No notifications';
+  String get noNotifications => 'Нет уведомлений';
 
   @override
-  String get batchDownloadTitle => 'Batch Download';
+  String get batchDownloadTitle => 'Пакетная загрузка';
 
   @override
   String get batchDownloadHint =>
-      'Paste multiple LPA codes here (one per line, max 20)';
+      'Вставьте несколько кодов LPA (по одному в строке, не более 20)';
 
   @override
   String foundLpaCodes(int count) {
-    return '$count LPA codes found';
+    return 'Найдено кодов LPA: $count';
   }
 
   @override
-  String get startBatch => 'Start Batch';
+  String get startBatch => 'Начать пакетную загрузку';
 
   @override
-  String get noLpaCodesFound => 'No valid LPA codes found';
+  String get noLpaCodesFound => 'Корректные коды LPA не найдены';
 
   @override
   String get insufficientSpaceStoppingBatch =>
-      'Insufficient space. Stopping batch download.';
+      'Недостаточно места. Пакетная загрузка остановлена.';
 
   @override
-  String get exportCsv => 'Export to CSV';
+  String get exportCsv => 'Экспорт в CSV';
 
   @override
-  String get exportedSuccessfully => 'Exported successfully';
+  String get exportedSuccessfully => 'Экспортировано';
 
   @override
-  String get exportResults => 'Export Results';
+  String get exportResults => 'Экспорт результатов';
 
   @override
   String get lpa => 'LPA';
@@ -1830,269 +1892,427 @@ class AppLocalizationsRu extends AppLocalizations {
   String get smdp => 'SM-DP+';
 
   @override
-  String get confirmationCode => 'Confirmation Code';
+  String get confirmationCode => 'Код подтверждения';
 
   @override
-  String get size => 'Size';
+  String get size => 'Размер';
 
   @override
-  String get message => 'Message';
+  String get message => 'Сообщение';
 
   @override
-  String get remainingSpace => 'Remaining Space';
+  String get remainingSpace => 'Свободное место';
 
   @override
-  String get stopBatch => 'Stop Batch';
+  String get stopBatch => 'Остановить';
 
   @override
-  String get stopping => 'Stopping...';
+  String get stopping => 'Остановка…';
 
   @override
-  String get remove => 'Remove';
+  String get remove => 'Удалить';
 
   @override
-  String get updateAvailable => 'Update Available';
+  String get updateAvailable => 'Доступно обновление';
 
   @override
   String updateAvailableSubtitle(String appName, String version, String build) {
-    return 'A new version of $appName is available (v$version b$build). Would you like to update now?';
+    return 'Доступна новая версия $appName (v$version b$build). Обновить сейчас?';
   }
 
   @override
-  String get updateAction => 'Update';
+  String get updateAction => 'Обновить';
 
   @override
-  String get later => 'Later';
+  String get later => 'Позже';
 
   @override
-  String get changelog => 'Changelog';
+  String get changelog => 'Список изменений';
 
   @override
-  String get sortBy => 'Sort by';
+  String get sortBy => 'Сортировка';
 
   @override
   String get sortIccid => 'ICCID';
 
   @override
-  String get sortCountry => 'Country';
+  String get sortCountry => 'Страна';
 
   @override
-  String get sortAscending => 'Ascending';
+  String get sortAscending => 'По возрастанию';
 
   @override
-  String get sortDescending => 'Descending';
+  String get sortDescending => 'По убыванию';
 
   @override
-  String get searchProfiles => 'Search profiles...';
+  String get searchProfiles => 'Поиск профилей…';
 
   @override
-  String get noProfilesMatch => 'No profiles match your search.';
+  String get noProfilesMatch => 'Нет профилей, соответствующих запросу.';
 
   @override
-  String get sortDefault => 'Default';
+  String get sortDefault => 'По умолчанию';
 
   @override
-  String get sortNickname => 'Nickname';
+  String get sortNickname => 'По имени';
 
   @override
-  String get showProfileSearch => 'Show Profile Search';
+  String get showProfileSearch => 'Показывать поиск профилей';
 
   @override
   String get showProfileSearchSubtitle =>
-      'Show search and sort bar in profile list';
+      'Показывать панель поиска и сортировки в списке профилей';
 
   @override
   String get noReaderFound =>
-      'No reader found. Please connect your eUICC adapter.';
+      'Считыватель не найден. Подключите адаптер eUICC.';
 
   @override
-  String get readyToInstallProfile => 'Ready to install profile.';
+  String get readyToInstallProfile => 'Профиль готов к установке.';
 
   @override
-  String get downloadHere => 'Download Here';
+  String get downloadHere => 'Загрузить сюда';
 
   @override
-  String get manage => 'Manage';
+  String get manage => 'Управление';
 
   @override
-  String get buyCard => 'Card';
+  String get buyCard => 'Карта';
 
   @override
-  String get buyData => 'Data';
+  String get buyData => 'Трафик';
 
   @override
-  String get selectDevice => 'Select Device';
+  String get selectDevice => 'Выбор устройства';
 
   @override
-  String get selectReaderTitle => 'Select Card';
+  String get selectReaderTitle => 'Выбор карты';
 
   @override
-  String get authorizeSigning => 'Authorize Signing';
+  String get authorizeSigning => 'Разрешить подпись';
 
   @override
   String get signingDescription =>
-      'A website is requesting a secure signature from your eUICC.';
+      'Веб-сайт запрашивает защищённую подпись у вашей eUICC.';
 
   @override
-  String get smdpAddress => 'SM-DP+ Address';
+  String get smdpAddress => 'Адрес SM-DP+';
 
   @override
-  String get sign => 'Sign';
+  String get sign => 'Подписать';
 
   @override
   String profilesInstalled(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count profiles installed',
-      one: '1 profile installed',
+      other: '$count профиля установлено',
+      many: '$count профилей установлено',
+      few: '$count профиля установлено',
+      one: '$count профиль установлен',
     );
     return '$_temp0';
   }
 
   @override
-  String get estimatedDownloadSize => 'Estimated download size';
+  String get estimatedDownloadSize => 'Предполагаемый размер загрузки';
 
   @override
-  String get phoneFormatInternationalOnly => 'E.164 Int\'l Only';
+  String get phoneFormatInternationalOnly => 'Только E.164';
 
   @override
-  String get phoneFormatInternationalAndMobile => 'Int\'l & Mobile';
+  String get phoneFormatInternationalAndMobile => 'Междунар. и мобильные';
 
   @override
-  String get phoneFormatInternationalAndAll => 'Int\'l & National';
+  String get phoneFormatInternationalAndAll => 'Междунар. и национальные';
 
   @override
-  String get phoneFormatOff => 'Off';
+  String get phoneFormatOff => 'Выключено';
 
   @override
-  String get settings_item_unit_b => 'Bytes';
+  String get settings_item_unit_b => 'Байты';
 
   @override
-  String get settings_item_unit_kb => 'kB (1,000 Bytes)';
+  String get settings_item_unit_kb => 'кБ (1000 байт)';
 
   @override
-  String get settings_item_unit_kib => 'kiB (1,024 Bytes)';
+  String get settings_item_unit_kib => 'КиБ (1024 байта)';
 
   @override
-  String get settings_item_unit_adaptive_si => 'B / kB Adaptive';
+  String get settings_item_unit_adaptive_si => 'Б / кБ автоматически';
 
   @override
-  String get settings_item_unit_adaptive_bi => 'B / kiB Adaptive';
+  String get settings_item_unit_adaptive_bi => 'Б / КиБ автоматически';
 
   @override
   String get insufficientStorageWarning =>
-      'Insufficient storage for installation. Installation might fail.';
+      'Недостаточно места для установки. Установка может завершиться ошибкой.';
 
   @override
-  String get estimateProfileSize => 'Estimate Profile Size';
+  String get estimateProfileSize => 'Оценивать размер профиля';
 
   @override
   String get estimateProfileSizeSubtitle =>
-      'Estimate size of profile metadata before download';
+      'Оценивать размер метаданных профиля перед загрузкой';
 
   @override
-  String get customize => 'Customize';
+  String get customize => 'Настроить';
 
   @override
   String get customizeDescription =>
-      'Specify a new 6-character hex name and password for your writer.';
+      'Задайте новое имя из 6 шестнадцатеричных символов и пароль для вашего считывателя.';
 
   @override
   String get customizeSuccess =>
-      'Writer customized. Please re-pair the device.';
+      'Считыватель настроен. Выполните сопряжение заново.';
 
   @override
   String customizeFailed(String error) {
-    return 'Failed to customize writer: $error';
+    return 'Не удалось настроить считыватель: $error';
   }
 
   @override
-  String get deviceName => 'Device Name';
+  String get defaultPasswordWillChangeTitle =>
+      'Пароль по умолчанию будет изменён';
 
   @override
-  String get success => 'Success';
+  String defaultPasswordWillChangeMessage(String password) {
+    return 'Это устройство подключено со стандартным паролем. После переименования пароль станет $password. Сохраните его перед повторным подключением.';
+  }
 
   @override
-  String get devicePasswordHint => '6 hex chars or password string';
+  String get savedBleDevices => 'Ранее подключённые BLE-устройства';
 
   @override
-  String get sixHexChars => '6 hex chars';
+  String get savedBleDevicesSubtitle =>
+      'Просмотр имён и паролей устройств, сохранённых на этом устройстве';
 
   @override
-  String get database => 'Database';
+  String get savedBleDevicesDescription =>
+      'Каждая запись — локально сохранённый пароль NBLESim. Стандартные пароли также сохраняются.';
+
+  @override
+  String get noSavedBleDevices => 'Ранее подключённых BLE-устройств нет.';
+
+  @override
+  String get deviceName => 'Имя устройства';
+
+  @override
+  String get success => 'Готово';
+
+  @override
+  String get devicePasswordHint => '6 шестнадцатеричных символов или пароль';
+
+  @override
+  String get sixHexChars => '6 шестнадцатеричных символов';
+
+  @override
+  String get database => 'База данных';
 
   @override
   String exportSuccess(String path) {
-    return 'Database exported to $path';
+    return 'База данных экспортирована в $path';
   }
 
   @override
-  String get importDatabase => 'Import Database';
+  String get importDatabase => 'Импорт базы данных';
 
   @override
-  String get importDatabaseSubtitle => 'Merge rows from another database file';
+  String get importDatabaseSubtitle =>
+      'Объединить записи из другого файла базы данных';
 
   @override
-  String get importDatabaseDialogTitle => 'Select database file to import';
+  String get importDatabaseDialogTitle =>
+      'Выберите файл базы данных для импорта';
 
   @override
-  String get importDatabaseTitle => 'Import Database';
+  String get importDatabaseTitle => 'Импорт базы данных';
 
   @override
   String get importDatabaseContent =>
-      'This will merge rows from the selected database into your current database. Existing rows with the same keys will be overwritten. Continue?';
+      'Записи из выбранной базы будут объединены с текущей. Существующие записи с такими же ключами будут перезаписаны. Продолжить?';
 
   @override
-  String get import => 'Import';
+  String get import => 'Импортировать';
 
   @override
-  String get importSuccess => 'Database imported successfully';
+  String get importSuccess => 'База данных импортирована';
 
   @override
   String importFailed(String error) {
-    return 'Failed to import database: $error';
+    return 'Не удалось импортировать базу данных: $error';
   }
 
   @override
-  String get resetDatabase => 'Reset Database';
+  String get resetDatabase => 'Сбросить базу данных';
 
   @override
-  String get resetDatabaseSubtitle => 'Clear all application data and restart';
+  String get resetDatabaseSubtitle =>
+      'Удалить все данные приложения и перезапустить';
 
   @override
-  String get resetDatabaseTitle => 'Reset Application Database';
+  String get resetDatabaseTitle => 'Сброс базы данных приложения';
 
   @override
   String get resetDatabaseContent =>
-      'This will completely delete all locally stored data, configurations, and logs. The application will close. Do you want to proceed?';
+      'Все локально сохранённые данные, настройки и журналы будут полностью удалены. Приложение закроется. Продолжить?';
 
   @override
-  String get deleteDatabase => 'Delete Database';
+  String get deleteDatabase => 'Удалить базу данных';
 
   @override
   String resetFailed(String error) {
-    return 'Failed to reset database: $error';
+    return 'Не удалось сбросить базу данных: $error';
   }
 
   @override
-  String get deviceImei => 'Device TAC';
+  String get deviceImei => 'TAC устройства';
 
   @override
-  String get deviceImeiSubtitle => 'Used for profile downloads';
+  String get deviceImeiSubtitle => 'Используется при загрузке профилей';
 
   @override
-  String get editDeviceImei => 'Edit Device TAC';
+  String get editDeviceImei => 'Изменить TAC устройства';
 
   @override
   String get editDeviceImeiInfo =>
-      'Enter an 8-digit TAC, or a 15-digit IMEI. Default TAC: 35383741.';
+      'Введите 8-значный TAC или 15-значный IMEI. TAC по умолчанию: 35383741.';
 
   @override
-  String get imeiDigits => 'TAC or IMEI digits';
+  String get imeiDigits => 'Цифры TAC или IMEI';
 
   @override
-  String get importAction => 'Import';
+  String get importAction => 'Импортировать';
+
+  @override
+  String get transferTitle => 'Перенос eSIM';
+
+  @override
+  String get transferAction => 'Перенести на это устройство';
+
+  @override
+  String get transferCheckingEligibility => 'Проверка возможности переноса…';
+
+  @override
+  String get transferReadingSource => 'Чтение исходной SIM…';
+
+  @override
+  String get transferContactingCarrier => 'Связь с оператором…';
+
+  @override
+  String get transferIneligibleReader =>
+      'Этот профиль нельзя перенести с помощью данного считывателя. Аутентификация исходной SIM (EAP-AKA) здесь недоступна.';
+
+  @override
+  String get transferNoEntitlement =>
+      'Для этого профиля не найдена конфигурация переноса оператора. Вы можете указать сервер entitlement вручную.';
+
+  @override
+  String transferSourceCarrier(String carrier) {
+    return 'Исходный оператор: $carrier';
+  }
+
+  @override
+  String get transferConfirmTitle => 'Перенести эту подписку?';
+
+  @override
+  String get transferConfirmBody =>
+      'Оператор перевыпустит эту подписку на данную eUICC. Исходный профиль может быть удалён в процессе переноса.';
+
+  @override
+  String get transferStart => 'Начать перенос';
+
+  @override
+  String get transferDownloadingProfile => 'Загрузка перенесённого профиля…';
+
+  @override
+  String get transferDeleteSourceTitle => 'Удалить исходный профиль';
+
+  @override
+  String transferDeleteSourceBody(String iccid) {
+    return 'Оператор требует удалить исходный профиль $iccid до активации. Удалить его сейчас?';
+  }
+
+  @override
+  String get transferDeleteSourceConfirm => 'Удалить и продолжить';
+
+  @override
+  String get transferUserInputSubmit => 'Отправить';
+
+  @override
+  String get transferAccept => 'Принять';
+
+  @override
+  String get transferReject => 'Отклонить';
+
+  @override
+  String get transferPendingActivation =>
+      'Оператор ещё активирует эту подписку. Это скоро завершится; можно закрыть окно и проверить позже.';
+
+  @override
+  String get transferDismissed => 'Оператор отклонил перенос.';
+
+  @override
+  String get transferDelayedDownload =>
+      'Оператор доставит профиль в ближайшее время. После установки введите ICCID установленного профиля, чтобы завершить перенос.';
+
+  @override
+  String get transferInstalledIccid => 'ICCID установленного профиля';
+
+  @override
+  String get transferSuccess => 'Перенос завершён';
+
+  @override
+  String transferFailed(String error) {
+    return 'Не удалось выполнить перенос: $error';
+  }
+
+  @override
+  String get transferManualServerTitle => 'Сервер entitlement (для опытных)';
+
+  @override
+  String get transferManualServerHint => 'https://entitlement.example.com';
+
+  @override
+  String get transferEnablingSource => 'Подготовка исходного профиля…';
+
+  @override
+  String get transferClose => 'Закрыть';
+
+  @override
+  String get transferContinue => 'Продолжить';
+
+  @override
+  String get transferSmdsDiscovering => 'Поиск профилей через SM-DS…';
+
+  @override
+  String get transferSmdsNoProfiles =>
+      'Ожидающих профилей через SM-DS не найдено.';
+
+  @override
+  String get transferSelectProfile => 'Выберите профиль для загрузки';
+
+  @override
+  String get discoverProfiles => 'Найти профили (SM-DS)';
+
+  @override
+  String get discoveringProfiles => 'Поиск профилей…';
+
+  @override
+  String get discoveryNoProfiles =>
+      'Ожидающих профилей через SM-DS не найдено.';
+
+  @override
+  String get transferSmdsServerTitle => 'Сервер SM-DS';
+
+  @override
+  String transferProfileOnServer(String eventId, String address) {
+    return '$eventId на $address';
+  }
+
+  @override
+  String get downloadBusyCannotLeave =>
+      'Please wait for the current operation to finish.';
 
   @override
   String get qrtrReaderTitle => 'Qualcomm modem (QRTR)';
@@ -2100,12 +2320,4 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get qrtrReaderSubtitle =>
       'Qualcomm\'s low-level modem protocol (requires Shizuku)';
-
-  @override
-  String defaultPasswordWillChangeMessage(String password) {
-    return 'This device is connected with its default password. Renaming it will set the password to $password. Save this password before reconnecting.';
-  }
-
-  @override
-  String get defaultPasswordWillChangeTitle => 'Default password will change';
 }

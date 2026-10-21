@@ -18,7 +18,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appearance => '外観';
 
   @override
-  String get appearanceSubtitle => 'テーマ、レイアウト、表示設定をカスタマイズ';
+  String get appearanceSubtitle => 'テーマ、レイアウト、表示設定を変更します';
 
   @override
   String get darkMode => 'ダークモード';
@@ -27,19 +27,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get themeStyle => 'テーマスタイル';
 
   @override
-  String get themeStyleSubtitle => 'カスタムまたは MD3 スタイルを選択';
+  String get themeStyleSubtitle => 'Nekoko、MD3 のスタイルが選択できます';
 
   @override
   String get customDesign => 'Nekoko スタイル';
 
   @override
-  String get stockMD3 => '標準 MD3';
+  String get stockMD3 => '標準的な MD3';
 
   @override
   String get waterfallLayout => 'ウォーターフォールレイアウト';
 
   @override
-  String get waterfallLayoutSubtitle => 'ワイドスクリーンでメイソンリースタイルのレイアウトを使用';
+  String get waterfallLayoutSubtitle => 'ワイドスクリーンで Masonry スタイルのレイアウトを使用します';
 
   @override
   String get system => 'システム';
@@ -75,10 +75,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loadProfileIconsSubtitle => 'eUICC からアイコンを取得します (低速)';
 
   @override
-  String get useNekokoIcons => 'オペレーターアイコンを使用';
+  String get useNekokoIcons => 'Nekoko Cloud からアイコンを取得';
 
   @override
-  String get useNekokoIconsSubtitle => 'operator-icons からキャリアアイコンを取得します';
+  String get useNekokoIconsSubtitle => 'Nekoko からキャリアアイコンを取得します';
 
   @override
   String get forceDeviceDropdown => 'デバイスドロップダウンを強制';
@@ -176,16 +176,16 @@ class AppLocalizationsJa extends AppLocalizations {
       'Telephony ベースの eUICC 管理のための Open Mobile API 機能を有効化します';
 
   @override
-  String get readerTypes => 'リーダータイプ';
+  String get readerTypes => 'リーダーの種類';
 
   @override
-  String get readerTypesSubtitle => '有効なリーダータイプを管理（CCID、Bluetooth、リモートなど）';
+  String get readerTypesSubtitle => 'リーダーの種類 (CCID、Bluetooth、リモートなど) を管理します';
 
   @override
-  String get enabledReaderTypes => '有効なリーダータイプ';
+  String get enabledReaderTypes => '有効なリーダーの種類';
 
   @override
-  String get enabledReaderTypesSubtitle => 'アプリで利用可能なリーダータイプを制御';
+  String get enabledReaderTypesSubtitle => 'アプリで利用可能なリーダーの種類を制御します';
 
   @override
   String get remoteReaderSettings => 'リモートリーダー設定';
@@ -194,10 +194,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get remoteReaderSettingsSubtitle => 'リモートリーダーサーバーと接続を構成';
 
   @override
-  String get ccidReaderTitle => 'CCID（USB/PC/SC）';
+  String get ccidReaderTitle => 'CCID (USB/PC/SC)';
 
   @override
-  String get ccidReaderSubtitle => 'USBスマートカードリーダーとPC/SCデバイス';
+  String get ccidReaderSubtitle => 'USB スマートカードリーダーと PC/SC デバイス';
 
   @override
   String get bluetoothReaderTitle => 'Bluetooth';
@@ -215,7 +215,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get omapiReaderTitle => 'OMAPI';
 
   @override
-  String get omapiReaderSubtitle => 'Open Mobile API経由の内蔵SIMカードスロット';
+  String get omapiReaderSubtitle => 'Open Mobile API 経由の内蔵 SIM カードスロット';
 
   @override
   String get tmapiReaderTitle => 'Telephony API';
@@ -230,10 +230,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get remoteServerConfigurationSubtitle => 'リモートリーダーサーバーと接続設定を管理';
 
   @override
-  String get enableBrowser => 'ブラウザを有効にする';
+  String get enableBrowser => 'ブラウザを有効化する';
 
   @override
-  String get enableBrowserSubtitle => 'ストア、購入、ヘルプなどの追加のブラウザタブを表示する';
+  String get enableBrowserSubtitle => 'ストア、購入、ヘルプなどのブラウザタブを追加で表示します';
 
   @override
   String get transport => '転送';
@@ -290,7 +290,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get decodeAsn1 => 'ASN.1 ログのデコード (低速)';
 
   @override
-  String get decodeAsn1Subtitle => 'パフォーマンスに大きな影響を与えます';
+  String get decodeAsn1Subtitle => 'パフォーマンスが低下する可能性があります';
 
   @override
   String get viewAppLogs => 'アプリのログを表示';
@@ -510,6 +510,36 @@ class AppLocalizationsJa extends AppLocalizations {
   String get connectingToReader => 'リーダーに接続中...';
 
   @override
+  String get waitingForBluetooth => 'Waiting for Bluetooth to turn on...';
+
+  @override
+  String get connectingOverBluetooth => 'Connecting over Bluetooth...';
+
+  @override
+  String connectingOverBluetoothAttempt(int attempt, int total) {
+    return 'Connecting over Bluetooth (attempt $attempt of $total)...';
+  }
+
+  @override
+  String get discoveringReaderServices => 'Discovering reader services...';
+
+  @override
+  String get settingUpBluetoothLink => 'Setting up the Bluetooth link...';
+
+  @override
+  String get authenticatingWithReader => 'Authenticating with the reader...';
+
+  @override
+  String get initializingReader => 'Initializing the reader...';
+
+  @override
+  String get switchingReaderToEuiccMode =>
+      'Switching the reader to eUICC mode...';
+
+  @override
+  String get waitingForReaderRestart => 'Waiting for the reader to restart...';
+
+  @override
   String get moreOptions => 'その他のオプション';
 
   @override
@@ -605,7 +635,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get selectFromGallery => 'ギャラリーから選択';
 
   @override
-  String get nekokoOperatorIcon => 'オペレーターアイコン';
+  String get nekokoOperatorIcon => 'Nekoko オペレーターのアイコン';
 
   @override
   String get iconFromEsim => 'eSIM カードのアイコン';
@@ -818,6 +848,13 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get cardStuckRefreshingMessage =>
       'プロファイルの状態を変更中です - 動作しない場合は手動で再接続してください。';
+
+  @override
+  String get cardNeedsReplugTitle => 'SIM カードを挿し直してください';
+
+  @override
+  String get cardNeedsReplugMessage =>
+      'カードが eUICC アプレットを引き渡さないため、現在は管理できません。SIM カードを取り外してから挿し直し、もう一度お試しください。';
 
   @override
   String get activationCodeTitle => 'アクティベーションコード';
@@ -1317,11 +1354,11 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aramHashInstruction =>
-      'Android バージョン間の互換性を確保するため、以下のすべての SHA-1 証明書ハッシュをカードの ARA-M ルールに追加してください。アプリ署名鍵のアップグレード後は、Android のバージョンによって検証済み署名履歴内の異なる証明書が確認される場合があります。';
+      'このアプリにアクセスを許可するには、カードの ARA-M ルールに以下の SHA-1 証明書のハッシュを追加する必要がある場合があります。このハッシュは、現在のアプリビルドの証明書に固有するものです。';
 
   @override
   String get aramSigningHistoryInstruction =>
-      'For compatibility across Android versions, add all SHA-1 certificate hashes below to your card\'s ARA-M rules. After an app signing key upgrade, different Android versions may check different certificates from the verified signing history.';
+      'Android のバージョン間の互換性を保つため、以下のすべての SHA-1 証明書ハッシュをカードの ARA-M ルールに追加してください。アプリの署名鍵を更新した後は、Android のバージョンによって、検証済みの署名履歴のうち異なる証明書が確認される場合があります。';
 
   @override
   String get certSha1Hash => '証明書の SHA-1 ハッシュ';
@@ -1416,11 +1453,11 @@ class AppLocalizationsJa extends AppLocalizations {
       '通知を処理することで、eUICC と SM-DP+ サーバー (キャリア) 間の同期が容易になります。送信済みの通知を削除すると、カードのストレージをクリーンに保つことができます。';
 
   @override
-  String get notificationProcessingTimings => 'Processing timings';
+  String get notificationProcessingTimings => '処理を行うタイミング';
 
   @override
   String get notificationProcessingTimingsHelp =>
-      'Choose when automatic notification processing runs. Some safety-critical timings can only be disabled while Developer Mode is enabled.';
+      '自動通知処理を実行するタイミングを選択してください。一部の安全性で重要なタイミングは、開発者モードが有効化されている場合でのみ無効化できます。';
 
   @override
   String get afterEnablingProfile => 'プロファイルの有効化後';
@@ -1435,40 +1472,38 @@ class AppLocalizationsJa extends AppLocalizations {
   String get afterProfileDeletion => 'プロファイルの削除後';
 
   @override
-  String get initialLoad => 'Initial load';
+  String get initialLoad => '読み込みをした後';
 
   @override
-  String get processNotificationsOnInitialLoad =>
-      'Process notifications after profiles finish loading';
+  String get processNotificationsOnInitialLoad => 'プロファイルの読み込み完了後に通知を処理します';
 
   @override
-  String get afterSwitchingProfile => 'After switching profile';
+  String get afterSwitchingProfile => 'プロファイルを切り替えた後';
 
   @override
   String get processNotificationsAfterSwitchingProfile =>
-      'Process notifications after enabling or disabling a profile';
+      'プロファイルの有効化または無効化後に通知を処理します';
 
   @override
-  String get beforeProfileDownload => 'Before profile download';
+  String get beforeProfileDownload => 'プロファイルをインストールする前';
 
   @override
   String get processNotificationsBeforeProfileDownload =>
-      'Process notifications before starting a profile download';
+      'プロファイルのダウンロードを開始する前に通知を処理します';
 
   @override
-  String get afterProfileInstalled => 'After profile installed';
+  String get afterProfileInstalled => 'プロファイルをインストールした後';
 
   @override
   String get processNotificationsAfterProfileInstalled =>
-      'Process notifications after a profile has been installed';
+      'プロファイルをインストール後に通知を処理します';
 
   @override
-  String get processNotificationsAfterProfileDeletion =>
-      'Process notifications after deleting a profile';
+  String get processNotificationsAfterProfileDeletion => 'プロファイルを削除後に通知を処理します';
 
   @override
   String get developerModeRequiredToDisableTiming =>
-      'Enable Developer Mode to disable this timing.';
+      'このタイミングを無効化するには、開発者モードを有効化してください。';
 
   @override
   String get sendToServerAutomatically => '自動でサーバーに送信';
@@ -1564,17 +1599,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get firmwareVersion => 'ファームウェアバージョン';
 
   @override
-  String get beeSimFirmwareAction => 'Update BeeSIM firmware';
+  String get beeSimFirmwareAction => 'BeeSIM ファームウェアを更新';
 
   @override
-  String get beeSimFirmwareTitle => 'BeeSIM firmware update';
+  String get beeSimFirmwareTitle => 'BeeSIM ファームウェアを更新';
 
   @override
   String get beeSimFirmwareWarning =>
-      'A BeeSIM firmware update is available. Keep the card powered, Bluetooth connected, and the app open until it finishes. Interrupting the update may leave the card temporarily unusable.';
+      'BeeSIM のファームウェア更新が利用可能です。完了するまで、カードへの給電、Bluetooth の接続、アプリの起動状態を維持してください。更新を中断すると、カードが一時的に使用できなくなる場合があります。';
 
   @override
-  String get beeSimFirmwareConfirm => 'Update firmware';
+  String get beeSimFirmwareConfirm => 'ファームウェアを更新';
 
   @override
   String get platformSupport => 'プラットフォームの対応';
@@ -1590,6 +1625,15 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get certInfrastructure => '証明書のインフラストラクチャー';
+
+  @override
+  String get configuredAddresses => '設定済みのアドレス';
+
+  @override
+  String get defaultSmdpAddress => '既定の SM-DP+';
+
+  @override
+  String get rootDsAddress => 'ルート SM-DS';
 
   @override
   String get euiccSignCi => 'eUICC 署名 CI';
@@ -1948,6 +1992,27 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get defaultPasswordWillChangeTitle => '既定のパスワードが変更されます';
+
+  @override
+  String defaultPasswordWillChangeMessage(String password) {
+    return 'このデバイスは既定のパスワードで接続されています。名前を変更すると、パスワードは $password に設定されます。再接続する前にこのパスワードを保存してください。';
+  }
+
+  @override
+  String get savedBleDevices => '以前に接続した BLE デバイス';
+
+  @override
+  String get savedBleDevicesSubtitle => 'この端末に保存されているデバイス名とパスワードを表示します';
+
+  @override
+  String get savedBleDevicesDescription =>
+      '各項目はローカルに保存された NBLESim のパスワードです。既定のパスワードも保存されます。';
+
+  @override
+  String get noSavedBleDevices => '以前に接続した BLE デバイスはありません。';
+
+  @override
   String get deviceName => 'デバイス名';
 
   @override
@@ -2016,23 +2081,151 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get deviceImei => 'デバイス TAC';
+  String get deviceImei => 'デバイスの IMEI (TAC)';
 
   @override
   String get deviceImeiSubtitle => 'プロファイルのダウンロードに使用されます';
 
   @override
-  String get editDeviceImei => 'デバイス TAC を編集';
+  String get editDeviceImei => 'デバイスの IMEI を編集';
 
   @override
   String get editDeviceImeiInfo =>
-      '8 桁の TAC、または 15 桁の IMEI を入力してください。既定の TAC: 35383741。';
+      '16 桁 (8 バイト) を入力してください。標準の IMEI は 35 から始まります。';
 
   @override
-  String get imeiDigits => 'TAC または IMEI の数字';
+  String get imeiDigits => 'IMEI (数字)';
 
   @override
   String get importAction => 'インポート';
+
+  @override
+  String get transferTitle => 'eSIM を転送';
+
+  @override
+  String get transferAction => 'このデバイスに転送';
+
+  @override
+  String get transferCheckingEligibility => '資格を確認中…';
+
+  @override
+  String get transferReadingSource => 'ソース SIM を読み込み中…';
+
+  @override
+  String get transferContactingCarrier => 'キャリアにコンタクト中…';
+
+  @override
+  String get transferIneligibleReader =>
+      'このプロファイルはリーダーで転送できません。送信元の SIM の認証情報 (EAP-AKA) にアクセスできません。';
+
+  @override
+  String get transferNoEntitlement =>
+      'このプロファイルのキャリア転送設定が見つかりませんでした。エンタイトルメントサーバーを手動で入力してください。';
+
+  @override
+  String transferSourceCarrier(String carrier) {
+    return 'ソースキャリア: $carrier';
+  }
+
+  @override
+  String get transferConfirmTitle => 'このサブスクリプションを転送しますか？';
+
+  @override
+  String get transferConfirmBody =>
+      'キャリアはサブスクリプションをこの eUICC に再発行します。転送時の一環として元のプロファイルが削除される場合があります。';
+
+  @override
+  String get transferStart => '転送を開始';
+
+  @override
+  String get transferDownloadingProfile => '転送したプロファイルをダウンロード中…';
+
+  @override
+  String get transferDeleteSourceTitle => 'ソースプロファイルを削除';
+
+  @override
+  String transferDeleteSourceBody(String iccid) {
+    return 'キャリアはプロファイルの有効化前に $iccid のソースプロファイルを削除することを要求しています。今すぐ削除しますか？';
+  }
+
+  @override
+  String get transferDeleteSourceConfirm => '削除と続行';
+
+  @override
+  String get transferUserInputSubmit => '送信';
+
+  @override
+  String get transferAccept => '許可';
+
+  @override
+  String get transferReject => '拒否';
+
+  @override
+  String get transferPendingActivation =>
+      '現在、キャリアがこのサブスクリプションの有効化処理を行っています。まもなく完了するため、この画面を閉じて後ほどご確認ください。';
+
+  @override
+  String get transferDismissed => 'キャリアが転送を拒否しました。';
+
+  @override
+  String get transferDelayedDownload =>
+      'キャリアからプロファイルがまもなく配信されます。プロファイルをインストール後にインストール済みの ICCID を入力して完了です。';
+
+  @override
+  String get transferInstalledIccid => 'インストール済みの ICCID';
+
+  @override
+  String get transferSuccess => '転送が完了しました';
+
+  @override
+  String transferFailed(String error) {
+    return '転送に失敗しました: $error';
+  }
+
+  @override
+  String get transferManualServerTitle => 'エンタイトルメントサーバー (高度)';
+
+  @override
+  String get transferManualServerHint => 'https://entitlement.example.com';
+
+  @override
+  String get transferEnablingSource => 'ソースプロファイルを準備中…';
+
+  @override
+  String get transferClose => '閉じる';
+
+  @override
+  String get transferContinue => '続行';
+
+  @override
+  String get transferSmdsDiscovering => 'SM-DS 経由でプロファイルを検出中…';
+
+  @override
+  String get transferSmdsNoProfiles => 'SM-DS による検出では、保留中のプロファイルは見つかりませんでした。';
+
+  @override
+  String get transferSelectProfile => 'ダウンロードするプロファイルを選択';
+
+  @override
+  String get discoverProfiles => 'プロファイルを探す (SM-DS)';
+
+  @override
+  String get discoveringProfiles => 'プロファイルを検出中…';
+
+  @override
+  String get discoveryNoProfiles => 'SM-DS による検出では、保留中のプロファイルは見つかりませんでした。';
+
+  @override
+  String get transferSmdsServerTitle => 'SM-DS サーバー';
+
+  @override
+  String transferProfileOnServer(String eventId, String address) {
+    return '$eventId - $address';
+  }
+
+  @override
+  String get downloadBusyCannotLeave =>
+      'Please wait for the current operation to finish.';
 
   @override
   String get qrtrReaderTitle => 'Qualcomm modem (QRTR)';
@@ -2040,12 +2233,4 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get qrtrReaderSubtitle =>
       'Qualcomm\'s low-level modem protocol (requires Shizuku)';
-
-  @override
-  String defaultPasswordWillChangeMessage(String password) {
-    return 'This device is connected with its default password. Renaming it will set the password to $password. Save this password before reconnecting.';
-  }
-
-  @override
-  String get defaultPasswordWillChangeTitle => 'Default password will change';
 }

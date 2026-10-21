@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/apdu_exception.dart';
 import '../../utils/error_codes.dart';
 
 /// Base widget for displaying state messages in the profiles screen.
@@ -78,6 +79,23 @@ class ColumnStateMessage extends StatelessWidget {
   }
 }
 
+/// Whether an error means the card needs to be physically re-seated.
+///
+/// Covers both the typed exception and the raw status words, because the same
+/// condition arrives as a [ConditionOfUseNotSatisfiedException] from one path
+/// and as a wrapped message from another.
+bool _needsReplug(Object error) {
+  if (error is ConditionOfUseNotSatisfiedException) return true;
+  if (error is AppException &&
+      error.code == AppErrorCode.ERROR_CONDITION_OF_USE_NOT_SATISFIED) {
+    return true;
+  }
+  final text = error.toString();
+  return text.contains('SW=6985') ||
+      text.contains('SW=6999') ||
+      text.contains('temporarily unavailable');
+}
+
 /// Generic error state widget that shows different messages based on error type
 class ErrorState extends StatelessWidget {
   final Object error;
@@ -96,7 +114,16 @@ class ErrorState extends StatelessWidget {
     IconData icon;
     Color iconColor;
 
-    if (error is AppException) {
+    if (_needsReplug(error)) {
+      // 6985/6999 from the ISD-R mean the eUICC will not hand over its
+      // management applet: it is mid profile state change, or serving a
+      // fallback because nothing usable is enabled. Nothing reachable over the
+      // reader clears either, so name the one action that does.
+      title = l10n.cardNeedsReplugTitle;
+      subtitle = l10n.cardNeedsReplugMessage;
+      icon = Icons.sim_card_download_rounded;
+      iconColor = Colors.orange;
+    } else if (error is AppException) {
       final appError = error as AppException;
 
       switch (appError.code) {

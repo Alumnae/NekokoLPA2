@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'profiles_screen.dart';
-import 'web_browser_page.dart';
+import 'buy_page.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../settings/app_settings.dart';
@@ -77,8 +77,8 @@ class _MainTabScreenState extends State<MainTabScreen> {
             label: tabConfig.label,
             icon: _resolveIcon(tabConfig.icon, false),
             activeIcon: _resolveIcon(tabConfig.icon, true),
-            pageBuilder: (_) => WebBrowserPage(
-              initialUrl: tabConfig.url,
+            pageBuilder: (_) => BuyPage(
+              url: tabConfig.url,
               title: tabConfig.title,
             ),
           ),

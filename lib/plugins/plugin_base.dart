@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../adapter/euicc_adapter.dart';
+import '../logic/profile_manager.dart';
 import '../logic/profile_download_session.dart';
 import '../models/asn1/rsp_definitions.g.dart';
 import '../models/euicc_profile.dart';
@@ -55,10 +56,14 @@ abstract class ProfilePlugin {
   Map<String, WidgetBuilder> get routes => {};
 
   /// Get a list of actions (e.g., menu items) for a profile.
+  ///
+  /// [actionContext], when provided, exposes the live adapter/reader/manager so
+  /// actions can drive on-card operations (e.g. eSIM transfer).
   List<PluginAction> getProfileActions(
     BuildContext context,
-    EuiccProfile profile,
-  ) => [];
+    EuiccProfile profile, {
+    ReaderActionContext? actionContext,
+  }) => [];
 }
 
 class PluginAction {
@@ -90,11 +95,13 @@ class ReaderActionContext {
     required this.adapter,
     required this.reader,
     required this.profiles,
+    this.manager,
   });
 
   final Adapter adapter;
   final Reader? reader;
   final List<EuiccProfile>? profiles;
+  final ProfileManager? manager;
 }
 
 class InstallationReportContext {

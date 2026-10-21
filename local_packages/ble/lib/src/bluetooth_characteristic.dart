@@ -254,7 +254,7 @@ class BluetoothCharacteristic {
 
       // failed?
       if (!response.success) {
-        // Some devices report this for harmless write-without-response paths.
+        // GlocalMe cards may return "Writing is not permitted" (iOS) or "GATT_WRITE_NOT_PERMITTED" (Android)
         if (response.errorString.contains("Writing is not permitted") ||
             response.errorString.contains("GATT_WRITE_NOT_PERMITTED")) {
           // ignore
@@ -339,7 +339,7 @@ class BluetoothCharacteristic {
 
         // failed?
         if (!response.success) {
-          // Some devices report this for harmless notification setup paths.
+          // GlocalMe cards may return "Writing is not permitted" (iOS) or "GATT_WRITE_NOT_PERMITTED" (Android)
           if (response.errorString.contains("Writing is not permitted") ||
               response.errorString.contains("GATT_WRITE_NOT_PERMITTED")) {
             // ignore

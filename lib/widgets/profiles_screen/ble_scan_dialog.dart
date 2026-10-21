@@ -3,6 +3,7 @@ import '../../adapter/ble/ble_manager.dart';
 import '../common/simple_dialog_container.dart';
 import '../common/loading_spinner.dart';
 import '../../theme/app_theme.dart';
+import 'reader_helper.dart';
 
 class BleScanDialog extends StatefulWidget {
   const BleScanDialog({super.key});
@@ -123,17 +124,13 @@ class _BleScanDialogState extends State<BleScanDialog> {
                               const SizedBox(height: 8),
                           itemBuilder: (context, index) {
                             final result = results[index];
-                            final name = result.device.platformName.isEmpty
-                                ? (result.advertisementData.advName.isEmpty
-                                      ? "Unknown Device"
-                                      : result.advertisementData.advName)
-                                : result.device.platformName;
+                            final info = BleReaderInfo.fromScanResult(result);
 
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: AppTheme.surfaceSubtle(context),
+                            return Material(
+                              color: AppTheme.surfaceSubtle(context),
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: theme.dividerColor),
+                                side: BorderSide(color: theme.dividerColor),
                               ),
                               child: ListTile(
                                 contentPadding: const EdgeInsets.symmetric(
@@ -151,15 +148,20 @@ class _BleScanDialogState extends State<BleScanDialog> {
                                     ),
                                   ),
                                   child: Center(
-                                    child: Icon(
-                                      Icons.bluetooth,
-                                      color: theme.primaryColor,
-                                      size: 20,
+                                    child: Tooltip(
+                                      message: info.type.label,
+                                      child: Icon(
+                                        ReaderHelper.getBleAdapterIconData(
+                                          info.type,
+                                        ),
+                                        color: theme.colorScheme.primary,
+                                        size: 20,
+                                      ),
                                     ),
                                   ),
                                 ),
                                 title: Text(
-                                  name,
+                                  info.name,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     color: theme.colorScheme.onSurface,

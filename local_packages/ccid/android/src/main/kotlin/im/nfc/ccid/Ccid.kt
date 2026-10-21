@@ -2,13 +2,31 @@ package im.nfc.ccid
 
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbEndpoint
+import android.hardware.usb.UsbInterface
 
 class Ccid(
     private val usbDeviceConnection: UsbDeviceConnection,
     private val bulkIn: UsbEndpoint,
-    private val bulkOut: UsbEndpoint
+    private val bulkOut: UsbEndpoint,
+    private val usbInterface: UsbInterface? = null
 ) {
     private var currentSeq = 0.toByte()
+
+    /**
+     * Releases the claimed interface and closes the USB connection.
+     *
+     * Safe when the interface was never claimed and safe to call twice:
+     * both platform calls are no-ops in those cases.
+     */
+    fun close() {
+        try {
+            if (usbInterface != null) {
+                usbDeviceConnection.releaseInterface(usbInterface)
+            }
+        } finally {
+            usbDeviceConnection.close()
+        }
+    }
 
     fun iccPowerOn(voltage: Byte = 0): ByteArray {
         val seq = currentSeq++

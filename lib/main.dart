@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'l10n/app_localizations.dart';
 
 import 'config.dart';
@@ -29,10 +31,31 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
+const String _sentryDsn = String.fromEnvironment('SENTRY_DSN');
+const String _sentryTracesSampleRateValue = String.fromEnvironment(
+  'SENTRY_TRACES_SAMPLE_RATE',
+  defaultValue: '0.0',
+);
+final double _sentryTracesSampleRate =
+    double.tryParse(_sentryTracesSampleRateValue) ?? 0.0;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _initRust();
-  _runMain();
+
+  final packageInfo = await PackageInfo.fromPlatform();
+  final version = packageInfo.version;
+  final versionParts = version.split('.');
+  final isCandidate = versionParts.length >= 3 && versionParts[2] != '0';
+
+  if (isCandidate && _sentryDsn.isNotEmpty) {
+    await SentryFlutter.init((options) {
+      options.dsn = _sentryDsn;
+      options.tracesSampleRate = _sentryTracesSampleRate;
+    }, appRunner: () => _runMain());
+  } else {
+    _runMain();
+  }
 }
 
 /// Load the Rust library, on the platform that has it.
@@ -49,6 +72,7 @@ void _runMain() async {
   // Initialize synchronous services up-front so logs from later async work are captured.
   Logger.root.level = Level.ALL;
   LogBuffer().init(); // Start buffering logs
+  LogBuffer().startFileLogging(); // Keep this run's full log on disk
   Logger.root.onRecord.listen((record) {
     if (kDebugMode) {
       print(
@@ -56,13 +80,14 @@ void _runMain() async {
       );
     }
   });
-  PluginManager(); // Initialize plugin manager
-
   // DB must be ready before AppSettings (which queries DatabaseService).
   await initDb();
 
   // Run the two heavy async inits in parallel — they are independent.
   await Future.wait([AppSettings().init(), LocalNotificationService().init()]);
+
+  // Plugin availability depends on the resolved build flavor.
+  PluginManager();
 
   // Cheap follow-ups — no need to block startup further.
   DeepLinkService().init();

@@ -5,9 +5,10 @@ import 'package:logging/logging.dart';
 import '../euicc_adapter.dart';
 import '../../utils/hex_utils.dart';
 import '../../utils/error_codes.dart';
+import 'ble_adapter.dart';
 import 'ble_transport_utils.dart';
 
-class RedBleAdapter extends BaseAdapter {
+class RedBleAdapter extends BaseAdapter implements BleAdapter {
   static final Logger _log = Logger('RedBleAdapter');
 
   RedBleAdapter() : super(_log);
@@ -50,7 +51,7 @@ class RedBleAdapter extends BaseAdapter {
 
       log.info("Connecting to RedBle device: $deviceId");
       try {
-        await connectBleDevice(_device!, log);
+        await connectBleDevice(_device!, log, progress: connectProgress);
         log.info("Connected to device: $deviceId");
 
         await _connSub?.cancel();
@@ -63,6 +64,7 @@ class RedBleAdapter extends BaseAdapter {
           }
         });
 
+        reportConnectStep(ReaderConnectStep.discoveringServices);
         List<BluetoothService> services = await _device!.discoverServices();
         BluetoothService service = services.firstWhere(
           (s) => s.uuid == serviceUuid,
@@ -89,10 +91,12 @@ class RedBleAdapter extends BaseAdapter {
         );
         log.info("Found characteristics - TX: $txCharUuid, RX: $rxCharUuid");
 
+        reportConnectStep(ReaderConnectStep.enablingNotifications);
         await _rxChar!.setNotifyValue(true);
 
         // Port protocol init: Claim and Power On
         log.info("Initializing port protocol (Claim and Power On)...");
+        reportConnectStep(ReaderConnectStep.initializing);
         await _claim();
         final atrBytes = await _powerOn();
         _lastAtr = HexUtils.bytesToHex(atrBytes);

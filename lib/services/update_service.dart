@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 import '../settings/app_settings.dart';
 import '../utils/platform_adapter.dart';
 import 'package:logging/logging.dart';
@@ -69,9 +70,9 @@ class UpdateService {
       final osConfig = config[platformKey];
 
       if (os == 'android') {
-        return _checkAndroidUpdate(osConfig);
+        return await _checkAndroidUpdate(osConfig);
       } else {
-        return _checkGenericUpdate(osConfig);
+        return await _checkGenericUpdate(osConfig);
       }
     } catch (e) {
       _log.warning('Error checking for updates: $e');
@@ -89,8 +90,7 @@ class UpdateService {
     }
 
     final currentHashes = await _getAndroidSignatures();
-    final currentBuildString = AppSettings().buildNumber;
-    final currentBuild = int.tryParse(currentBuildString) ?? 0;
+    final currentBuild = await _getCurrentBuild();
 
     UpdateInfo? bestMatch;
     int maxBuild = currentBuild;
@@ -157,7 +157,7 @@ class UpdateService {
     return bestMatch;
   }
 
-  UpdateInfo? _checkGenericUpdate(dynamic osConfig) {
+  Future<UpdateInfo?> _checkGenericUpdate(dynamic osConfig) async {
     if (osConfig is! Map) return null;
 
     // Try to find variant-specific config, then "std", then fallback to direct
@@ -175,7 +175,7 @@ class UpdateService {
     if (targetConfig is! Map) return null;
 
     final latestBuild = targetConfig['build'] as int? ?? 0;
-    final currentBuild = int.tryParse(AppSettings().buildNumber) ?? 0;
+    final currentBuild = await _getCurrentBuild();
 
     if (latestBuild > currentBuild) {
       return _mapToUpdateInfo(targetConfig);
@@ -191,6 +191,27 @@ class UpdateService {
       downloadUrl: data['download_url'],
       changelog: data['changelog'],
     );
+  }
+
+  Future<int> _getCurrentBuild() async {
+    final settingsBuild = int.tryParse(AppSettings().buildNumber) ?? 0;
+
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final packageBuild = int.tryParse(packageInfo.buildNumber);
+      if (packageBuild != null && packageBuild > 0) {
+        if (settingsBuild > 0 && packageBuild != settingsBuild) {
+          _log.info(
+            'Package build $packageBuild differs from embedded build $settingsBuild; using package build for update comparison',
+          );
+        }
+        return packageBuild;
+      }
+    } catch (e) {
+      _log.warning('Failed to get package build number: $e');
+    }
+
+    return settingsBuild;
   }
 
   Future<List<String>> _getAndroidSignatures() async {

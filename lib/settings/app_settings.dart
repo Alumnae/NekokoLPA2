@@ -10,10 +10,12 @@ import 'package:logging/logging.dart';
 import '../services/database_service.dart';
 import '../adapter/ble/ble_manager.dart';
 import '../services/nbridge_service.dart';
+import '../services/rsp_proxy_config.dart';
 import '../utils/platform_adapter.dart';
 import '../utils/imei_codec.dart';
 import '../version.dart';
 import '../config.dart';
+import 'build_capabilities.dart';
 import 'package:yaml/yaml.dart';
 
 class BrowserTabConfig {
@@ -75,7 +77,24 @@ class AppSettings extends ChangeNotifier {
 
   String _flavorFileVariant = '';
 
+  bool get isEsim9Build {
+    const environmentVariant = String.fromEnvironment(
+      'APP_VARIANT',
+      defaultValue: '',
+    );
+    return BuildCapabilities.isEsim9Build(
+      compileTimeFlag: kIsEsim9,
+      environmentVariant: environmentVariant,
+      flavorVariant: _flavorFileVariant,
+      packageName: _packageName,
+    );
+  }
+
   String get variant {
+    // A positive 9eSIM signal always wins so a stale flavor asset cannot
+    // accidentally enable build-specific features.
+    if (isEsim9Build) return 'esim9';
+
     // 1. Check if explicitly defined in build environment
     const String envVariant = String.fromEnvironment(
       'APP_VARIANT',
@@ -105,6 +124,8 @@ class AppSettings extends ChangeNotifier {
   }
 
   String get appName {
+    final v = variant;
+    if (v == 'esim9') return '9eSIM';
     return 'NekokoLPA 2';
   }
 
@@ -221,6 +242,26 @@ class AppSettings extends ChangeNotifier {
 
   bool _enableUpdateCheck = true;
   bool get enableUpdateCheck => _enableUpdateCheck;
+
+  RspProxyMode _rspProxyMode = RspProxyMode.direct;
+  String _rspForwardProxyProtocol = 'http';
+  String _rspForwardProxyHost = '';
+  int? _rspForwardProxyPort;
+  String _rspReverseProxyUrlPrefix = '';
+
+  RspProxyMode get rspProxyMode => _rspProxyMode;
+  String get rspForwardProxyProtocol => _rspForwardProxyProtocol;
+  String get rspForwardProxyHost => _rspForwardProxyHost;
+  int? get rspForwardProxyPort => _rspForwardProxyPort;
+  String get rspReverseProxyUrlPrefix => _rspReverseProxyUrlPrefix;
+
+  RspProxyConfig get rspProxyConfig => RspProxyConfig(
+    mode: _rspProxyMode,
+    forwardProtocol: _rspForwardProxyProtocol,
+    forwardHost: _rspForwardProxyHost,
+    forwardPort: _rspForwardProxyPort,
+    reverseUrlPrefix: _rspReverseProxyUrlPrefix,
+  );
 
   bool get ensureSingleChannel => true;
 
@@ -370,6 +411,22 @@ class AppSettings extends ChangeNotifier {
   String? _remoCardPassword;
   String? get remoCardPassword => _remoCardPassword;
 
+  static const String _vowifiEnabledKey = 'vowifiEnabled';
+  static const String _vowifiConsentVersionKey = 'vowifiConsentVersion';
+
+  bool _vowifiEnabled = false;
+  int? _vowifiConsentVersion;
+  bool get vowifiAvailable => BuildCapabilities.isVowifiAvailable(
+    isEsim9Build: isEsim9Build,
+    isAndroid: PlatformX.isAndroid,
+    isIOS: PlatformX.isIOS,
+  );
+  bool get vowifiEnabled => BuildCapabilities.isVowifiEnabled(
+    available: vowifiAvailable,
+    storedEnabled: _vowifiEnabled,
+    consentVersion: _vowifiConsentVersion,
+  );
+
   Future<void> setRemoCardPassword(String? value) async {
     _remoCardPassword = value;
     if (value == null) {
@@ -515,6 +572,7 @@ class AppSettings extends ChangeNotifier {
         _prefs?.getString('sizeUnit') ?? "settings_item_unit_adaptive_si";
     _mss = _prefs?.getInt('mss') ?? 233;
     _developerModeEnabled = _prefs?.getBool('developerModeEnabled') ?? false;
+    _showLogConsole = _prefs?.getBool('showLogConsole') ?? false;
     _decodeAsn1 = _prefs?.getBool('decodeAsn1') ?? false;
     _enableApduLogging = _prefs?.getBool('enableApduLogging') ?? false;
     _lastSelectedReader = _prefs?.getString('lastSelectedReader');
@@ -562,9 +620,21 @@ class AppSettings extends ChangeNotifier {
         _prefs?.getBool('enableTmapiConnector') ?? !otbridgeHasTmapi;
     _enableRemoteConnector = _prefs?.getBool('enableRemoteConnector') ?? false;
     _enableUpdateCheck = _prefs?.getBool('enableUpdateCheck') ?? true;
+    _rspProxyMode = RspProxyConfig.modeFromString(
+      _prefs?.getString('rspProxyMode'),
+    );
+    _rspForwardProxyProtocol = RspProxyConfig.normalizeForwardProtocol(
+      _prefs?.getString('rspForwardProxyProtocol'),
+    );
+    _rspForwardProxyHost = _prefs?.getString('rspForwardProxyHost') ?? '';
+    _rspForwardProxyPort = _prefs?.getInt('rspForwardProxyPort');
+    _rspReverseProxyUrlPrefix =
+        _prefs?.getString('rspReverseProxyUrlPrefix') ?? '';
     _locale = _prefs?.getString('locale');
     _estkMaxEids = (_prefs?.getStringList('estkMaxEids') ?? []).toSet();
     _aids = _prefs?.getStringList('aids') ?? _aids;
+    _vowifiEnabled = _prefs?.getBool(_vowifiEnabledKey) ?? false;
+    _vowifiConsentVersion = _prefs?.getInt(_vowifiConsentVersionKey);
 
     final phoneFormatIdx = _prefs?.getInt('phoneFormatStrategy');
     if (phoneFormatIdx != null &&
@@ -601,6 +671,16 @@ class AppSettings extends ChangeNotifier {
       _packageName = packageInfo.packageName;
     } catch (e) {
       // Fallback to defaults already set
+    }
+
+    if (!vowifiEnabled) {
+      _vowifiEnabled = false;
+      await _prefs?.remove(_vowifiEnabledKey);
+      if (!vowifiAvailable ||
+          _vowifiConsentVersion != BuildCapabilities.vowifiConsentVersion) {
+        _vowifiConsentVersion = null;
+        await _prefs?.remove(_vowifiConsentVersionKey);
+      }
     }
 
     // Load variant tabs configuration
@@ -666,7 +746,18 @@ class AppSettings extends ChangeNotifier {
   }
 
   Future<void> savePersistedEid(String readerId, String eid) async {
-    return;
+    final key = readerId.toLowerCase();
+    if (!key.startsWith('glocalme:')) return;
+
+    final jsonStr = _prefs?.getString('persisted_reader_eids_v2');
+    Map<String, dynamic> persisted = {};
+    if (jsonStr != null) {
+      try {
+        persisted = jsonDecode(jsonStr);
+      } catch (_) {}
+    }
+    persisted[key] = eid;
+    await _prefs?.setString('persisted_reader_eids_v2', jsonEncode(persisted));
   }
 
   Future<void> setMss(int value) async {
@@ -829,6 +920,33 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setRspProxyConfig(RspProxyConfig value) async {
+    _rspProxyMode = value.mode;
+    _rspForwardProxyProtocol = RspProxyConfig.normalizeForwardProtocol(
+      value.forwardProtocol,
+    );
+    _rspForwardProxyHost = value.forwardHost.trim();
+    _rspForwardProxyPort = value.forwardPort;
+    _rspReverseProxyUrlPrefix = value.reverseUrlPrefix.trim();
+
+    await _prefs?.setString('rspProxyMode', _rspProxyMode.name);
+    await _prefs?.setString(
+      'rspForwardProxyProtocol',
+      _rspForwardProxyProtocol,
+    );
+    await _prefs?.setString('rspForwardProxyHost', _rspForwardProxyHost);
+    if (_rspForwardProxyPort == null) {
+      await _prefs?.remove('rspForwardProxyPort');
+    } else {
+      await _prefs?.setInt('rspForwardProxyPort', _rspForwardProxyPort!);
+    }
+    await _prefs?.setString(
+      'rspReverseProxyUrlPrefix',
+      _rspReverseProxyUrlPrefix,
+    );
+    notifyListeners();
+  }
+
   Future<void> setSizeUnit(String value) async {
     _sizeUnit = value;
     await _prefs?.setString('sizeUnit', value);
@@ -850,6 +968,15 @@ class AppSettings extends ChangeNotifier {
   Future<void> setDeveloperModeEnabled(bool value) async {
     _developerModeEnabled = value;
     await _prefs?.setBool('developerModeEnabled', value);
+    notifyListeners();
+  }
+
+  bool _showLogConsole = false;
+  bool get showLogConsole => _developerModeEnabled && _showLogConsole;
+
+  Future<void> setShowLogConsole(bool value) async {
+    _showLogConsole = value;
+    await _prefs?.setBool('showLogConsole', value);
     notifyListeners();
   }
 
@@ -1085,6 +1212,10 @@ class AppSettings extends ChangeNotifier {
     const envUrl = String.fromEnvironment('BUY_PAGE_URL');
     if (envUrl.isNotEmpty) return envUrl;
 
+    if (variant == 'esim9') {
+      return 'https://9es.im/';
+    }
+
     return 'https://n.lpa.ee/products';
   }
 
@@ -1102,6 +1233,32 @@ class AppSettings extends ChangeNotifier {
     _enableBleConnector = value;
     await _prefs?.setBool('enableBleConnector', value);
     notifyListeners();
+  }
+
+  Future<void> setVowifiEnabled(
+    bool value, {
+    bool disclaimerAccepted = false,
+  }) async {
+    final wasEnabled = vowifiEnabled;
+
+    if (!value || !vowifiAvailable || !disclaimerAccepted) {
+      _vowifiEnabled = false;
+      await _prefs?.remove(_vowifiEnabledKey);
+      if (!vowifiAvailable) {
+        _vowifiConsentVersion = null;
+        await _prefs?.remove(_vowifiConsentVersionKey);
+      }
+    } else {
+      _vowifiConsentVersion = BuildCapabilities.vowifiConsentVersion;
+      _vowifiEnabled = true;
+      await _prefs?.setInt(
+        _vowifiConsentVersionKey,
+        BuildCapabilities.vowifiConsentVersion,
+      );
+      await _prefs?.setBool(_vowifiEnabledKey, true);
+    }
+
+    if (wasEnabled != vowifiEnabled) notifyListeners();
   }
 
   Future<void> setEnableCcidConnector(bool value) async {

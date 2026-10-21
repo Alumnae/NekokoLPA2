@@ -51,4 +51,21 @@ class Es9PlusService {
       },
     );
   }
+
+  /// Releases the order the SM-DP+ is holding for this transaction so a later
+  /// attempt is not refused while the server waits out its own timeout.
+  Future<Map<String, dynamic>> cancelSession({
+    required String smdpAddress,
+    required String transactionId,
+    required String cancelSessionResponse, // Base64
+  }) async {
+    return await SmdpClient.post(
+      smdpAddress: smdpAddress,
+      endpoint: 'cancelSession',
+      bodyData: {
+        'transactionId': transactionId,
+        'cancelSessionResponse': cancelSessionResponse,
+      },
+    );
+  }
 }

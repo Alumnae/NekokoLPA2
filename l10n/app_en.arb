@@ -162,6 +162,25 @@
   "scanningForUnresponsiveDevices": "Scanning for unresponsive devices...",
   "resettingConnection": "Resetting connection...",
   "connectingToReader": "Connecting to reader...",
+  "waitingForBluetooth": "Waiting for Bluetooth to turn on...",
+  "connectingOverBluetooth": "Connecting over Bluetooth...",
+  "connectingOverBluetoothAttempt": "Connecting over Bluetooth (attempt {attempt} of {total})...",
+  "@connectingOverBluetoothAttempt": {
+    "placeholders": {
+      "attempt": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "discoveringReaderServices": "Discovering reader services...",
+  "settingUpBluetoothLink": "Setting up the Bluetooth link...",
+  "authenticatingWithReader": "Authenticating with the reader...",
+  "initializingReader": "Initializing the reader...",
+  "switchingReaderToEuiccMode": "Switching the reader to eUICC mode...",
+  "waitingForReaderRestart": "Waiting for the reader to restart...",
   "moreOptions": "More options",
   "retrievingProfiles": "Retrieving profiles...",
   "savingProfileMetadata": "Saving profile metadata...",
@@ -256,6 +275,8 @@
   "bleDisconnectedTitle": "Bluetooth Connection Lost",
   "bleDisconnectedMessage": "The connection to the card reader was suddenly lost. Please ensure it is nearby and turned on.",
   "cardStuckRefreshingMessage": "Profile state change ongoing - try manually re-plug the SIM card if it stucks.",
+  "cardNeedsReplugTitle": "Re-plug the SIM card",
+  "cardNeedsReplugMessage": "The card will not hand over its eUICC applet, so it cannot be managed right now. Remove the SIM card and insert it again, then try once more.",
   "activationCodeTitle": "Activation Code",
   "activationCodeSubtitle": "Scan a QR code, drop an image, or enter the LPA string manually.",
   "fullActivationCodeLabel": "Full Activation Code",
@@ -554,6 +575,9 @@
   "bppVersion": "BPP Version",
   "gpVersion": "GlobalPlatform Version",
   "certInfrastructure": "CERTIFICATE INFRASTRUCTURE",
+  "configuredAddresses": "CONFIGURED ADDRESSES",
+  "defaultSmdpAddress": "Default SM-DP+",
+  "rootDsAddress": "Root SM-DS",
   "euiccSignCi": "eUICC Sign CI",
   "euiccVerifyCi": "eUICC Verify CI",
   "none": "None",
@@ -740,6 +764,19 @@
       }
     }
   },
+  "defaultPasswordWillChangeTitle": "Default password will change",
+  "defaultPasswordWillChangeMessage": "This device is connected with its default password. Renaming it will set the password to {password}. Save this password before reconnecting.",
+  "@defaultPasswordWillChangeMessage": {
+    "placeholders": {
+      "password": {
+        "type": "String"
+      }
+    }
+  },
+  "savedBleDevices": "Previously connected BLE devices",
+  "savedBleDevicesSubtitle": "View device names and passwords saved on this device",
+  "savedBleDevicesDescription": "Each entry is a locally saved NBLESim password. Default passwords are saved too.",
+  "noSavedBleDevices": "No previously connected BLE devices.",
   "deviceName": "Device Name",
   "success": "Success",
   "devicePasswordHint": "6 hex chars or password string",
@@ -787,15 +824,75 @@
   "editDeviceImeiInfo": "Enter an 8-digit TAC, or a 15-digit IMEI. Default TAC: 35383741.",
   "imeiDigits": "TAC or IMEI digits",
   "importAction": "Import",
-  "qrtrReaderTitle": "Qualcomm modem (QRTR)",
-  "qrtrReaderSubtitle": "Qualcomm's low-level modem protocol (requires Shizuku)",
-  "defaultPasswordWillChangeMessage": "This device is connected with its default password. Renaming it will set the password to {password}. Save this password before reconnecting.",
-  "@defaultPasswordWillChangeMessage": {
+  "transferTitle": "Transfer eSIM",
+  "transferAction": "Transfer to this device",
+  "transferCheckingEligibility": "Checking eligibility…",
+  "transferReadingSource": "Reading source SIM…",
+  "transferContactingCarrier": "Contacting carrier…",
+  "transferIneligibleReader": "This profile cannot be transferred on this reader. The source SIM's authentication (EAP-AKA) is not reachable here.",
+  "transferNoEntitlement": "No carrier transfer configuration was found for this profile. You can enter the entitlement server manually.",
+  "transferSourceCarrier": "Source carrier: {carrier}",
+  "@transferSourceCarrier": {
     "placeholders": {
-      "password": {
+      "carrier": {
         "type": "String"
       }
     }
   },
-  "defaultPasswordWillChangeTitle": "Default password will change"
+  "transferConfirmTitle": "Transfer this subscription?",
+  "transferConfirmBody": "The carrier will re-issue this subscription onto this eUICC. The source profile may be deleted as part of the transfer.",
+  "transferStart": "Start transfer",
+  "transferDownloadingProfile": "Downloading transferred profile…",
+  "transferDeleteSourceTitle": "Delete source profile",
+  "transferDeleteSourceBody": "The carrier requires the source profile {iccid} to be deleted before activation. Delete it now?",
+  "@transferDeleteSourceBody": {
+    "placeholders": {
+      "iccid": {
+        "type": "String"
+      }
+    }
+  },
+  "transferDeleteSourceConfirm": "Delete and continue",
+  "transferUserInputSubmit": "Submit",
+  "transferAccept": "Accept",
+  "transferReject": "Decline",
+  "transferPendingActivation": "The carrier is still activating this subscription. It will finish shortly; you can close this and check again later.",
+  "transferDismissed": "The carrier dismissed the transfer.",
+  "transferDelayedDownload": "The carrier will deliver the profile shortly. Once you have installed it, enter the installed ICCID to finish.",
+  "transferInstalledIccid": "Installed ICCID",
+  "transferSuccess": "Transfer complete",
+  "transferFailed": "Transfer failed: {error}",
+  "@transferFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "transferManualServerTitle": "Entitlement server (advanced)",
+  "transferManualServerHint": "https://entitlement.example.com",
+  "transferEnablingSource": "Preparing source profile…",
+  "transferClose": "Close",
+  "transferContinue": "Continue",
+  "transferSmdsDiscovering": "Discovering profiles via SM-DS…",
+  "transferSmdsNoProfiles": "No pending profiles were found via SM-DS discovery.",
+  "transferSelectProfile": "Select a profile to download",
+  "discoverProfiles": "Discover profiles (SM-DS)",
+  "discoveringProfiles": "Discovering profiles…",
+  "discoveryNoProfiles": "No pending profiles were found via SM-DS discovery.",
+  "transferSmdsServerTitle": "SM-DS server",
+  "transferProfileOnServer": "{eventId} on {address}",
+  "@transferProfileOnServer": {
+    "placeholders": {
+      "eventId": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadBusyCannotLeave": "Please wait for the current operation to finish.",
+  "qrtrReaderTitle": "Qualcomm modem (QRTR)",
+  "qrtrReaderSubtitle": "Qualcomm's low-level modem protocol (requires Shizuku)"
 }

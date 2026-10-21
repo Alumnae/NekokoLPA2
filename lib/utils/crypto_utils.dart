@@ -3,39 +3,26 @@ import 'dart:typed_data';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:pointycastle/export.dart';
-import './hex_utils.dart';
 import 'package:logging/logging.dart';
 
 class CryptoUtils {
   static final Logger _log = Logger('CryptoUtils');
 
+  /// HashCc = SHA256 (SHA256 (Confirmation Code) | TransactionID)
+  ///
+  /// [transactionId] must be the octets, never the hex text the SM-DP+ sends
+  /// over ES9+ — hashing that text produces a value the server rejects while
+  /// consuming one of the few confirmation-code attempts an order allows.
+  /// ProfileDownloadSession decodes it at the boundary so callers hold octets.
   static Uint8List computeHashCc(
     String confirmationCode,
     Uint8List transactionId,
   ) {
-    // HashCc = SHA256 (SHA256 (Confirmation Code) | TransactionID)
-    // SGP.22 specifies that TransactionID is the binary octet string (16 bytes).
-
-    Uint8List binaryTxnId = transactionId;
-
-    // Fallback: If passed a 32-character ASCII hex representation instead of 16 binary bytes
-    if (transactionId.length == 32) {
-      try {
-        final hexString = String.fromCharCodes(transactionId);
-        if (RegExp(r'^[0-9a-fA-F]{32}$').hasMatch(hexString)) {
-          _log.info(
-            "computeHashCc: Detected 32-byte ASCII hex TransactionID, decoding to 16-byte binary.",
-          );
-          binaryTxnId = HexUtils.hexToBytes(hexString);
-        }
-      } catch (_) {
-        // Not decodable as ASCII, treat as raw binary (even though length is 32)
-      }
-    }
-
-    if (binaryTxnId.length != 16) {
+    // SGP.22: TransactionId ::= OCTET STRING (SIZE(1..16))
+    if (transactionId.isEmpty || transactionId.length > 16) {
       _log.warning(
-        "WARNING: TransactionID length is ${binaryTxnId.length}, expected 16 bytes for binary form.",
+        "TransactionID is ${transactionId.length} bytes, outside the 1..16 "
+        "octets SGP.22 allows; hashCc will not match the server's.",
       );
     }
 
@@ -43,10 +30,10 @@ class CryptoUtils {
     final ccBytes = utf8.encode(confirmationCode);
     final firstHash = sha256.convert(ccBytes).bytes;
 
-    // 2. Concatenate firstHash (32 bytes) and binaryTxnId (16 bytes)
-    final combined = Uint8List(firstHash.length + binaryTxnId.length);
+    // 2. Concatenate firstHash (32 bytes) and the transaction id
+    final combined = Uint8List(firstHash.length + transactionId.length);
     combined.setAll(0, firstHash);
-    combined.setAll(firstHash.length, binaryTxnId);
+    combined.setAll(firstHash.length, transactionId);
 
     // 3. Final SHA256
     final finalHash = sha256.convert(combined).bytes;

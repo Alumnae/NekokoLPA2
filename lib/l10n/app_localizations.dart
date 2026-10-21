@@ -1091,6 +1091,60 @@ abstract class AppLocalizations {
   /// **'Connecting to reader...'**
   String get connectingToReader;
 
+  /// No description provided for @waitingForBluetooth.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Bluetooth to turn on...'**
+  String get waitingForBluetooth;
+
+  /// No description provided for @connectingOverBluetooth.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting over Bluetooth...'**
+  String get connectingOverBluetooth;
+
+  /// No description provided for @connectingOverBluetoothAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting over Bluetooth (attempt {attempt} of {total})...'**
+  String connectingOverBluetoothAttempt(int attempt, int total);
+
+  /// No description provided for @discoveringReaderServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Discovering reader services...'**
+  String get discoveringReaderServices;
+
+  /// No description provided for @settingUpBluetoothLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Setting up the Bluetooth link...'**
+  String get settingUpBluetoothLink;
+
+  /// No description provided for @authenticatingWithReader.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticating with the reader...'**
+  String get authenticatingWithReader;
+
+  /// No description provided for @initializingReader.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing the reader...'**
+  String get initializingReader;
+
+  /// No description provided for @switchingReaderToEuiccMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching the reader to eUICC mode...'**
+  String get switchingReaderToEuiccMode;
+
+  /// No description provided for @waitingForReaderRestart.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the reader to restart...'**
+  String get waitingForReaderRestart;
+
   /// No description provided for @moreOptions.
   ///
   /// In en, this message translates to:
@@ -1654,6 +1708,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile state change ongoing - try manually re-plug the SIM card if it stucks.'**
   String get cardStuckRefreshingMessage;
+
+  /// No description provided for @cardNeedsReplugTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-plug the SIM card'**
+  String get cardNeedsReplugTitle;
+
+  /// No description provided for @cardNeedsReplugMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The card will not hand over its eUICC applet, so it cannot be managed right now. Remove the SIM card and insert it again, then try once more.'**
+  String get cardNeedsReplugMessage;
 
   /// No description provided for @activationCodeTitle.
   ///
@@ -3107,6 +3173,24 @@ abstract class AppLocalizations {
   /// **'CERTIFICATE INFRASTRUCTURE'**
   String get certInfrastructure;
 
+  /// No description provided for @configuredAddresses.
+  ///
+  /// In en, this message translates to:
+  /// **'CONFIGURED ADDRESSES'**
+  String get configuredAddresses;
+
+  /// No description provided for @defaultSmdpAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Default SM-DP+'**
+  String get defaultSmdpAddress;
+
+  /// No description provided for @rootDsAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Root SM-DS'**
+  String get rootDsAddress;
+
   /// No description provided for @euiccSignCi.
   ///
   /// In en, this message translates to:
@@ -3767,6 +3851,42 @@ abstract class AppLocalizations {
   /// **'Failed to customize writer: {error}'**
   String customizeFailed(String error);
 
+  /// No description provided for @defaultPasswordWillChangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Default password will change'**
+  String get defaultPasswordWillChangeTitle;
+
+  /// No description provided for @defaultPasswordWillChangeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is connected with its default password. Renaming it will set the password to {password}. Save this password before reconnecting.'**
+  String defaultPasswordWillChangeMessage(String password);
+
+  /// No description provided for @savedBleDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Previously connected BLE devices'**
+  String get savedBleDevices;
+
+  /// No description provided for @savedBleDevicesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View device names and passwords saved on this device'**
+  String get savedBleDevicesSubtitle;
+
+  /// No description provided for @savedBleDevicesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Each entry is a locally saved NBLESim password. Default passwords are saved too.'**
+  String get savedBleDevicesDescription;
+
+  /// No description provided for @noSavedBleDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'No previously connected BLE devices.'**
+  String get noSavedBleDevices;
+
   /// No description provided for @deviceName.
   ///
   /// In en, this message translates to:
@@ -3923,6 +4043,234 @@ abstract class AppLocalizations {
   /// **'Import'**
   String get importAction;
 
+  /// No description provided for @transferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer eSIM'**
+  String get transferTitle;
+
+  /// No description provided for @transferAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer to this device'**
+  String get transferAction;
+
+  /// No description provided for @transferCheckingEligibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking eligibility…'**
+  String get transferCheckingEligibility;
+
+  /// No description provided for @transferReadingSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading source SIM…'**
+  String get transferReadingSource;
+
+  /// No description provided for @transferContactingCarrier.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacting carrier…'**
+  String get transferContactingCarrier;
+
+  /// No description provided for @transferIneligibleReader.
+  ///
+  /// In en, this message translates to:
+  /// **'This profile cannot be transferred on this reader. The source SIM\'s authentication (EAP-AKA) is not reachable here.'**
+  String get transferIneligibleReader;
+
+  /// No description provided for @transferNoEntitlement.
+  ///
+  /// In en, this message translates to:
+  /// **'No carrier transfer configuration was found for this profile. You can enter the entitlement server manually.'**
+  String get transferNoEntitlement;
+
+  /// No description provided for @transferSourceCarrier.
+  ///
+  /// In en, this message translates to:
+  /// **'Source carrier: {carrier}'**
+  String transferSourceCarrier(String carrier);
+
+  /// No description provided for @transferConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer this subscription?'**
+  String get transferConfirmTitle;
+
+  /// No description provided for @transferConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The carrier will re-issue this subscription onto this eUICC. The source profile may be deleted as part of the transfer.'**
+  String get transferConfirmBody;
+
+  /// No description provided for @transferStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start transfer'**
+  String get transferStart;
+
+  /// No description provided for @transferDownloadingProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading transferred profile…'**
+  String get transferDownloadingProfile;
+
+  /// No description provided for @transferDeleteSourceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete source profile'**
+  String get transferDeleteSourceTitle;
+
+  /// No description provided for @transferDeleteSourceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The carrier requires the source profile {iccid} to be deleted before activation. Delete it now?'**
+  String transferDeleteSourceBody(String iccid);
+
+  /// No description provided for @transferDeleteSourceConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete and continue'**
+  String get transferDeleteSourceConfirm;
+
+  /// No description provided for @transferUserInputSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get transferUserInputSubmit;
+
+  /// No description provided for @transferAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get transferAccept;
+
+  /// No description provided for @transferReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get transferReject;
+
+  /// No description provided for @transferPendingActivation.
+  ///
+  /// In en, this message translates to:
+  /// **'The carrier is still activating this subscription. It will finish shortly; you can close this and check again later.'**
+  String get transferPendingActivation;
+
+  /// No description provided for @transferDismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'The carrier dismissed the transfer.'**
+  String get transferDismissed;
+
+  /// No description provided for @transferDelayedDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'The carrier will deliver the profile shortly. Once you have installed it, enter the installed ICCID to finish.'**
+  String get transferDelayedDownload;
+
+  /// No description provided for @transferInstalledIccid.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed ICCID'**
+  String get transferInstalledIccid;
+
+  /// No description provided for @transferSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer complete'**
+  String get transferSuccess;
+
+  /// No description provided for @transferFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer failed: {error}'**
+  String transferFailed(String error);
+
+  /// No description provided for @transferManualServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Entitlement server (advanced)'**
+  String get transferManualServerTitle;
+
+  /// No description provided for @transferManualServerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://entitlement.example.com'**
+  String get transferManualServerHint;
+
+  /// No description provided for @transferEnablingSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing source profile…'**
+  String get transferEnablingSource;
+
+  /// No description provided for @transferClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get transferClose;
+
+  /// No description provided for @transferContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get transferContinue;
+
+  /// No description provided for @transferSmdsDiscovering.
+  ///
+  /// In en, this message translates to:
+  /// **'Discovering profiles via SM-DS…'**
+  String get transferSmdsDiscovering;
+
+  /// No description provided for @transferSmdsNoProfiles.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending profiles were found via SM-DS discovery.'**
+  String get transferSmdsNoProfiles;
+
+  /// No description provided for @transferSelectProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a profile to download'**
+  String get transferSelectProfile;
+
+  /// No description provided for @discoverProfiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover profiles (SM-DS)'**
+  String get discoverProfiles;
+
+  /// No description provided for @discoveringProfiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Discovering profiles…'**
+  String get discoveringProfiles;
+
+  /// No description provided for @discoveryNoProfiles.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending profiles were found via SM-DS discovery.'**
+  String get discoveryNoProfiles;
+
+  /// No description provided for @transferSmdsServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SM-DS server'**
+  String get transferSmdsServerTitle;
+
+  /// No description provided for @transferProfileOnServer.
+  ///
+  /// In en, this message translates to:
+  /// **'{eventId} on {address}'**
+  String transferProfileOnServer(String eventId, String address);
+
+  /// No description provided for @downloadBusyCannotLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait for the current operation to finish.'**
+  String get downloadBusyCannotLeave;
+
   /// No description provided for @qrtrReaderTitle.
   ///
   /// In en, this message translates to:
@@ -3934,18 +4282,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Qualcomm\'s low-level modem protocol (requires Shizuku)'**
   String get qrtrReaderSubtitle;
-
-  /// No description provided for @defaultPasswordWillChangeMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'This device is connected with its default password. Renaming it will set the password to {password}. Save this password before reconnecting.'**
-  String defaultPasswordWillChangeMessage(String password);
-
-  /// No description provided for @defaultPasswordWillChangeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Default password will change'**
-  String get defaultPasswordWillChangeTitle;
 }
 
 class _AppLocalizationsDelegate
