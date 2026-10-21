@@ -39,7 +39,8 @@ class BleReaderInfo {
     String displayName,
     String advertisedName,
   ) {
-    return displayName;
+    final readerName = BleAdapterType.kindOf(type)?.readerName;
+    return readerName?.call(displayName, advertisedName) ?? displayName;
   }
 
   Map<String, dynamic> toJson() => {'id': id, 'name': name, 'type': type.id};
@@ -53,6 +54,14 @@ class BleReaderInfo {
 }
 
 class BleManager extends ChangeNotifier {
+  /// Service UUIDs that identify a reader: the built-in readers' and any a
+  /// plugin's reader kind adds.
+  static List<String> get _scanServiceUuids => [
+    '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+    '0000ae30-0000-1000-8000-00805f9b34fb',
+    for (final kind in BleAdapterType.kinds) ...kind.scanServiceUuids,
+  ];
+
   static final Logger _log = Logger('BleManager');
   static final BleManager _instance = BleManager._internal();
   factory BleManager() => _instance;
@@ -183,18 +192,10 @@ class BleManager extends ChangeNotifier {
 
         // Service UUID filter
         final services = r.advertisementData.serviceUuids;
+        final serviceIds = services.map((s) => s.toString().toLowerCase());
         final matchService =
             services.contains(Guid('4553')) ||
-            services.any(
-              (s) => s.toString().toLowerCase().contains(
-                '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
-              ),
-            ) ||
-            services.any(
-              (s) => s.toString().toLowerCase().contains(
-                '0000ae30-0000-1000-8000-00805f9b34fb',
-              ),
-            );
+            serviceIds.any((id) => _scanServiceUuids.any(id.contains));
 
         return matchService;
       }).toList();
@@ -210,8 +211,7 @@ class BleManager extends ChangeNotifier {
     try {
       final services = [
         Guid('4553'),
-        Guid('6E400001-B5A3-F393-E0A9-E50E24DCCA9E'),
-        Guid('0000ae30-0000-1000-8000-00805f9b34fb'),
+        ..._scanServiceUuids.map(Guid.new),
         // Guid('544b') and Guid('6d65') are characteristics, not services
       ];
 
@@ -219,6 +219,7 @@ class BleManager extends ChangeNotifier {
         'ESTKme',
         'eSIM_Writer',
         'BeeSIM',
+        for (final kind in BleAdapterType.kinds) ...kind.scanKeywords,
         if (!kIsWeb) 'GlocalMe',
         '9eSIM',
       ];

@@ -69,6 +69,22 @@ flutter --version
 echo "Precaching Flutter artifacts..."
 flutter precache --ios --macos --universal
 
+# Prepare Flavor if applicable
+if [ -f "scripts/prepare_flavor.py" ]; then
+    echo "Checking for flavor preparation..."
+    FLAVOR="std"
+    if [ -n "$APP_VARIANT" ]; then
+        FLAVOR="$APP_VARIANT"
+    else
+        case "$CI_XCODE_SCHEME" in
+            *esim9*) FLAVOR="esim9" ;;
+            *sekiu*) FLAVOR="sekiu" ;;
+        esac
+    fi
+    
+    echo "Running prepare_flavor.py with flavor: $FLAVOR"
+    python3 scripts/prepare_flavor.py "$FLAVOR"
+fi
 
 # Install Flutter dependencies
 echo "Getting Flutter dependencies..."

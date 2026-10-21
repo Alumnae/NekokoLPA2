@@ -172,6 +172,5 @@ void main() {
 
       await settings.setVowifiEnabled(false);
     });
-
   });
 }

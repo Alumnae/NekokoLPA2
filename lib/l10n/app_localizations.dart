@@ -1859,6 +1859,30 @@ abstract class AppLocalizations {
   /// **'Loading notifications...'**
   String get loadingNotifications;
 
+  /// No description provided for @vowifi.
+  ///
+  /// In en, this message translates to:
+  /// **'VoWiFi'**
+  String get vowifi;
+
+  /// No description provided for @vowifiSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Experimental; requires a compatible external reader'**
+  String get vowifiSubtitle;
+
+  /// No description provided for @vowifiDisclaimerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable experimental VoWiFi?'**
+  String get vowifiDisclaimerTitle;
+
+  /// No description provided for @vowifiDisclaimerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'VoWiFi is experimental. It communicates directly with your mobile network operator and only works with a compatible external SIM/eSIM reader that supports raw APDUs. Carrier and reader compatibility may vary.'**
+  String get vowifiDisclaimerBody;
+
   /// No description provided for @processing.
   ///
   /// In en, this message translates to:

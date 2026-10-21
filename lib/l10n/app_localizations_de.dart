@@ -977,6 +977,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get loadingNotifications => 'Benachrichtigungen werden geladen...';
 
   @override
+  String get vowifi => 'WLAN-Telefonie';
+
+  @override
+  String get vowifiSubtitle => 'WLAN-Telefonie aktivieren (BETA)';
+
+  @override
+  String get vowifiDisclaimerTitle => 'Experimentelles VoWiFi aktivieren?';
+
+  @override
+  String get vowifiDisclaimerBody =>
+      'VoWiFi ist experimentell. Es kommuniziert direkt mit Ihrem Mobilfunkanbieter und funktioniert nur mit einem kompatiblen externen SIM-/eSIM-Leser, der rohe APDUs unterstützt. Die Kompatibilität von Anbietern und Lesern kann variieren.';
+
+  @override
   String get processing => 'Wird verarbeitet...';
 
   @override

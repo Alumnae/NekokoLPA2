@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../settings/app_settings.dart';
+import '../plugins/plugin_base.dart';
+import '../plugins/plugin_manager.dart';
 import '../theme/app_theme.dart';
 import '../widgets/styled_header_scaffold.dart';
 import 'dart:io' as io;
@@ -311,6 +313,10 @@ class SettingsPage extends StatelessWidget {
                     _buildBleDevicesLink(context, width),
                     if (PlatformX.isAndroid && AppSettings().rootDetected)
                       _buildOtBridgeHintTile(context, width),
+                    for (final toggle in PluginManager().settingsToggles(
+                      context,
+                    ))
+                      _buildPluginToggle(context, width, toggle),
                   ],
                 ),
                 _buildSection(
@@ -1580,6 +1586,41 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  Widget _buildPluginToggle(
+    BuildContext context,
+    double screenWidth,
+    PluginSettingsToggle toggle,
+  ) {
+    return _buildResponsiveTile(
+      context,
+      screenWidth: screenWidth,
+      icon: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: toggle.color.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(toggle.icon, size: 20, color: toggle.color),
+      ),
+      title: toggle.title,
+      subtitle: toggle.subtitle,
+      child: _buildCustomSwitch(
+        context,
+        toggle.value,
+        (value) => _applyPluginToggle(context, toggle, value),
+      ),
+      onTap: () => _applyPluginToggle(context, toggle, !toggle.value),
+    );
+  }
+
+  Future<void> _applyPluginToggle(
+    BuildContext context,
+    PluginSettingsToggle toggle,
+    bool enabled,
+  ) async {
+    // The page rebuilds from the settings the plugin changes.
+    await toggle.onChanged(context, enabled);
+  }
 
   Widget _buildUpdateCheckSwitcher(BuildContext context, double screenWidth) {
     final l10n = AppLocalizations.of(context)!;

@@ -967,6 +967,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadingNotifications => 'Loading notifications...';
 
   @override
+  String get vowifi => 'VoWiFi';
+
+  @override
+  String get vowifiSubtitle =>
+      'Experimental; requires a compatible external reader';
+
+  @override
+  String get vowifiDisclaimerTitle => 'Enable experimental VoWiFi?';
+
+  @override
+  String get vowifiDisclaimerBody =>
+      'VoWiFi is experimental. It communicates directly with your mobile network operator and only works with a compatible external SIM/eSIM reader that supports raw APDUs. Carrier and reader compatibility may vary.';
+
+  @override
   String get processing => 'Processing...';
 
   @override

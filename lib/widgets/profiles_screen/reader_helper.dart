@@ -10,6 +10,7 @@ class ReaderHelper {
     BleAdapterType.nineEsim => Icons.filter_9_rounded,
     BleAdapterType.beeSim => Icons.hive_outlined,
     BleAdapterType.simLink => Icons.link_rounded,
+    _ => BleAdapterType.kindOf(type)?.icon ?? Icons.bluetooth_rounded,
   };
 
   static IconData getIconData(String? reader) {

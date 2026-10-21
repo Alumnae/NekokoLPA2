@@ -911,6 +911,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loadingNotifications => '正在加载通知...';
 
   @override
+  String get vowifi => 'VoWiFi';
+
+  @override
+  String get vowifiSubtitle => '实验性功能；需要兼容的外置读卡器';
+
+  @override
+  String get vowifiDisclaimerTitle => '启用实验性 VoWiFi？';
+
+  @override
+  String get vowifiDisclaimerBody =>
+      'VoWiFi 为实验性功能。它会直接与您的移动网络运营商通信，且仅支持兼容原始 APDU 的外置 SIM/eSIM 读卡器。运营商与读卡器的兼容性可能有所不同。';
+
+  @override
   String get processing => '处理中...';
 
   @override
@@ -3078,6 +3091,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get loadingNotifications => '正在加載通知...';
+
+  @override
+  String get vowifi => 'VoWiFi';
+
+  @override
+  String get vowifiSubtitle => '實驗性功能；需要相容的外接讀卡機';
+
+  @override
+  String get vowifiDisclaimerTitle => '啟用實驗性 VoWiFi？';
+
+  @override
+  String get vowifiDisclaimerBody =>
+      'VoWiFi 為實驗性功能。它會直接與您的行動網路電信商通訊，且僅支援相容原始 APDU 的外接 SIM/eSIM 讀卡機。電信商與讀卡機的相容性可能有所不同。';
 
   @override
   String get processing => '處理中...';

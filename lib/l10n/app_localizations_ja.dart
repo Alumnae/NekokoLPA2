@@ -927,6 +927,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loadingNotifications => '通知を読み込み中...';
 
   @override
+  String get vowifi => 'VoWiFi';
+
+  @override
+  String get vowifiSubtitle => 'Wi-Fi 通話を有効化します (Beta)';
+
+  @override
+  String get vowifiDisclaimerTitle => '実験的な VoWiFi を有効にしますか？';
+
+  @override
+  String get vowifiDisclaimerBody =>
+      'VoWiFi は実験的な機能です。お使いの携帯電話事業者と直接通信し、生の APDU に対応した互換性のある外付け SIM/eSIM リーダーでのみ動作します。事業者やリーダーによって互換性は異なります。';
+
+  @override
   String get processing => '処理中...';
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../adapter/ble/ble_adapter.dart';
 import '../adapter/euicc_adapter.dart';
 import '../logic/profile_manager.dart';
 import '../logic/profile_download_session.dart';
@@ -55,6 +56,17 @@ abstract class ProfilePlugin {
   /// Provide routes for plugin-specific pages.
   Map<String, WidgetBuilder> get routes => {};
 
+  /// Bluetooth reader kinds this plugin adds; registered at startup, before
+  /// any scan or reader restore.
+  List<BleReaderKind> get bleReaderKinds => const [];
+
+  /// Switches this plugin adds to the reader settings.
+  List<PluginSettingsToggle> settingsToggles(BuildContext context) => const [];
+
+  /// Reads a plain (non-eUICC) SIM's identity, for showing which operator an
+  /// unsupported card belongs to. Null when this plugin cannot.
+  Future<SimIdentity?> probeSim(Adapter adapter, Reader reader) async => null;
+
   /// Get a list of actions (e.g., menu items) for a profile.
   ///
   /// [actionContext], when provided, exposes the live adapter/reader/manager so
@@ -88,6 +100,44 @@ class AppTabSpec {
     required this.activeIcon,
     required this.builder,
   });
+}
+
+/// A switch a plugin adds to the reader settings.
+class PluginSettingsToggle {
+  const PluginSettingsToggle({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final bool value;
+
+  /// Called with the state the user asked for; the plugin may confirm first.
+  final Future<void> Function(BuildContext context, bool enabled) onChanged;
+}
+
+/// What a plugin read from a plain SIM's own files.
+class SimIdentity {
+  const SimIdentity({
+    required this.iccid,
+    required this.imsi,
+    required this.mncLength,
+    required this.gid1,
+    required this.gid2,
+  });
+
+  final String iccid;
+  final String imsi;
+  final int mncLength;
+  final String gid1;
+  final String gid2;
 }
 
 class ReaderActionContext {

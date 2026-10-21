@@ -938,12 +938,60 @@ class _ProfilesScreenState extends State<ProfilesScreen>
     if (_isOmapi(reader) || _isTmapi(reader)) {
       return null;
     }
-    // Reading the SIM's own files goes through the VoWiFi SIM service, which
-    // is private; without it an unsupported card shows no operator details.
-    _UnsupportedCardProbe? probe;
-    return probe;
-  }
+    try {
+      // A plugin reads the SIM's own files; with none that can, an unsupported
+      // card shows no operator details.
+      final info = await PluginManager().probeSim(_adapter, reader);
+      if (info == null) return null;
+      final imsi = info.imsi.trim();
+      final mncLength = info.mncLength == 3 ? 3 : 2;
+      String? mcc;
+      String? mnc;
+      if (imsi.length >= 3 + mncLength) {
+        mcc = imsi.substring(0, 3);
+        mnc = imsi.substring(3, 3 + mncLength);
+      }
 
+      String? operatorIconBase64;
+      if (mcc != null && mnc != null) {
+        await OperatorIconService().fetchMissingIcons([
+          <String, dynamic>{
+            'mcc': mcc,
+            'mnc': mnc,
+            'gid1': info.gid1.isEmpty ? null : info.gid1,
+            'gid2': info.gid2.isEmpty ? null : info.gid2,
+            'profileName': info.iccid.isNotEmpty ? info.iccid : reader.name,
+          },
+        ]);
+        await Future.delayed(const Duration(milliseconds: 800));
+        operatorIconBase64 = await OperatorIconService().getIcon(
+          mcc: mcc,
+          mnc: mnc,
+          gid1: info.gid1.isEmpty ? null : info.gid1,
+          gid2: info.gid2.isEmpty ? null : info.gid2,
+        );
+      }
+
+      final details = <String>[
+        if (info.iccid.isNotEmpty) 'ICCID: ${info.iccid}',
+        if (info.imsi.isNotEmpty) 'IMSI: ${info.imsi}',
+        if (mcc != null && mnc != null) 'PLMN: $mcc-$mnc',
+        if (info.gid1.isNotEmpty) 'GID1: ${info.gid1}',
+        if (info.gid2.isNotEmpty) 'GID2: ${info.gid2}',
+      ].join('\n');
+
+      if (details.isEmpty && operatorIconBase64 == null) {
+        return null;
+      }
+      return _UnsupportedCardProbe(
+        operatorIconBase64: operatorIconBase64,
+        details: details.isEmpty ? null : details,
+      );
+    } catch (error) {
+      _log.info('Unsupported-card SIM probe failed for ${reader.name}: $error');
+      return null;
+    }
+  }
 
   Future<void> _loadReaders({
     bool skipLoading = false,

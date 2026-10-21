@@ -970,6 +970,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loadingNotifications => 'Загрузка уведомлений…';
 
   @override
+  String get vowifi => 'VoWiFi';
+
+  @override
+  String get vowifiSubtitle =>
+      'Экспериментально; требуется совместимый внешний считыватель';
+
+  @override
+  String get vowifiDisclaimerTitle => 'Включить экспериментальный VoWiFi?';
+
+  @override
+  String get vowifiDisclaimerBody =>
+      'VoWiFi — экспериментальная функция. Она напрямую взаимодействует с вашим мобильным оператором и работает только с совместимым внешним считывателем SIM/eSIM, поддерживающим сырые APDU. Совместимость с оператором и считывателем может отличаться.';
+
+  @override
   String get processing => 'Обработка…';
 
   @override

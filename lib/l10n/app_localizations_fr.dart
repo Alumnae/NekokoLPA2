@@ -978,6 +978,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loadingNotifications => 'Chargement des notifications...';
 
   @override
+  String get vowifi => 'VoWiFi';
+
+  @override
+  String get vowifiSubtitle =>
+      'Expérimental ; nécessite un lecteur externe compatible';
+
+  @override
+  String get vowifiDisclaimerTitle => 'Activer la VoWiFi expérimentale ?';
+
+  @override
+  String get vowifiDisclaimerBody =>
+      'La VoWiFi est expérimentale. Elle communique directement avec votre opérateur mobile et ne fonctionne qu\'avec un lecteur SIM/eSIM externe compatible prenant en charge les APDU brutes. La compatibilité des opérateurs et des lecteurs peut varier.';
+
+  @override
   String get processing => 'Traitement...';
 
   @override

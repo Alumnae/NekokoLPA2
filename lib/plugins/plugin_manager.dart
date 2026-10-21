@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'plugin_base.dart';
+import '../adapter/ble/ble_adapter.dart';
+import '../adapter/euicc_adapter.dart';
 import 'build_plugin_registry.dart';
 import '../models/euicc_profile.dart';
 import '../models/profile_card_bottom_data.dart';
@@ -28,6 +30,22 @@ class PluginManager extends ChangeNotifier {
     _plugins
       ..clear()
       ..addAll(BuildPluginRegistry.createPlugins().where(_isPluginAvailable));
+    for (final plugin in _plugins) {
+      plugin.bleReaderKinds.forEach(BleAdapterType.register);
+    }
+  }
+
+  List<PluginSettingsToggle> settingsToggles(BuildContext context) => [
+    for (final plugin in _availablePlugins) ...plugin.settingsToggles(context),
+  ];
+
+  /// The first identity any plugin can read from a plain SIM, or null.
+  Future<SimIdentity?> probeSim(Adapter adapter, Reader reader) async {
+    for (final plugin in _availablePlugins) {
+      final identity = await plugin.probeSim(adapter, reader);
+      if (identity != null) return identity;
+    }
+    return null;
   }
 
   bool hasPlugin(String id) =>

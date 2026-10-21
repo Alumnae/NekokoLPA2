@@ -9,6 +9,13 @@ project(runner LANGUAGES CXX)
 # Default resource file
 set(RESOURCE_FILE "Runner.rc")
 
+# Check for dart defines or other compile definitions to switch resource file
+# Note: CMake doesn't directly see dart-defines. We usually pass custom flags.
+# However, we can use a separate approach or environment variable.
+if(DEFINED ENV{ESIM9_BUILD})
+    set(RESOURCE_FILE "Runner_esim9.rc")
+    add_compile_definitions(ESIM9_BUILD=1)
+endif()
 
 add_executable(${BINARY_NAME} WIN32
   "flutter_window.cpp"

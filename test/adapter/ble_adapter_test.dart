@@ -86,7 +86,6 @@ void main() {
         );
       }
     });
-
   });
 
   group('BLE reader presentation', () {
@@ -122,6 +121,4 @@ void main() {
     expect(info.readerName, 'nine_esim: 9eSIM123456|device');
     expect(info.toJson()['type'], 'nine_esim');
   });
-
 }
-

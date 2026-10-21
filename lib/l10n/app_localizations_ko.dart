@@ -925,6 +925,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loadingNotifications => '알림 로드 중...';
 
   @override
+  String get vowifi => 'VoWiFi';
+
+  @override
+  String get vowifiSubtitle => '실험적 기능이며, 호환되는 외장 리더가 필요합니다';
+
+  @override
+  String get vowifiDisclaimerTitle => '실험적 VoWiFi를 활성화할까요?';
+
+  @override
+  String get vowifiDisclaimerBody =>
+      'VoWiFi는 실험적 기능입니다. 이동통신사와 직접 통신하며, 원시 APDU를 지원하는 호환 외장 SIM/eSIM 리더에서만 작동합니다. 통신사와 리더에 따라 호환성이 다를 수 있습니다.';
+
+  @override
   String get processing => '처리 중...';
 
   @override

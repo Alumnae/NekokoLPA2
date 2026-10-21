@@ -68,6 +68,7 @@ class CompositeAdapter extends BaseAdapter {
     BleAdapterType.glocalMe || BleAdapterType.nineEsim => NBLESimAdapter(),
     BleAdapterType.beeSim => BeeSimAdapter(),
     BleAdapterType.simLink => SimLinkAdapter(),
+    _ => BleAdapterType.kindOf(type)?.createAdapter() ?? RedBleAdapter(),
   };
 
   final StreamController<EuiccPortState> _stateController =
