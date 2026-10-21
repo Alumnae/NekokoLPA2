@@ -5,22 +5,28 @@ const String defaultDeviceTac = '35383741';
 
 /// Converts the app's ordinary digit-order IMEI bytes into the swapped BCD
 /// encoding used by GSMA deviceInfo.imei.
+///
+/// Eight octets that spell no IMEI are a non-standard value the caller chose
+/// deliberately, and they are already the deviceInfo.imei field: pass them
+/// through untouched instead of nibble-swapping bytes that hold no digits.
 Uint8List encodeDeviceInfoImei(List<int> imei) {
   final digits = _imeiDigitsFromStoredOrIntegerBytes(imei);
+  if (digits == null) {
+    return Uint8List.fromList(imei);
+  }
   return _encodeSwappedBcd(digits);
 }
 
-/// Signing callers historically supplied an IMEI either as persisted BCD or
-/// as the big-endian bytes of one unsigned 64-bit decimal value. Normalize at
-/// the final deviceInfo boundary as well as in the JavaScript bridge so neither
-/// representation can leak a hexadecimal nibble into the IMEI encoder.
-String _imeiDigitsFromStoredOrIntegerBytes(List<int> imei) {
+/// Signing callers supply an IMEI either as persisted BCD or as the big-endian
+/// bytes of one unsigned 64-bit decimal value. Normalize at the final
+/// deviceInfo boundary as well as in the JavaScript bridge so neither
+/// representation can leak a hexadecimal nibble into the IMEI encoder. Returns
+/// null when the octets are neither, which marks a non-standard IMEI.
+String? _imeiDigitsFromStoredOrIntegerBytes(List<int> imei) {
   try {
     return imeiDigitsFromStoredBytes(imei);
   } on FormatException {
-    final digits = _imeiDigitsFromUnsignedIntegerBytes(imei);
-    if (digits == null) rethrow;
-    return digits;
+    return _imeiDigitsFromUnsignedIntegerBytes(imei);
   }
 }
 
@@ -39,9 +45,12 @@ String? _imeiDigitsFromUnsignedIntegerBytes(List<int> imei) {
 
 /// Normalizes the two 32-bit values used by the signing bridge.
 ///
-/// Older callers pass packed BCD bytes split into two integers, while newer
-/// callers may split an ordinary 15-digit IMEI as one unsigned 64-bit integer.
-/// Accept both representations at this API boundary.
+/// Older callers pass packed BCD bytes split into two integers, newer callers
+/// may split an ordinary 15-digit IMEI as one unsigned 64-bit integer, and
+/// eUICC verification flows pass a non-standard IMEI that is nothing but a
+/// pair of 32-bit values. Accept all three at this API boundary: an eUICC
+/// signs whichever eight octets deviceInfo carries, so a pair that spells no
+/// IMEI is the caller's choice rather than an error to reject.
 Uint8List storedImeiBytesFromIntegerParts(int high, int low) {
   final normalizedHigh = high & 0xffffffff;
   final normalizedLow = low & 0xffffffff;
@@ -55,17 +64,16 @@ Uint8List storedImeiBytesFromIntegerParts(int high, int low) {
     return packed;
   } on FormatException {
     final digits = _imeiDigitsFromUnsignedIntegerBytes(packed);
-    if (digits == null) {
-      throw FormatException(
-        'IMEI integer must contain exactly 15 decimal digits',
-      );
-    }
-    return _encodeStoredBytes(digits);
+    return digits == null ? packed : _encodeStoredBytes(digits);
   }
 }
 
-/// Accepts either an ordinary 8-digit TAC integer or a legacy packed-BCD
-/// integer and returns the four bytes expected by deviceInfo.tac.
+/// Returns the four bytes of deviceInfo.tac for a TAC from the signing bridge.
+///
+/// An ordinary 8-digit decimal integer is encoded as BCD. Any other value is
+/// the big-endian bytes of one 32-bit integer: a legacy packed-BCD TAC, or a
+/// non-standard TAC from an eUICC verification flow, which the eUICC signs as
+/// readily as a real one and so is passed through rather than rejected.
 Uint8List tacBytesFromInteger(int value) {
   final decimal = value.toString();
   if (RegExp(r'^[0-9]{8}$').hasMatch(decimal)) {
@@ -80,13 +88,7 @@ Uint8List tacBytesFromInteger(int value) {
 
   final normalized = value & 0xffffffff;
   final bytes = ByteData(4)..setUint32(0, normalized, Endian.big);
-  final packed = bytes.buffer.asUint8List();
-  for (final byte in packed) {
-    if ((byte >> 4) > 9 || (byte & 0x0f) > 9) {
-      throw FormatException('TAC must contain exactly 8 decimal digits');
-    }
-  }
-  return packed;
+  return bytes.buffer.asUint8List();
 }
 
 /// Reads IMEI digits from the app's persisted byte format.

@@ -79,10 +79,51 @@ void main() {
     expect(imeiDigitsFromStoredBytes(stored), '353837410000013');
   });
 
+  test('passes a non-standard IMEI integer pair through untouched', () {
+    // eUICC verification flows hand over a pair that spells no 15-digit IMEI,
+    // here the GSMA swapped-BCD encoding with its 0xF filler nibble. Those
+    // eight octets are already deviceInfo.imei and must reach the card as-is.
+    final stored = storedImeiBytesFromIntegerParts(0x53837314, 0x000010F3);
+    final expected = Uint8List.fromList([
+      0x53,
+      0x83,
+      0x73,
+      0x14,
+      0x00,
+      0x00,
+      0x10,
+      0xf3,
+    ]);
+
+    expect(stored, expected);
+    expect(encodeDeviceInfoImei(stored), expected);
+  });
+
+  test('masks signed integer parts of a non-standard IMEI', () {
+    final stored = storedImeiBytesFromIntegerParts(-1, 0);
+
+    expect(
+      stored,
+      Uint8List.fromList([0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00]),
+    );
+    expect(encodeDeviceInfoImei(stored), stored);
+  });
+
   test('normalizes decimal and packed BCD TAC integers', () {
     final expected = Uint8List.fromList([0x35, 0x38, 0x37, 0x41]);
 
     expect(tacBytesFromInteger(35383741), expected);
     expect(tacBytesFromInteger(0x35383741), expected);
+  });
+
+  test('passes a non-standard TAC integer through untouched', () {
+    expect(
+      tacBytesFromInteger(0x1234abcd),
+      Uint8List.fromList([0x12, 0x34, 0xab, 0xcd]),
+    );
+    expect(
+      tacBytesFromInteger(-1),
+      Uint8List.fromList([0xff, 0xff, 0xff, 0xff]),
+    );
   });
 }
