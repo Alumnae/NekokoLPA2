@@ -1,8 +1,12 @@
 // ignore_for_file: unused_element
+import 'dart:io';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'db_init_native.dart' if (dart.library.js_interop) 'db_init_web.dart';
+import 'database_transfer_service.dart';
 import '../utils/platform_adapter.dart';
 import 'package:logging/logging.dart';
 
@@ -1009,39 +1013,49 @@ class DatabaseService {
     _profileSizeCache.clear();
   }
 
-  Future<void> importDatabase(String path) async {
-    final factory = await initDb();
-    final externalDb = await (factory ?? databaseFactory).openDatabase(path);
-    final db = await database;
+  Future<Uint8List> exportDatabase() async {
+    return DatabaseTransferService.createSnapshot(await database);
+  }
 
-    final tables = [
-      'notifications',
-      'profile_storage',
-      'profile_metadata',
-      'profile_msisdn',
-      'operator_icons',
-      'card_status_cache',
-      'remote_servers',
-      'scheduled_notifications',
-    ];
+  Future<void> importDatabaseBytes(Uint8List bytes) async {
+    final temporaryDirectory = await getTemporaryDirectory();
+    final temporaryFile = File(
+      join(
+        temporaryDirectory.path,
+        'nekokolpa2_import_${DateTime.now().microsecondsSinceEpoch}.db',
+      ),
+    );
 
-    for (var table in tables) {
+    try {
+      await temporaryFile.writeAsBytes(bytes, flush: true);
+      await importDatabase(temporaryFile.path);
+    } finally {
       try {
-        final rows = await externalDb.query(table);
-        if (kDebugMode) _log.info('Importing ${rows.length} rows from $table');
-        for (var row in rows) {
-          await db.insert(
-            table,
-            row,
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
-        }
+        if (await temporaryFile.exists()) await temporaryFile.delete();
       } catch (e) {
-        _log.warning('Failed to import table $table: $e');
+        _log.warning('Failed to remove temporary database import: $e');
       }
     }
+  }
 
-    await externalDb.close();
-    _profileSizeCache.clear();
+  Future<void> importDatabase(String path) async {
+    final factory = await initDb();
+    Database? externalDb;
+    try {
+      externalDb = await (factory ?? databaseFactory).openDatabase(
+        path,
+        options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
+      );
+      final importedRows = await DatabaseTransferService.merge(
+        source: externalDb,
+        target: await database,
+      );
+      if (kDebugMode) {
+        _log.info('Imported $importedRows database rows from $path');
+      }
+      _profileSizeCache.clear();
+    } finally {
+      await externalDb?.close();
+    }
   }
 }

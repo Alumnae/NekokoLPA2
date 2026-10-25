@@ -1175,36 +1175,31 @@ class SettingsPage extends StatelessWidget {
       ),
       onTap: () async {
         try {
-          final dbPath = await DatabaseService().getDatabasePath();
-          final dbFile = io.File(dbPath);
+          final bytes = await DatabaseService().exportDatabase();
+          final String timestamp = DateTime.now()
+              .toIso8601String()
+              .replaceAll(':', '-')
+              .split('.')
+              .first;
+          final fileName = 'kasutera_backup_$timestamp.db';
+          final outputPath = await FilePicker.platform.saveFile(
+            dialogTitle: l10n.exportDatabase,
+            fileName: fileName,
+            type: FileType.custom,
+            allowedExtensions: const ['db'],
+            bytes: PlatformX.isMobile ? bytes : null,
+          );
 
-          if (!dbFile.existsSync()) {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Database file not found.")),
-              );
+          if (outputPath != null) {
+            // Mobile file providers consume [bytes] themselves. Desktop
+            // pickers return a normal path and leave writing to the app.
+            if (!PlatformX.isMobile) {
+              await io.File(outputPath).writeAsBytes(bytes, flush: true);
             }
-            return;
-          }
-
-          final String? selectedDirectory = await FilePicker.platform
-              .getDirectoryPath(
-                dialogTitle: "Select folder to export database",
-              );
-
-          if (selectedDirectory != null) {
-            final String timestamp = DateTime.now()
-                .toIso8601String()
-                .replaceAll(':', '-')
-                .split('.')
-                .first;
-            final String newPath =
-                '$selectedDirectory/kasutera_backup_$timestamp.db';
-            await dbFile.copy(newPath);
 
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.exportSuccess(newPath))),
+                SnackBar(content: Text(l10n.exportSuccess(outputPath))),
               );
             }
           }
@@ -1247,10 +1242,11 @@ class SettingsPage extends StatelessWidget {
           final result = await FilePicker.platform.pickFiles(
             type: FileType.any,
             dialogTitle: l10n.importDatabaseDialogTitle,
+            withData: PlatformX.isMobile,
           );
 
-          if (result != null && result.files.single.path != null) {
-            final path = result.files.single.path!;
+          if (result != null) {
+            final selectedFile = result.files.single;
             if (context.mounted) {
               final confirmed = await showDialog<bool>(
                 context: context,
@@ -1270,7 +1266,22 @@ class SettingsPage extends StatelessWidget {
                 ),
               );
               if (confirmed == true) {
-                await DatabaseService().importDatabase(path);
+                if (PlatformX.isMobile) {
+                  final selectedPath = selectedFile.path;
+                  final bytes = selectedFile.bytes ??
+                      (selectedPath == null
+                          ? throw StateError(
+                              'The selected file has no readable data.',
+                            )
+                          : await io.File(selectedPath).readAsBytes());
+                  await DatabaseService().importDatabaseBytes(bytes);
+                } else {
+                  final selectedPath = selectedFile.path;
+                  if (selectedPath == null) {
+                    throw StateError('The selected file has no readable path.');
+                  }
+                  await DatabaseService().importDatabase(selectedPath);
+                }
                 if (context.mounted) {
                   ScaffoldMessenger.of(
                     context,
