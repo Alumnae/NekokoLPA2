@@ -11,5 +11,6 @@ class MainActivity : FlutterActivity() {
         flutterEngine.plugins.add(TelephonyPlugin())
         flutterEngine.plugins.add(CertificatePlugin())
         flutterEngine.plugins.add(QrtrPlugin())
+        flutterEngine.plugins.add(AdbBridgePlugin())
     }
 }

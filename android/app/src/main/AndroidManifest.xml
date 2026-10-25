@@ -72,6 +72,16 @@
             android:exported="true"
             android:multiprocess="false"
             android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+        <!-- A helper started over ADB hands its binder to the app through this
+             provider. It is exported because that helper is not the app, but
+             the register call only accepts the shell user; see
+             AdbBridgeProvider. -->
+        <provider
+            android:name=".AdbBridgeProvider"
+            android:authorities="${applicationId}.adbbridge"
+            android:enabled="true"
+            android:exported="true" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

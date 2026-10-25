@@ -13,6 +13,7 @@ import 'ble/nble_sim_adapter.dart';
 import 'ble/bee_sim_adapter.dart';
 import 'ble/ble_manager.dart';
 import 'nbridge/nbridge_adapter.dart';
+import 'adb_bridge/adb_bridge_adapter.dart';
 import 'omapi/omapi_adapter.dart';
 import 'telephony/telephony_adapter.dart';
 import 'scrp/scrp_adapter.dart';
@@ -41,6 +42,7 @@ class CompositeAdapter extends BaseAdapter {
   final CcidAdapter _ccidAdapter = CcidAdapter();
   final WebCardAdapter _webCardAdapter = WebCardAdapter();
   final NBridgeAdapter _nbridgeAdapter = NBridgeAdapter();
+  final AdbBridgeAdapter _adbBridgeAdapter = AdbBridgeAdapter();
   final OmapiAdapter _omapiAdapter = OmapiAdapter();
   final TelephonyAdapter _telephonyAdapter = TelephonyAdapter();
   final ScrpAdapter _scrpAdapter = ScrpAdapter();
@@ -225,6 +227,15 @@ class CompositeAdapter extends BaseAdapter {
       }
     }
 
+    // 5b. ADB-bridge-backed access, when a shell helper is connected
+    if (PlatformX.isAndroid && await _adbBridgeAdapter.isAvailable()) {
+      try {
+        addReaders(await _adbBridgeAdapter.listReaders(force: force));
+      } catch (e) {
+        _log.warning('Failed to list ADB bridge readers: $e');
+      }
+    }
+
     // 6. Built-in OMAPI
     if (PlatformX.isAndroid && AppSettings().enableOmapiConnector) {
       try {
@@ -335,6 +346,7 @@ class CompositeAdapter extends BaseAdapter {
 
   bool _isLocalAndroidEuiccReader(Reader reader) {
     return reader.source is NBridgeAdapter ||
+        reader.source is AdbBridgeAdapter ||
         reader.source is OmapiAdapter ||
         reader.source is TelephonyAdapter;
   }

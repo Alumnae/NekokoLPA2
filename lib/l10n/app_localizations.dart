@@ -5404,6 +5404,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'SIM status {status}'**
   String voWifiSimStatus(String status);
+
+  /// No description provided for @adbBridgeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect using computer'**
+  String get adbBridgeTitle;
+
+  /// No description provided for @adbBridgeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach the card over a one-time ADB session — no root, no Shizuku'**
+  String get adbBridgeSubtitle;
+
+  /// No description provided for @adbBridgeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening a channel to the card needs a caller the system trusts, which the app is not. The shell user is, and a computer can start a helper as shell over ADB.\n\nWith the phone plugged in and USB debugging on, open the connection, copy the command, and run it on the computer while the timer is going. Keep that terminal open — closing it ends the session. Reconnect after a reboot or an app update.'**
+  String get adbBridgeDescription;
+
+  /// No description provided for @adbBridgeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start connection'**
+  String get adbBridgeStart;
+
+  /// No description provided for @adbBridgeRestart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start connection again'**
+  String get adbBridgeRestart;
+
+  /// No description provided for @adbBridgeDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get adbBridgeDisconnect;
+
+  /// No description provided for @adbBridgeCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy ADB command'**
+  String get adbBridgeCopy;
+
+  /// No description provided for @adbBridgeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Command copied'**
+  String get adbBridgeCopied;
+
+  /// No description provided for @adbBridgeConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get adbBridgeConnected;
+
+  /// No description provided for @adbBridgeWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the computer…'**
+  String get adbBridgeWaiting;
+
+  /// No description provided for @adbBridgeDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get adbBridgeDisconnected;
+
+  /// No description provided for @adbBridgeWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Run the command within {seconds}s.'**
+  String adbBridgeWindow(int seconds);
 }
 
 class _AppLocalizationsDelegate

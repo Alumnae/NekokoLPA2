@@ -2948,4 +2948,44 @@ class AppLocalizationsDe extends AppLocalizations {
   String voWifiSimStatus(String status) {
     return 'SIM status $status';
   }
+
+  @override
+  String get adbBridgeTitle => 'Connect using computer';
+
+  @override
+  String get adbBridgeSubtitle =>
+      'Reach the card over a one-time ADB session — no root, no Shizuku';
+
+  @override
+  String get adbBridgeDescription =>
+      'Opening a channel to the card needs a caller the system trusts, which the app is not. The shell user is, and a computer can start a helper as shell over ADB.\n\nWith the phone plugged in and USB debugging on, open the connection, copy the command, and run it on the computer while the timer is going. Keep that terminal open — closing it ends the session. Reconnect after a reboot or an app update.';
+
+  @override
+  String get adbBridgeStart => 'Start connection';
+
+  @override
+  String get adbBridgeRestart => 'Start connection again';
+
+  @override
+  String get adbBridgeDisconnect => 'Disconnect';
+
+  @override
+  String get adbBridgeCopy => 'Copy ADB command';
+
+  @override
+  String get adbBridgeCopied => 'Command copied';
+
+  @override
+  String get adbBridgeConnected => 'Connected';
+
+  @override
+  String get adbBridgeWaiting => 'Waiting for the computer…';
+
+  @override
+  String get adbBridgeDisconnected => 'Not connected';
+
+  @override
+  String adbBridgeWindow(int seconds) {
+    return 'Run the command within ${seconds}s.';
+  }
 }

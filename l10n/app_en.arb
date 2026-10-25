@@ -1102,5 +1102,24 @@
         "type": "String"
       }
     }
+  },
+  "adbBridgeTitle": "Connect using computer",
+  "adbBridgeSubtitle": "Reach the card over a one-time ADB session — no root, no Shizuku",
+  "adbBridgeDescription": "Opening a channel to the card needs a caller the system trusts, which the app is not. The shell user is, and a computer can start a helper as shell over ADB.\n\nWith the phone plugged in and USB debugging on, open the connection, copy the command, and run it on the computer while the timer is going. Keep that terminal open — closing it ends the session. Reconnect after a reboot or an app update.",
+  "adbBridgeStart": "Start connection",
+  "adbBridgeRestart": "Start connection again",
+  "adbBridgeDisconnect": "Disconnect",
+  "adbBridgeCopy": "Copy ADB command",
+  "adbBridgeCopied": "Command copied",
+  "adbBridgeConnected": "Connected",
+  "adbBridgeWaiting": "Waiting for the computer…",
+  "adbBridgeDisconnected": "Not connected",
+  "adbBridgeWindow": "Run the command within {seconds}s.",
+  "@adbBridgeWindow": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   }
 }
