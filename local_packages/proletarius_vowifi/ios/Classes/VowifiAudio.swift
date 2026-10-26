@@ -99,7 +99,9 @@ final class VowifiAudio {
         let session = AVAudioSession.sharedInstance()
         // HFP supports simultaneous microphone/playback. Do not force the
         // loudspeaker or A2DP, which would disrupt receiver/headset routing.
-        try session.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetoothHFP])
+        // `.allowBluetooth` is the SDK-compatible spelling for the HFP
+        // route on the app's iOS 15.6 minimum deployment target.
+        try session.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetooth])
         try session.setPreferredSampleRate(48_000)
         try session.setPreferredIOBufferDuration(0.02)
     }
