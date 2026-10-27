@@ -74,7 +74,9 @@ dependencies:
 
   collection: ^1.19.1
   convert: ^3.1.2
-  device_info_plus: ^12.4.0
+  # 12.4.0 requires the iOS 26.1 SDK, which is newer than the SDK on the
+  # macOS 15 CI runner. Keep the last version that supports the current runner.
+  device_info_plus: 12.3.0
   xml: ^6.5.0
   rust_lib_nlpa2:
     path: rust_builder
